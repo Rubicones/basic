@@ -1,4 +1,7 @@
 import photos from "./photos.json";
+import demoPhotos from "./demo-photos.json";
+import { env } from "@/lib/env";
+import { PRODUCTS } from "./products";
 
 /**
  * Photo filenames carry a hash of their own bytes.
@@ -10,7 +13,21 @@ import photos from "./photos.json";
  */
 const PHOTOS = photos as Record<string, { file: string; blur: string }>;
 
+const DEMO = demoPhotos as Record<string, { file: string; blur: string }>;
+
+/**
+ * Six pictures across eighteen products, assigned by position in the catalogue
+ * rather than by hashing the slug: a cycle guarantees that no two cards sitting
+ * next to each other show the same dessert, which a hash does not.
+ */
+function demoFor(slug: string) {
+  const index = PRODUCTS.findIndex((product) => product.slug === slug);
+  const photo = DEMO[`dessert-${((index < 0 ? 0 : index) % 6) + 1}`];
+  return { src: `/products/demo/${photo?.file ?? ""}`, blurDataURL: photo?.blur };
+}
+
 export function photoFor(slug: string) {
+  if (env.catalogDemoPhotos) return demoFor(slug);
   const photo = PHOTOS[slug];
   return { src: `/products/${photo?.file ?? ""}`, blurDataURL: photo?.blur };
 }

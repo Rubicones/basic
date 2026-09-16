@@ -222,3 +222,58 @@ misalignment rather than as variety.
 
 "Whole cake" became "Whole" on the segment. The label had to survive a 70px segment in
 three languages, and the second word was carrying no information the first did not.
+
+### Third pass
+
+**Weight left the product name.** "Medovik, whole cake 2.5 kg" is a name with a
+measurement bolted on; the two napoleons then differed only by that bolt. It is a
+field now — `weightG` — shown where a weight belongs, and the two cakes are told
+apart by it rather than by their titles.
+
+**Nutrition and weight are mocked**, in a table of their own (`FACTS`) rather than
+inside the rows, so replacing them with real numbers is one object to edit. The sheet
+says out loud that they are provisional: a declaration goes out with every delivery,
+and these are plausible figures for the kind of thing each product is, not
+measurements. Macros keep one decimal — rounding 5.8 g of protein to 6 is the
+difference between a figure and a shrug.
+
+**Storage is colour-coded.** This is the one place the single-hue palette did not say
+enough: a venue scanning the grid is sorting by "does this need my fridge", and three
+shades of clay cannot answer that. Three pairs were added and each was measured — the
+label clears 6.3:1 on its own chip, well past AA for small text — and colour is never
+the only carrier, because the chip also says the word.
+
+**The filter rail lost its bleed.** It shared a left edge with nothing; now it shares
+one with the cards it filters, which is the edge everything else in the section starts
+from.
+
+**The count badge moved into the corner it belongs to**: 8px on a phone card, 16px
+once there is room, and the whole-cake offset became a desktop-only concern — below
+`sm` the variant toggle sits at the foot of the photograph, not its head.
+
+**The hamburger is gone below `md`.** The page is a single scroll with three anchors
+in it; a button that opens a list of places you can already reach by scrolling was a
+tax on the only two things in a phone header that matter.
+
+**The hairline above the hero's scroll cue is gone** — it pointed at nothing, and on a
+cream ground it read as a rendering artefact rather than as a mark.
+
+Open: `weightG` and `nutrition` have no columns yet. They are product facts the
+console will need to edit, so they want a migration and two more fields in the product
+editor before the fixture goes away.
+
+### Demo photography
+
+`NEXT_PUBLIC_CATALOG_DEMO_PHOTOS=1` renders the reference's six pictures in place of
+the shop's own, cycled across the catalogue by position rather than by hashing the
+slug — a cycle guarantees that no two cards sitting next to each other show the same
+dessert, which a hash does not.
+
+Unlike the console flag this one is allowed in a production build. It swaps
+photographs and nothing else: there is no guard to disable and no data to fake, so a
+deployed preview can use it, which is the whole reason it exists.
+
+The six were re-cropped to the catalogue's own 4:5 with the same centring rule the
+real photographs got, and each carries a generated blur preview — otherwise the demo
+would flash empty where the real thing does not, and demonstrate a flaw the site does
+not have.

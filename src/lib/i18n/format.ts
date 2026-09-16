@@ -39,6 +39,22 @@ export function formatPrice(locale: Locale, amount: number): string {
   return `${new Intl.NumberFormat(HTML_LANG[locale]).format(amount)}\u00a0RSD`;
 }
 
+/**
+ * Grams below a kilo, kilograms above it — a 2 500 g cake is a 2,5 kg cake to
+ * everyone who buys one. `unit` formatting puts the symbol where the language
+ * puts it, which is not the same place in all three.
+ */
+export function formatWeight(locale: Locale, grams: number, precise = false): string {
+  const kilos = grams >= 1000;
+  return new Intl.NumberFormat(HTML_LANG[locale], {
+    style: "unit",
+    unit: kilos ? "kilogram" : "gram",
+    // A cake is 2,5 kg and a piece is 130 g, but 5.8 g of protein is not 6 —
+    // rounding a macro to the gram is the difference between a figure and a shrug.
+    maximumFractionDigits: precise ? 1 : kilos ? 1 : 0,
+  }).format(kilos ? grams / 1000 : grams);
+}
+
 export function formatDate(
   locale: Locale,
   value: Date | string,

@@ -41,6 +41,17 @@ export const env = {
    * disables the sign-in guard, it refuses to switch on in a production build —
    * a forgotten flag in a deploy would otherwise publish an open console.
    */
+  /**
+   * Demo photography: the catalogue renders the reference's six pictures instead
+   * of the shop's own.
+   *
+   * Unlike `consoleDemo` this one is allowed in a production build. It swaps
+   * photographs and nothing else — there is no guard to disable and no data to
+   * fake — so a deployed preview can use it, which is the point of it existing.
+   */
+  get catalogDemoPhotos(): boolean {
+    return process.env.NEXT_PUBLIC_CATALOG_DEMO_PHOTOS === "1";
+  },
   get consoleDemo(): boolean {
     return (
       process.env.NEXT_PUBLIC_CONSOLE_DEMO === "1" && process.env.NODE_ENV !== "production"

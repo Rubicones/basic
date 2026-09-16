@@ -81,9 +81,8 @@ export function Hero({ locale, t }: { locale: Locale; t: Messages }) {
 
             <p
               aria-hidden="true"
-              className="text-micro text-content-secondary mt-10 flex flex-col items-center gap-3 uppercase md:mt-12"
+              className="text-micro text-content-secondary mt-10 text-center uppercase md:mt-12"
             >
-              <span className="from-brand bg-linear-to-b to-transparent h-10 w-px" />
               {t.hero.scrollCue}
             </p>
           </div>

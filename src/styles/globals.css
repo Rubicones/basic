@@ -69,6 +69,17 @@
   --color-focus: oklch(0.33 0.032 275);
 
   /* ---- feedback --------------------------------------------------------- */
+  /* Storage, colour-coded — the one place the single-hue palette does not say
+     enough. A venue scanning the grid is sorting by "does this need my fridge",
+     and three shades of clay cannot answer that. Each pair is measured: the label
+     clears 6.3:1 on its own chip, well past AA, because a chip is small text. */
+  --color-storage-chilled: oklch(0.93 0.045 165); /* fridge green */
+  --color-storage-chilled-ink: oklch(0.42 0.09 165); /* 6.67:1 */
+  --color-storage-frozen: oklch(0.928 0.048 240); /* freezer blue */
+  --color-storage-frozen-ink: oklch(0.43 0.105 248); /* 6.55:1 */
+  --color-storage-ambient: oklch(0.94 0.055 75); /* counter amber */
+  --color-storage-ambient-ink: oklch(0.45 0.095 68); /* 6.32:1 */
+
   --color-danger: oklch(0.577 0.245 27.325); /* 4.46:1 — the reference destructive */
   /* The one addition. The reference had no success color and rendered
      confirmations in the brand, which makes "sent" and "decoration" the same

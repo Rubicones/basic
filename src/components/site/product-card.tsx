@@ -6,8 +6,8 @@ import { Badge, Button, Drawer, IconPlus, Stepper } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { WavePattern } from "./wave-pattern";
 import { photoFor } from "@/lib/catalog/photos";
-import { WHOLE_MULTIPLIER, type Product } from "@/lib/catalog/products";
-import { fill, formatPrice } from "@/lib/i18n/format";
+import { WHOLE_MULTIPLIER, type Format, type Product } from "@/lib/catalog/products";
+import { fill, formatPrice, formatWeight } from "@/lib/i18n/format";
 import { useCart } from "@/lib/cart/context";
 import type { Messages } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/lib/i18n/config";
@@ -208,9 +208,15 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               <span
                 key={qty}
                 className={cx(
-                  "badge-pop font-display bg-brand text-content-on-brand absolute right-4 z-20",
-                  "grid size-9 place-items-center rounded-pill text-body-sm font-bold tabular-nums",
-                  hasWhole ? "top-16" : "top-4",
+                  "badge-pop font-display bg-brand text-content-on-brand absolute z-20",
+                  "grid size-8 place-items-center rounded-pill text-caption font-bold tabular-nums",
+                  "sm:size-9 sm:text-body-sm",
+                  /* In the corner, with the inset the card can afford: 8px on a
+                     173px phone card, 16px once there is room. The whole-cake
+                     offset is a desktop concern — below sm the toggle sits at the
+                     foot of the photograph, not its head. */
+                  "top-2 right-2 sm:right-4",
+                  hasWhole ? "sm:top-16" : "sm:top-4",
                 )}
               >
                 {qty}
@@ -241,7 +247,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               {/* One chip, and the short label: the joined list was wider than the
                   column, which pushed the add button past the card's own edge. */}
               <span className="min-w-0 truncate">
-                <Badge tone="brand">{t.formatsShort[storage]}</Badge>
+                <Badge tone={storageTone(storage)}>{t.formatsShort[storage]}</Badge>
               </span>
 
               <Button
@@ -285,6 +291,13 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
 
               <p className="text-body text-content-secondary">{product.note[locale]}</p>
 
+              <dl className="border-line flex items-baseline justify-between gap-4 border-y py-3">
+                <dt className="text-body-sm text-content-secondary">{t.catalog.weight}</dt>
+                <dd className="font-display text-body font-bold tabular-nums">
+                  {formatWeight(locale, product.weightG)}
+                </dd>
+              </dl>
+
               <div>
                 <p className="text-micro text-content-secondary mb-2 uppercase">
                   {t.catalog.storage}
@@ -295,11 +308,36 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
                   {product.formats
                     .filter((f) => f !== "whole")
                     .map((f) => (
-                      <Badge key={f} tone="brand">
+                      <Badge key={f} tone={storageTone(f)}>
                         {t.formats[f]}
                       </Badge>
                     ))}
                 </div>
+              </div>
+
+              <div>
+                <p className="text-micro text-content-secondary mb-2 uppercase">
+                  {t.catalog.nutritionTitle}
+                  <span className="lowercase"> — {t.catalog.per100}</span>
+                </p>
+                <dl className="border-line grid grid-cols-2 gap-x-4 gap-y-2 rounded-inner border p-4">
+                  {(
+                    [
+                      [t.catalog.kcal, `${product.nutrition.kcal} kcal`],
+                      [t.catalog.protein, formatWeight(locale, product.nutrition.protein, true)],
+                      [t.catalog.fat, formatWeight(locale, product.nutrition.fat, true)],
+                      [t.catalog.carbs, formatWeight(locale, product.nutrition.carbs, true)],
+                    ] as const
+                  ).map(([label, value]) => (
+                    <div key={label} className="flex items-baseline justify-between gap-3">
+                      <dt className="text-body-sm text-content-secondary">{label}</dt>
+                      <dd className="font-display text-body-sm font-bold tabular-nums">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                {/* Said out loud rather than left to be discovered: a declaration
+                    goes out with every delivery, and these are not measurements. */}
+                <p className="text-caption text-content-tertiary mt-2">{t.catalog.nutritionNote}</p>
               </div>
 
               {hasWhole && (
@@ -348,6 +386,11 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
       </div>
     </article>
   );
+}
+
+/** Colour follows the storage class, and never carries it alone. */
+function storageTone(format: Format): "chilled" | "frozen" | "ambient" | "brand" {
+  return format === "whole" ? "brand" : format;
 }
 
 /**

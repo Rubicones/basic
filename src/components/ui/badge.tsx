@@ -7,7 +7,7 @@ import { cx } from "./cx";
  * actually carries here.
  */
 
-type Tone = "neutral" | "brand" | "success" | "danger" | "inverse";
+type Tone = "neutral" | "brand" | "success" | "danger" | "inverse" | "chilled" | "frozen" | "ambient";
 
 export type BadgeProps = {
   children: ReactNode;
@@ -24,6 +24,11 @@ const tones: Record<Tone, string> = {
   danger: "bg-surface-raised text-danger border border-danger",
   // For sitting on top of photography, where the surface behind is unknown.
   inverse: "bg-surface-inverse text-content-on-photo",
+  // The three storage classes. Colour is the fastest way to answer "does this
+  // need my fridge", and it is never the only carrier — the label says it too.
+  chilled: "bg-storage-chilled text-storage-chilled-ink",
+  frozen: "bg-storage-frozen text-storage-frozen-ink",
+  ambient: "bg-storage-ambient text-storage-ambient-ink",
 };
 
 export function Badge({ children, tone = "neutral", iconStart, caps = true }: BadgeProps) {

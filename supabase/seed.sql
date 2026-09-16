@@ -160,17 +160,17 @@ on conflict (slug) do update set
   is_published = excluded.is_published;
 
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$sr$seed$, $seed$Medovik, cela torta 2,5 kg$seed$, $seed$Ceo medovik, uz prethodni dogovor.$seed$
+select id, $seed$sr$seed$, $seed$Medovik, cela torta$seed$, $seed$Ceo medovik, uz prethodni dogovor.$seed$
 from public.products where slug = $seed$medovik-cela-torta$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$ru$seed$, $seed$Медовик, целый торт 2,5 кг$seed$, $seed$Целый медовик, по предварительному согласованию.$seed$
+select id, $seed$ru$seed$, $seed$Медовик, целый торт$seed$, $seed$Целый медовик, по предварительному согласованию.$seed$
 from public.products where slug = $seed$medovik-cela-torta$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$en$seed$, $seed$Medovik, whole cake 2.5 kg$seed$, $seed$The whole medovik, by prior arrangement.$seed$
+select id, $seed$en$seed$, $seed$Medovik, whole cake$seed$, $seed$The whole medovik, by prior arrangement.$seed$
 from public.products where slug = $seed$medovik-cela-torta$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
@@ -194,17 +194,17 @@ on conflict (slug) do update set
   is_published = excluded.is_published;
 
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$sr$seed$, $seed$Napoleon, cela torta 2,7 kg$seed$, $seed$Za veće događaje i punu salu.$seed$
+select id, $seed$sr$seed$, $seed$Napoleon, cela torta$seed$, $seed$Za veće događaje i punu salu.$seed$
 from public.products where slug = $seed$napoleon-cela-torta-2700$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$ru$seed$, $seed$Наполеон, целый торт 2,7 кг$seed$, $seed$Для больших событий и полного зала.$seed$
+select id, $seed$ru$seed$, $seed$Наполеон, целый торт$seed$, $seed$Для больших событий и полного зала.$seed$
 from public.products where slug = $seed$napoleon-cela-torta-2700$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$en$seed$, $seed$Napoleon, whole cake 2.7 kg$seed$, $seed$For larger events and a full room.$seed$
+select id, $seed$en$seed$, $seed$Napoleon, whole cake$seed$, $seed$For larger events and a full room.$seed$
 from public.products where slug = $seed$napoleon-cela-torta-2700$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
@@ -228,17 +228,17 @@ on conflict (slug) do update set
   is_published = excluded.is_published;
 
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$sr$seed$, $seed$Napoleon, cela torta 1,3 kg$seed$, $seed$Manja cela torta, za kamerniji sto.$seed$
+select id, $seed$sr$seed$, $seed$Napoleon, cela torta$seed$, $seed$Manja cela torta, za kamerniji sto.$seed$
 from public.products where slug = $seed$napoleon-cela-torta-1300$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$ru$seed$, $seed$Наполеон, целый торт 1,3 кг$seed$, $seed$Торт поменьше — для небольшого стола.$seed$
+select id, $seed$ru$seed$, $seed$Наполеон, целый торт$seed$, $seed$Торт поменьше — для небольшого стола.$seed$
 from public.products where slug = $seed$napoleon-cela-torta-1300$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 insert into public.product_translations (product_id, locale, name, note)
-select id, $seed$en$seed$, $seed$Napoleon, whole cake 1.3 kg$seed$, $seed$A smaller whole cake, for a smaller table.$seed$
+select id, $seed$en$seed$, $seed$Napoleon, whole cake$seed$, $seed$A smaller whole cake, for a smaller table.$seed$
 from public.products where slug = $seed$napoleon-cela-torta-1300$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;

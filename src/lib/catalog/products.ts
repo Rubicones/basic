@@ -35,6 +35,18 @@ export type Product = {
   whole: boolean;
   /** The photograph belongs to a different product — a gap, kept visible in the data. */
   photoIsPlaceholder: boolean;
+  /** Grams. A piece weight, or the weight of the whole cake for the whole rows. */
+  weightG: number;
+  /** Per 100g. Mocked until the kitchen measures — see NUTRITION. */
+  nutrition: Nutrition;
+};
+
+export type Nutrition = {
+  kcal: number;
+  /** Grams per 100g. */
+  protein: number;
+  fat: number;
+  carbs: number;
 };
 
 /**
@@ -58,6 +70,41 @@ type Row = {
   priceIsPlaceholder?: boolean;
   photoIsPlaceholder?: boolean;
 };
+
+/**
+ * Weight and nutrition, per product.
+ *
+ * **Mocked.** These are plausible figures for the kind of thing each product is,
+ * not measurements — the kitchen has not weighed anything yet, and a declaration
+ * that goes out with a delivery cannot be built on a guess. They live in their own
+ * table rather than in `ROWS` so that replacing them with real numbers is one
+ * object to edit and nothing else to touch.
+ *
+ * `weightG` is the weight of one piece, except on the whole-cake rows where it is
+ * the cake. Everything else is per 100g, which is how a declaration states it.
+ */
+const FACTS: Record<string, { weightG: number; nutrition: Nutrition }> = {
+  "cizkejk-njujork": { weightG: 130, nutrition: { kcal: 341, protein: 5.8, fat: 23.1, carbs: 27.4 } },
+  "cizkejk-mandarina": { weightG: 135, nutrition: { kcal: 318, protein: 5.5, fat: 20.4, carbs: 28.9 } },
+  medovik: { weightG: 120, nutrition: { kcal: 362, protein: 4.9, fat: 19.7, carbs: 41.8 } },
+  napoleon: { weightG: 125, nutrition: { kcal: 384, protein: 5.2, fat: 24.6, carbs: 35.1 } },
+  "medovik-cela-torta": { weightG: 2500, nutrition: { kcal: 362, protein: 4.9, fat: 19.7, carbs: 41.8 } },
+  "napoleon-cela-torta-2700": { weightG: 2700, nutrition: { kcal: 384, protein: 5.2, fat: 24.6, carbs: 35.1 } },
+  "napoleon-cela-torta-1300": { weightG: 1300, nutrition: { kcal: 384, protein: 5.2, fat: 24.6, carbs: 35.1 } },
+  "limun-tart": { weightG: 110, nutrition: { kcal: 336, protein: 4.4, fat: 18.9, carbs: 37.2 } },
+  "tart-bobice": { weightG: 115, nutrition: { kcal: 309, protein: 4.1, fat: 16.8, carbs: 35.6 } },
+  "pticje-mleko": { weightG: 95, nutrition: { kcal: 298, protein: 4.7, fat: 15.2, carbs: 36.4 } },
+  kolutici: { weightG: 80, nutrition: { kcal: 412, protein: 5.6, fat: 22.3, carbs: 47.1 } },
+  kartoska: { weightG: 90, nutrition: { kcal: 398, protein: 5.1, fat: 21.7, carbs: 45.3 } },
+  mravinjak: { weightG: 85, nutrition: { kcal: 437, protein: 5.3, fat: 26.8, carbs: 45.9 } },
+  "morkovni-keks": { weightG: 105, nutrition: { kcal: 352, protein: 5.4, fat: 19.1, carbs: 40.2 } },
+  brauni: { weightG: 100, nutrition: { kcal: 431, protein: 6.2, fat: 27.4, carbs: 41.6 } },
+  rolnice: { weightG: 75, nutrition: { kcal: 389, protein: 5.9, fat: 21.4, carbs: 43.7 } },
+  orascici: { weightG: 70, nutrition: { kcal: 456, protein: 6.8, fat: 28.9, carbs: 43.1 } },
+  sirniki: { weightG: 140, nutrition: { kcal: 271, protein: 11.3, fat: 12.6, carbs: 28.4 } },
+};
+
+const FALLBACK_FACTS = { weightG: 100, nutrition: { kcal: 350, protein: 5, fat: 20, carbs: 38 } };
 
 const ROWS: Row[] = [
   {
@@ -96,27 +143,27 @@ const ROWS: Row[] = [
   },
   {
     slug: "medovik-cela-torta",
-    sr: ["Medovik, cela torta 2,5 kg", "Ceo medovik, uz prethodni dogovor."],
-    ru: ["Медовик, целый торт 2,5 кг", "Целый медовик, по предварительному согласованию."],
-    en: ["Medovik, whole cake 2.5 kg", "The whole medovik, by prior arrangement."],
+    sr: ["Medovik, cela torta", "Ceo medovik, uz prethodni dogovor."],
+    ru: ["Медовик, целый торт", "Целый медовик, по предварительному согласованию."],
+    en: ["Medovik, whole cake", "The whole medovik, by prior arrangement."],
     formats: ["whole", "chilled", "frozen"],
     price: 5600,
     photoIsPlaceholder: true,
   },
   {
     slug: "napoleon-cela-torta-2700",
-    sr: ["Napoleon, cela torta 2,7 kg", "Za veće događaje i punu salu."],
-    ru: ["Наполеон, целый торт 2,7 кг", "Для больших событий и полного зала."],
-    en: ["Napoleon, whole cake 2.7 kg", "For larger events and a full room."],
+    sr: ["Napoleon, cela torta", "Za veće događaje i punu salu."],
+    ru: ["Наполеон, целый торт", "Для больших событий и полного зала."],
+    en: ["Napoleon, whole cake", "For larger events and a full room."],
     formats: ["whole", "chilled", "frozen"],
     price: 7800,
     photoIsPlaceholder: true,
   },
   {
     slug: "napoleon-cela-torta-1300",
-    sr: ["Napoleon, cela torta 1,3 kg", "Manja cela torta, za kamerniji sto."],
-    ru: ["Наполеон, целый торт 1,3 кг", "Торт поменьше — для небольшого стола."],
-    en: ["Napoleon, whole cake 1.3 kg", "A smaller whole cake, for a smaller table."],
+    sr: ["Napoleon, cela torta", "Manja cela torta, za kamerniji sto."],
+    ru: ["Наполеон, целый торт", "Торт поменьше — для небольшого стола."],
+    en: ["Napoleon, whole cake", "A smaller whole cake, for a smaller table."],
     formats: ["whole", "chilled", "frozen"],
     price: 3800,
     priceIsPlaceholder: true,
@@ -228,4 +275,5 @@ export const PRODUCTS: Product[] = ROWS.map((r) => ({
   priceIsPlaceholder: r.priceIsPlaceholder ?? false,
   whole: r.whole ?? false,
   photoIsPlaceholder: r.photoIsPlaceholder ?? false,
+  ...(FACTS[r.slug] ?? FALLBACK_FACTS),
 }));

@@ -13,8 +13,10 @@ import type { Locale } from "@/lib/i18n/config";
  *
  * The reference had two — a desktop `Catalog` and a `MobileCatalog`, 504 lines,
  * both mounted at every width and already drifted apart on eight details. Here the
- * differences that were real (a snapping rail on narrow, a column switcher on
- * wide) are breakpoints, and the ones that were accidental are gone.
+ * differences that were real (a snapping rail on narrow) are breakpoints, and the
+ * ones that were accidental are gone. The reference's 3/4/5 density control went
+ * with them: it was a preference nobody has, sitting where a filter belongs, and
+ * three columns is the width the photographs were cropped for.
  *
  * The filter is by storage format, because that is the question a venue actually
  * asks: a café with no display case needs to see only what survives on a counter.
@@ -24,11 +26,9 @@ import type { Locale } from "@/lib/i18n/config";
 
 const ALL = "all" as const;
 type Filter = typeof ALL | Format;
-type Columns = 3 | 4 | 5;
 
 export function Catalog({ locale, t }: { locale: Locale; t: Messages }) {
   const [filter, setFilter] = useState<Filter>(ALL);
-  const [columns, setColumns] = useState<Columns>(3);
   const gridRef = useRef<HTMLDivElement>(null);
 
   const list = useMemo(
@@ -89,13 +89,15 @@ export function Catalog({ locale, t }: { locale: Locale; t: Messages }) {
             as a mistake rather than as help. The list is one screen of scrolling;
             the filter is where you left it. */}
         <div className="mt-8 py-1">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
             <div
               role="tablist"
               aria-label={t.catalog.filterLabel}
-              /* The rail still runs to the edge of the screen — a horizontally
-                 scrolling strip that stops short of it looks broken. */
-              className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 py-1 sm:-mx-5 sm:px-5 lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0"
+              /* No bleed. The rail shares its left edge with the cards below it,
+                 which is the edge every other thing in the section starts from —
+                 a filter that begins half a gutter to the left of the grid it
+                 filters reads as a misalignment, not as a flourish. */
+              className="scrollbar-none flex snap-x snap-mandatory gap-2 overflow-x-auto py-1 lg:flex-wrap lg:overflow-visible"
             >
               {tabs.map((tab) => {
                 const on = filter === tab.id;
@@ -129,8 +131,6 @@ export function Catalog({ locale, t }: { locale: Locale; t: Messages }) {
                 );
               })}
             </div>
-
-            <ColumnSwitcher value={columns} onChange={setColumns} />
           </div>
         </div>
 
@@ -141,7 +141,7 @@ export function Catalog({ locale, t }: { locale: Locale; t: Messages }) {
               <p className="text-body-sm text-content-secondary">{t.catalog.emptyHint}</p>
             </div>
           ) : (
-            <Grid cols={columns} fromTwo gap={6}>
+            <Grid cols={3} fromTwo gap={6}>
               {list.map((product, i) => (
                 <ProductCard
                   key={product.slug}
@@ -159,29 +159,5 @@ export function Catalog({ locale, t }: { locale: Locale; t: Messages }) {
         </div>
       </Container>
     </Section>
-  );
-}
-
-/** Desktop only: the reference's 3 / 4 / 5 density control. */
-function ColumnSwitcher({ value, onChange }: { value: Columns; onChange: (c: Columns) => void }) {
-  return (
-    <div className="border-line-control hidden items-center gap-1 rounded-pill border p-1 xl:flex">
-      {([3, 4, 5] as const).map((n) => (
-        <button
-          key={n}
-          type="button"
-          aria-pressed={value === n}
-          onClick={() => onChange(n)}
-          className={cx(
-            "font-display grid size-9 place-items-center rounded-pill text-body-sm font-bold transition-surface",
-            value === n
-              ? "bg-brand text-content-on-brand"
-              : "text-content-secondary hover:text-brand",
-          )}
-        >
-          {n}
-        </button>
-      ))}
-    </div>
   );
 }
