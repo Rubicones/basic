@@ -1,0 +1,863 @@
+@import "tailwindcss";
+
+/* Tailwind ships aria-checked, aria-disabled and friends but not aria-invalid,
+   and an arbitrary variant would be a bracket value. This is the missing one. */
+@custom-variant invalid (&[aria-invalid="true"]);
+
+/* Scan only the app source. Without this Tailwind walks the whole project root,
+   including assets-source/ and its 12MB of photography. */
+@source "../../src";
+
+/*
+ * The design system. This file is the single source of truth.
+ *
+ * Every value here comes from docs/design-audit.md. Components use these tokens
+ * and nothing else — arbitrary Tailwind values (mt-[13px], text-[0.7rem]) are
+ * banned and `npm run lint` fails on them. If a value you need is missing, extend
+ * the scale here, deliberately, rather than reaching for a bracket locally.
+ *
+ * Colors are oklch. Light theme only — see the audit, §1.1.
+ */
+
+@theme {
+  /* ---- fonts ------------------------------------------------------------ */
+  /* Set by src/styles/fonts.ts, which picks a pair per locale — Outfit + DM Sans
+     for sr/en, Onest for ru, since neither Latin face ships Cyrillic. The fallback
+     stacks and metric overrides come from next/font, so this layer never has to
+     know which pair is in play. */
+  --font-display: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
+
+  /* ---- surfaces --------------------------------------------------------- */
+  --color-surface-page: oklch(0.977 0.014 91);
+  --color-surface-raised: oklch(0.993 0.006 91);
+  --color-surface-sunken: oklch(0.951 0.026 78);
+  --color-surface-brand: oklch(0.92 0.05 45);
+  --color-surface-inverse: oklch(0.33 0.032 275);
+
+  /* ---- content ---------------------------------------------------------- */
+  /* Every value below is the reference's, kept by decision. Ratios are measured
+     against --color-surface-page; several are under AA and are marked so. */
+  --color-content-primary: oklch(0.33 0.032 275); /* 11.49:1 — the reference ink */
+  --color-content-secondary: oklch(0.55 0.026 275); /*  4.56:1 — reference muted-foreground */
+  --color-content-tertiary: oklch(0.6 0.024 275); /*  3.75:1 — the reference's foreground/60 */
+  --color-content-on-brand: oklch(0.99 0.008 91); /*  2.97:1 on --color-brand — see note */
+  --color-content-on-photo: oklch(0.977 0.014 91); /* stays light regardless of surface */
+
+  /* ---- brand ------------------------------------------------------------ */
+  /* The reference clay, kept as the one brand color: fills, text and decoration
+     all use it, as they did there.
+     Known consequence, measured: 2.86:1 as text on the page, 2.97:1 for a white
+     label on the fill, 2.36:1 as text on --color-surface-brand. All below AA.
+     This is a deliberate choice to keep the reference's color, not an oversight —
+     see docs/phase-2-notes.md. */
+  --color-brand: oklch(0.68 0.145 34);
+  /* Hover. The reference used `brightness-105` in one place and `bg-primary/90` in
+     another; this is the single value replacing both. */
+  --color-brand-hover: oklch(0.63 0.152 34);
+
+  /* ---- lines ------------------------------------------------------------ */
+  /* The reference drew this same hairline three ways — `border`, `border-ink/12`
+     and `border-ink/15`. One token, the reference's value. 1.27:1 against the
+     page: decorative, and under 1.4.11 where it is a control's only boundary. */
+  --color-line: oklch(0.9 0.024 66);
+  --color-line-control: oklch(0.9 0.024 66);
+  /* The one place the reference's color is NOT kept. A focus ring in clay is
+     2.86:1 against cream — a keyboard user cannot see where they are, which is
+     not a matter of taste. Ink is also a reference color, and it reads at
+     11.49:1. Nothing else changes. */
+  --color-focus: oklch(0.33 0.032 275);
+
+  /* ---- feedback --------------------------------------------------------- */
+  --color-danger: oklch(0.577 0.245 27.325); /* 4.46:1 — the reference destructive */
+  /* The one addition. The reference had no success color and rendered
+     confirmations in the brand, which makes "sent" and "decoration" the same
+     color. This is not a reference color being changed; it is a missing one. */
+  --color-success: oklch(0.5 0.11 155); /* 5.32:1 */
+
+  /* ---- type ------------------------------------------------------------- */
+  /* Same reasoning as the radii: text-xs / text-2xl are gone, so a component can
+     only reach for a size the audit actually defined. */
+  --text-*: initial;
+  /* Display sizes are Outfit; the rest DM Sans. Tracking is negative on display
+     sizes only — at 11px the micro label needs the opposite. */
+  --text-display-xl: clamp(3.25rem, 9vw, 6rem);
+  --text-display-xl--line-height: 0.87;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-lg: clamp(2.25rem, 5vw, 3.5rem);
+  --text-display-lg--line-height: 0.95;
+  --text-display-lg--letter-spacing: -0.015em;
+  --text-display-md: 1.875rem;
+  --text-display-md--line-height: 1.05;
+  --text-display-md--letter-spacing: -0.01em;
+  --text-display-sm: 1.5rem;
+  --text-display-sm--line-height: 1.1;
+  --text-display-sm--letter-spacing: -0.01em;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.2;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.55;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.45;
+  /* The hero's second line, relative to the h1 it sits inside. */
+  --text-display-sub: 0.72em;
+  /* The wordmark watermark behind the hero. Decoration; clipped by the section. */
+  --text-display-watermark: clamp(8rem, 24vw, 22rem);
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.3;
+  --text-micro--letter-spacing: 0.14em;
+
+  /* ---- radii ------------------------------------------------------------ */
+  /* `initial` clears Tailwind's default ladder, so rounded-md / rounded-full and
+     friends stop existing. There is one radius scale and these are all of it. */
+  --radius-*: initial;
+  --radius-xs: 0.375rem; /* 6px — checkbox, the smallest thing with a corner */
+  --radius-inner: 0.75rem; /* 12px — tiles nested inside a card */
+  --radius-control: 1rem; /* 16px — inputs, selects, textareas */
+  --radius-panel: 1.5rem; /* 24px — forms, dialogs, sheets */
+  --radius-card: 1.75rem; /* 28px — the one card radius */
+  --radius-pill: 9999px;
+  /* The photo frame's two states. The reference animated 32px → 28px; the frame
+     sits flush inside a 28px card, so it starts flush and tightens as it shrinks —
+     an inner radius equal to its parent's already reads a touch too round, and
+     scaling it makes that worse. */
+  --radius-frame-idle: 1.75rem;
+  --radius-frame-open: 1.5rem;
+
+  /* ---- widths -------------------------------------------------------------- */
+  /* The `--container-*` namespace drives both w-* and max-w-*. These are the only
+     four fixed widths in the system; everything else is fluid. */
+  --container-content: 80rem; /* 1280px — the page */
+  --container-measure: 42rem; /* 672px, ≈68ch — anything you read a paragraph of */
+  --container-form: 28rem; /* 448px — a single-column form */
+  --container-drawer: 28rem; /* the side drawer on wide screens */
+  --container-headline: 36rem; /* the hero h1 measure — rem, not ch, so it means the
+                                  same thing in Serbian and Russian */
+
+  /* ---- spring curves ------------------------------------------------------ */
+  /*
+   * The reference's card motion, kept exactly.
+   *
+   * Framer's springs are physics, not bezier curves, so they cannot be eyeballed
+   * into a cubic-bezier. Each of these is the analytic solution of the damped
+   * harmonic oscillator for that spring's stiffness/damping/mass, sampled at 40-48
+   * points and emitted as CSS `linear()` — including the overshoot past 1, which is
+   * the part a bezier cannot express and the part you actually see.
+   *
+   *   enter  120/16/1     card entrance
+   *   lift   220/20/1     hover lift
+   *   tilt   140/18/0.4   pointer tilt and photo parallax
+   *   zoom   180/20/1     photo frame scale
+   *   pop    400/14/1     quantity badge
+   *   slide  420/30/1     price / label change
+   *   pill   480/34/0.6   variant toggle indicator
+   */
+  --ease-spring-enter: linear(0, 0.0125, 0.046, 0.0953, 0.1558, 0.2236, 0.2956, 0.3691, 0.4421, 0.5128, 0.5802, 0.6432, 0.7014, 0.7543, 0.8018, 0.8439, 0.8807, 0.9126, 0.9397, 0.9625, 0.9813, 0.9966, 1.0087, 1.018, 1.0248, 1.0296, 1.0327, 1.0343, 1.0348, 1.0343, 1.0331, 1.0314, 1.0293, 1.0269, 1.0244, 1.0218, 1.0193, 1.0168, 1.0145, 1.0123, 1.0103, 1.0085, 1.0068, 1.0054, 1.0041, 1.003, 1.0021, 1.0013, 1.0006);
+  --ease-spring-lift: linear(0, 0.0294, 0.104, 0.2065, 0.323, 0.443, 0.5588, 0.6651, 0.7589, 0.8386, 0.9039, 0.9555, 0.9944, 1.0222, 1.0406, 1.0514, 1.0562, 1.0565, 1.0535, 1.0485, 1.0422, 1.0354, 1.0287, 1.0223, 1.0166, 1.0116, 1.0074, 1.0041, 1.0015, 0.9995, 0.9982, 0.9974, 0.9969, 0.9968, 0.9968, 0.9971, 0.9974, 0.9978, 0.9982, 0.9985, 0.9989);
+  --ease-spring-tilt: linear(0, 0.0225, 0.0776, 0.151, 0.233, 0.3169, 0.3986, 0.4754, 0.5459, 0.6096, 0.6662, 0.7159, 0.7593, 0.7968, 0.829, 0.8566, 0.88, 0.8999, 0.9166, 0.9307, 0.9425, 0.9524, 0.9606, 0.9675, 0.9732, 0.9779, 0.9818, 0.9851, 0.9877, 0.9899, 0.9918, 0.9933, 0.9945, 0.9955, 0.9963, 0.997, 0.9975, 0.998, 0.9984, 0.9987, 0.9989);
+  --ease-spring-zoom: linear(0, 0.0184, 0.0665, 0.1348, 0.2158, 0.3032, 0.3923, 0.4796, 0.5625, 0.6391, 0.7086, 0.7701, 0.8238, 0.8697, 0.9082, 0.94, 0.9655, 0.9857, 1.0011, 1.0125, 1.0205, 1.0256, 1.0286, 1.0298, 1.0296, 1.0284, 1.0265, 1.0242, 1.0217, 1.019, 1.0164, 1.0139, 1.0115, 1.0094, 1.0075, 1.0058, 1.0043, 1.0031, 1.0021, 1.0013, 1.0006);
+  --ease-spring-pop: linear(0, 0.066, 0.2344, 0.4601, 0.701, 0.9232, 1.103, 1.2277, 1.2943, 1.3082, 1.2799, 1.2229, 1.1511, 1.077, 1.0106, 0.9584, 0.9237, 0.9068, 0.9056, 0.9166, 0.9356, 0.9582, 0.9808, 1.0006, 1.0156, 1.0251, 1.0293, 1.0287, 1.0247, 1.0185, 1.0114, 1.0045, 0.9987, 0.9944, 0.9918, 0.9909, 0.9913, 0.9927, 0.9947, 0.9969, 0.999, 1.0007, 1.0019, 1.0026, 1.0028, 1.0026, 1.0021, 1.0015, 1.0008);
+  --ease-spring-slide: linear(0, 0.0185, 0.067, 0.136, 0.2178, 0.3063, 0.3966, 0.485, 0.569, 0.6467, 0.7169, 0.7791, 0.8332, 0.8793, 0.9179, 0.9494, 0.9747, 0.9944, 1.0092, 1.0199, 1.0271, 1.0316, 1.0338, 1.0342, 1.0333, 1.0315, 1.029, 1.0261, 1.0231, 1.02, 1.017, 1.0142, 1.0115, 1.0092, 1.0071, 1.0053, 1.0038, 1.0026, 1.0015, 1.0007, 1.0001);
+  --ease-spring-pill: linear(0, 0.0233, 0.0803, 0.1558, 0.2398, 0.3253, 0.4082, 0.4858, 0.5567, 0.6204, 0.6768, 0.7261, 0.7689, 0.8058, 0.8373, 0.8641, 0.8868, 0.906, 0.922, 0.9355, 0.9467, 0.9561, 0.9638, 0.9703, 0.9756, 0.98, 0.9836, 0.9866, 0.989, 0.9911, 0.9927, 0.9941, 0.9952, 0.9961, 0.9968, 0.9974, 0.9979, 0.9983, 0.9986, 0.9989, 0.9991);
+
+  /* ---- aspect ratios ------------------------------------------------------ */
+  /* Product photography is cropped to one of these. 4:3 rather than the
+     reference's 4:5, because the real photographs are production shots of mixed
+     proportions and a tall crop destroys several of them. */
+  --aspect-photo: 4 / 3;
+  --aspect-portrait: 4 / 5;
+  --aspect-wide: 16 / 9;
+
+  /* ---- shadows ---------------------------------------------------------- */
+  /* Warm-tinted, not black — carried over from the reference deliberately. */
+  --shadow-soft: 0 2px 8px -2px oklch(0.4 0.06 40 / 0.08);
+  --shadow-lift: 0 28px 60px -30px oklch(0.45 0.1 34 / 0.35);
+  --shadow-overlay: 0 40px 80px -24px oklch(0.33 0.08 34 / 0.4);
+
+  /* ---- motion ----------------------------------------------------------- */
+  --ease-out-smooth: cubic-bezier(0.22, 1, 0.36, 1); /* the house curve */
+  --ease-in-out-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+:root {
+  /* Durations. Four, for everything. The reference had 18. */
+  --duration-fast: 150ms; /* hover, color, focus */
+  --duration-base: 250ms; /* toggles, reveals */
+  --duration-slow: 400ms; /* panels expanding, layout changes */
+  --duration-enter: 700ms; /* scroll entrances */
+
+  /* The header's height, in one place.
+     The reference guessed it twice and differently — `pt-24` (96px) in the page and
+     `calc(100svh-5rem)` (80px) in the hero — so the hero was 16px out from the
+     header that sits on top of it. Everything that needs to know derives from here. */
+  --header-h: 4.5rem; /* 72px */
+
+  /* Spring settle times, paired with the curves above. */
+  --dur-spring-enter: 721ms;
+  --dur-spring-lift: 693ms;
+  --dur-spring-tilt: 489ms;
+  --dur-spring-zoom: 602ms;
+  --dur-spring-pop: 916ms;
+  --dur-spring-slide: 395ms;
+  --dur-spring-pill: 330ms;
+
+  color-scheme: light;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-surface-page);
+    color: var(--color-content-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Focus is never removed. The reference had five `outline-none` declarations
+     and zero focus-visible rules; a keyboard user could not see where they were. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* The reference's own pair: `--primary` on `--primary-foreground`. The token
+     named here before did not exist, so the declaration was invalid and the
+     browser fell back to its default selection colour. */
+  ::selection {
+    background: var(--color-brand);
+    color: var(--color-content-on-brand);
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+/* Reduced motion is handled here, once, for everything — rather than per
+   component, which is how the reference ended up honouring it in two files
+   out of four. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/*
+ * Motion, named once.
+ *
+ * The reference had 15 spring configurations and 18 durations across four
+ * components. These four utilities are the whole vocabulary; a component that
+ * needs a timing not in this list is describing a motion the system does not have.
+ */
+@utility duration-fast {
+  transition-duration: var(--duration-fast);
+}
+@utility duration-base {
+  transition-duration: var(--duration-base);
+}
+@utility duration-slow {
+  transition-duration: var(--duration-slow);
+}
+@utility duration-enter {
+  transition-duration: var(--duration-enter);
+}
+
+/*
+ * Named transitions.
+ *
+ * Not just the duration — the property list too. Letting each component write its
+ * own `transition-[background-color,border-color,...]` is how four components end
+ * up animating four different sets of properties over three different curves.
+ * Three named transitions cover the whole kit; each carries its own duration and
+ * easing so a component never states either.
+ */
+@utility transition-control {
+  transition-property: background-color, border-color, color, box-shadow, transform, opacity;
+  transition-timing-function: var(--ease-out-smooth);
+  transition-duration: var(--duration-fast);
+}
+@utility transition-surface {
+  transition-property: background-color, border-color, color;
+  transition-timing-function: var(--ease-out-smooth);
+  transition-duration: var(--duration-fast);
+}
+@utility transition-ink {
+  transition-property: color, text-decoration-thickness, text-decoration-color;
+  transition-timing-function: var(--ease-out-smooth);
+  transition-duration: var(--duration-fast);
+}
+/* Reveals and panels: the only two properties safe to animate on the compositor. */
+@utility transition-reveal {
+  transition-property: opacity, transform, grid-template-rows;
+  transition-timing-function: var(--ease-out-smooth);
+  transition-duration: var(--duration-slow);
+}
+
+/*
+ * A guaranteed contrast floor for text over photography.
+ *
+ * The reference used `from-ink/75` and hoped the photo was dark at the bottom.
+ * Most of the real catalogue is a pale dessert on a pale plate, so the caption
+ * fell below threshold. This is a solid floor under a gradient: the gradient does
+ * the blending, the floor does the guaranteeing.
+ */
+@utility scrim {
+  /* Heavy where the text sits, then out of the way fast. The first pass held 70%
+     ink up to a third of the photo's height, which guaranteed contrast and ate the
+     photograph; these stops keep the same floor under the caption band and give
+     the picture back above it. */
+  background-image: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--color-surface-inverse) 88%, transparent) 0%,
+    color-mix(in oklab, var(--color-surface-inverse) 74%, transparent) 26%,
+    color-mix(in oklab, var(--color-surface-inverse) 20%, transparent) 62%,
+    transparent 100%
+  );
+}
+
+/* Visually hidden, still announced. Used by the skip link and by icon-only labels. */
+@utility sr-only-focusable {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+
+  &:focus-visible {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+}
+
+
+/*
+ * Dialog geometry.
+ *
+ * `dvh` rather than `vh`: on a phone the browser chrome collapses as you scroll,
+ * and a dialog sized in `vh` is taller than the visible viewport until it does.
+ * The three-row grid keeps the header and footer fixed and scrolls only the body,
+ * which is what stops a long form pushing its own submit button out of reach.
+ */
+@utility max-h-dialog {
+  max-height: 90dvh;
+}
+@utility grid-rows-dialog {
+  grid-template-rows: auto 1fr auto;
+}
+
+
+/* The watermark sits mostly below the fold: only the shoulders of the letters
+   show. Offset in `em` so it tracks the clamped font size rather than needing a
+   pixel value per breakpoint. */
+@utility bottom-watermark {
+  bottom: -0.28em;
+}
+
+/* Header geometry, all derived from --header-h. */
+@utility h-header {
+  height: var(--header-h);
+}
+@utility pt-header {
+  padding-top: var(--header-h);
+}
+@utility top-header {
+  top: var(--header-h);
+}
+@utility scroll-mt-header {
+  scroll-margin-top: calc(var(--header-h) + --spacing(4));
+}
+/* The hero fills the viewport under the header, capped so it does not become a
+   corridor on a tall desktop window. `svh`, not `vh`: on a phone the browser
+   chrome collapses as you scroll, and `vh` leaves the hero taller than the screen. */
+@utility min-h-hero {
+  min-height: calc(100svh - var(--header-h));
+  @media (min-width: 768px) {
+    min-height: min(48rem, calc(100svh - var(--header-h)));
+  }
+}
+
+/*
+ * The entrance.
+ *
+ * A CSS animation, not a JavaScript one, for one reason: the markup is in the HTML
+ * and paints without waiting for hydration. The reference wrapped the hero in
+ * `initial={{ opacity: 0 }}`, which made its LCP element invisible until JS ran.
+ *
+ * `both` holds the start frame, so the stagger reads; the global reduced-motion
+ * rule collapses the duration to nothing, which lands every child at its final
+ * state immediately.
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.25rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility rise-group {
+  > * {
+    animation: rise var(--duration-enter) var(--ease-out-smooth) both;
+  }
+  > *:nth-child(2) { animation-delay: 90ms; }
+  > *:nth-child(3) { animation-delay: 180ms; }
+  > *:nth-child(4) { animation-delay: 270ms; }
+  > *:nth-child(5) { animation-delay: 360ms; }
+  > *:nth-child(n + 6) { animation-delay: 450ms; }
+}
+
+/* One slow drift for the decorative marks — the reference ran three independent
+   infinite loops plus an animated full-bleed 28px blur. Transform only. */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-8deg);
+  }
+  50% {
+    transform: translate3d(0, -1.25rem, 0) rotate(-4deg);
+  }
+}
+
+@utility drift-slow {
+  animation: drift 18s var(--ease-in-out-smooth) infinite;
+}
+
+/*
+ * ============================================================================
+ * Product card motion
+ * ============================================================================
+ *
+ * A faithful port of the reference's card, from Framer to CSS. Every timing is a
+ * spring curve above; nothing here was tuned by eye.
+ *
+ * Two things carry the pointer: `--px` and `--py`, set on the card by a single
+ * pointermove handler and normalised to -0.5…0.5. Everything derived from them —
+ * the tilt, the photo parallax — is pure CSS, so one JS write per frame drives the
+ * whole effect instead of a spring integrator per property.
+ *
+ * The layers are separate elements on purpose: scroll drift writes `translate`,
+ * the lift writes `transform`, and the tilt writes its own `transform` on a third.
+ * Stacking them on one node is what made the reference's card jitter when the grid
+ * reflowed — a layout animation and a scroll transform fighting over one property.
+ */
+
+/* Scroll drift: the card passes 26px → -26px across the viewport. Scroll-driven,
+   so it costs no JS at all; browsers without view() timelines simply hold still. */
+@keyframes card-drift {
+  from {
+    translate: 0 26px;
+  }
+  to {
+    translate: 0 -26px;
+  }
+}
+
+@utility card-drift {
+  @supports (animation-timeline: view()) {
+    animation: card-drift linear both;
+    animation-timeline: view();
+    animation-range: cover;
+  }
+}
+
+/* Entrance. Applied only once the card has been seen, by the observer in the
+   catalog — matching Framer's `whileInView once`. Cards are visible without it,
+   so nothing waits on JavaScript to paint. */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 36px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility card-enter {
+  &[data-seen] {
+    animation: card-enter var(--dur-spring-enter) var(--ease-spring-enter) both;
+    /* The reference staggered by index % 3 — a wave across each row rather than a
+       queue down the whole grid. */
+    animation-delay: calc(mod(var(--i, 0), 3) * 70ms);
+  }
+}
+
+/* The lift. -6px on hover, on its own element so it never meets the drift. */
+@utility card-lift {
+  transition: transform var(--dur-spring-lift) var(--ease-spring-lift),
+    box-shadow var(--duration-slow) var(--ease-out-smooth);
+
+  @media (hover: hover) {
+    .group\/card:hover & {
+      transform: translate3d(0, -6px, 0);
+    }
+  }
+  .group\/card[data-open] & {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+/* Pointer tilt: rotateY ±7°, rotateX ∓6°. Hover-capable pointers only — there is
+   no cursor to track on a touchscreen, and the reference disabled it there too. */
+@utility card-tilt {
+  transform-style: preserve-3d;
+  transition: transform var(--dur-spring-tilt) var(--ease-spring-tilt);
+
+  @media (hover: hover) {
+    transform: rotateY(calc(var(--px, 0) * -14deg)) rotateX(calc(var(--py, 0) * 12deg));
+  }
+}
+
+/* The photo frame contracts to 0.915 and its corner tightens as the card opens. */
+@utility card-frame {
+  border-radius: var(--radius-frame-idle);
+  transition: transform var(--dur-spring-zoom) var(--ease-spring-zoom),
+    border-radius var(--dur-spring-zoom) var(--ease-spring-zoom);
+
+  @media (hover: hover) {
+    .group\/card:hover & {
+      transform: scale(0.915);
+      border-radius: var(--radius-frame-open);
+    }
+  }
+  .group\/card[data-open] & {
+    transform: scale(0.915);
+    border-radius: var(--radius-frame-open);
+  }
+}
+
+/* The photo: 1.02 at rest, 1.14 open, plus ±14px of parallax under the pointer,
+   exactly as the reference. Both on one transform so they compose rather than
+   overwrite. The frame carries the page ground, so the margin baked into each
+   photo and any sliver the parallax exposes are the same flat cream — the ribbons
+   only appear around the frame once it contracts. */
+@utility card-photo {
+  transform: translate3d(calc(var(--px, 0) * 28px), calc(var(--py, 0) * 28px), 0) scale(1.02);
+  transition: transform var(--duration-enter) var(--ease-out-smooth);
+
+  @media (hover: hover) {
+    .group\/card:hover & {
+      transform: translate3d(calc(var(--px, 0) * 28px), calc(var(--py, 0) * 28px), 0) scale(1.14);
+    }
+  }
+  .group\/card[data-open] & {
+    transform: scale(1.14);
+  }
+}
+
+/* The wave layer behind the photo: 0.46 at rest, full when open. */
+@utility card-waves {
+  opacity: 0.46;
+  transition: opacity var(--duration-slow) var(--ease-out-smooth);
+
+  @media (hover: hover) {
+    .group\/card:hover & {
+      opacity: 1;
+    }
+  }
+  .group\/card[data-open] & {
+    opacity: 1;
+  }
+}
+
+/* The ribbons drift while the card is open — the reference ran this at 8s. */
+@keyframes wave-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(18px, -12px, 0);
+  }
+}
+
+@utility wave-drift {
+  @media (hover: hover) {
+    .group\/card:hover & {
+      animation: wave-drift 8s var(--ease-in-out-smooth) infinite;
+    }
+  }
+  .group\/card[data-open] & {
+    animation: wave-drift 8s var(--ease-in-out-smooth) infinite;
+  }
+}
+
+/* The description. `grid-template-rows: 0fr → 1fr` is the height-to-auto reveal
+   done on the compositor; the reference animated `height` itself, which lays out
+   the whole card on every frame. */
+@utility card-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows var(--duration-slow) var(--ease-out-smooth),
+    opacity var(--duration-slow) var(--ease-out-smooth);
+
+  > * {
+    overflow: hidden;
+  }
+
+  @media (hover: hover) {
+    .group\/card:hover & {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+  }
+  .group\/card[data-open] & {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+/* A value that changes slides in from below. Keyed by React, so a new key
+   restarts the animation — the same effect as the reference's AnimatePresence. */
+@keyframes value-slide {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility value-slide {
+  animation: value-slide var(--dur-spring-slide) var(--ease-spring-slide) both;
+}
+
+/* The quantity badge, with the reference's 400/14 overshoot — it visibly passes
+   1.3 before settling, which is the whole character of it. */
+@keyframes badge-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@utility badge-pop {
+  animation: badge-pop var(--dur-spring-pop) var(--ease-spring-pop) both;
+}
+
+/* The variant toggle's indicator slides between segments. The reference used
+   Framer's shared-element `layoutId`; here the track translates the indicator by
+   the selected index, which is the same motion with none of the machinery. */
+@utility pill-indicator {
+  /*
+   * The indicator is `50% - 4px` wide and starts 4px in, so its far position is
+   * `50%` of the track — which is exactly its own width. One step is therefore
+   * 100% of itself and nothing else; the earlier `+ 8px` pushed it 8px past the
+   * right inset, which is the overhang you saw on "Whole cake".
+   */
+  width: calc(50% - --spacing(1));
+  transition: transform var(--dur-spring-pill) var(--ease-spring-pill);
+  transform: translateX(calc(var(--seg, 0) * 100%));
+}
+
+/* The ink wipe under the card's add button. */
+@utility ink-wipe {
+  transform: translateX(-100%);
+  transition: transform var(--duration-slow) var(--ease-out-smooth);
+
+  @media (hover: hover) {
+    .group\/wipe:hover & {
+      transform: translateX(0);
+    }
+  }
+}
+
+@utility perspective-card {
+  perspective: 1200px;
+}
+
+/*
+ * Reduced motion. The global rule collapses durations, but a transform still
+ * applies instantly — a card that snaps to a 7° tilt under the cursor is worse
+ * than one that never tilts. These hold the resting state outright.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .card-tilt,
+  .card-lift,
+  .card-frame {
+    transform: none !important;
+  }
+  .card-photo {
+    transform: scale(1.02) !important;
+  }
+  .wave-drift {
+    animation: none !important;
+  }
+  .card-drift {
+    animation: none !important;
+    translate: none !important;
+  }
+}
+
+/* The filter rail settles a little once the page has been scrolled — the
+   reference drove this from a scroll spring in JavaScript; it is a scroll-driven
+   animation, so it belongs on the compositor. */
+@keyframes rail-settle {
+  from {
+    padding-block: --spacing(3);
+  }
+  to {
+    padding-block: --spacing(2);
+  }
+}
+
+@utility rail-settle {
+  @supports (animation-timeline: scroll()) {
+    animation: rail-settle linear both;
+    animation-timeline: scroll();
+    animation-range: 0 220px;
+  }
+}
+
+/* A rail that scrolls horizontally without a scrollbar sitting under the pills. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* A stepper beside a button that takes the rest of the row. */
+@utility grid-cols-control-fill {
+  grid-template-columns: auto 1fr;
+}
+
+/* A disclosure panel driven by its own state rather than a parent's hover — the
+   same 0fr → 1fr reveal the product card uses, so nothing animates a layout
+   property anywhere in the project. */
+@utility panel-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows var(--duration-slow) var(--ease-out-smooth),
+    opacity var(--duration-slow) var(--ease-out-smooth);
+
+  > * {
+    overflow: hidden;
+  }
+
+  &[data-open] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+/* ── order screen ───────────────────────────────────────────────────────────
+   The form and its cart. The reference wrote `lg:grid-cols-[1fr_0.85fr]`
+   inline; the ratio is a layout decision and belongs with the other layout
+   decisions. Both tracks are `minmax(0, …)` so a long product name in the cart
+   truncates instead of widening the column. */
+@utility grid-cols-order {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+}
+
+/* The sticky order bar on touch widths. The reference pinned it to `bottom-0`
+   with `pb-5`, which puts it under the iOS home indicator; the inset is what
+   keeps it above. `--order-bar-h` is the space the page reserves for it, so the
+   bar never covers the last row of the catalog. */
+@utility pb-safe {
+  padding-bottom: calc(var(--spacing) * 4 + env(safe-area-inset-bottom, 0px));
+}
+@utility h-order-bar {
+  height: calc(var(--spacing) * 21 + env(safe-area-inset-bottom, 0px));
+}
+
+/* One cart line entering or leaving. Same 0fr → 1fr reveal as every other
+   disclosure here, rather than the reference's animated `height: auto`. */
+@utility line-reveal {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--duration-base) var(--ease-out-smooth),
+    opacity var(--duration-base) var(--ease-out-smooth);
+
+  > * {
+    overflow: hidden;
+  }
+
+  @starting-style {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+/* Two lines of the card title, always. Names in this catalogue run from one word
+   to four; without a floor the chip and the add button sat at a different height
+   in every column, which reads as misalignment rather than as variety. */
+@utility min-h-title-2 {
+  min-height: 2lh;
+}
