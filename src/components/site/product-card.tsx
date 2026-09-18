@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { Badge, Button, Drawer, IconPlus, Stepper } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
@@ -38,6 +39,22 @@ type Props = {
 export function ProductCard({ product, index, locale, t, priority }: Props) {
   const ref = useRef<HTMLElement>(null);
   const [sheet, setSheet] = useState(false);
+
+  /**
+   * The sheet is rendered into <body>, not where it is written.
+   *
+   * A modal <dialog> goes into the top layer, but a transformed ancestor still
+   * establishes its containing block — and this card has three: `perspective`,
+   * `preserve-3d` and the tilt's own `rotateX/rotateY`, plus `overflow: hidden`.
+   * Chromium tolerates it; Firefox paints the whole subtree into the card's 3D
+   * rendering context, where it lands invisible: the panel opens, the DOM is all
+   * there and correctly sized, and nothing inside it is ever drawn.
+   *
+   * A portal takes it out of that context entirely, which is where a modal
+   * belonged anyway.
+   */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [whole, setWhole] = useState(false);
 
   const hasWhole = product.whole;
@@ -247,109 +264,120 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
           {/* Everything the phone card leaves out. The kit's Drawer is a native
               <dialog> opened with showModal(), so focus trapping, Esc and the
               inertness of the page behind it are the platform's job, not ours. */}
-          <Drawer open={sheet} onClose={() => setSheet(false)} title={product.name[locale]}>
-            <div className="flex flex-col gap-5">
-              <div className="bg-surface-sunken aspect-photo relative w-full overflow-hidden rounded-inner">
-                <Image
-                  src={photo.src}
-                  alt={product.name[locale]}
-                  fill
-                  sizes="(min-width: 40rem) 24rem, 92vw"
-                  loading="lazy"
-                  {...(photo.blurDataURL
-                    ? { placeholder: "blur" as const, blurDataURL: photo.blurDataURL }
-                    : {})}
-                  className="object-cover"
-                />
-              </div>
+          {mounted &&
+            createPortal(
+              <Drawer open={sheet} onClose={() => setSheet(false)} title={product.name[locale]}>
+                <div className="flex flex-col gap-5">
+                  <div className="bg-surface-sunken aspect-photo relative w-full overflow-hidden rounded-inner">
+                    <Image
+                      src={photo.src}
+                      alt={product.name[locale]}
+                      fill
+                      sizes="(min-width: 40rem) 24rem, 92vw"
+                      loading="lazy"
+                      {...(photo.blurDataURL
+                        ? { placeholder: "blur" as const, blurDataURL: photo.blurDataURL }
+                        : {})}
+                      className="object-cover"
+                    />
+                  </div>
 
-              <div className="flex items-baseline justify-between gap-4">
-                <span className="text-body-sm text-content-secondary">
-                  {variant === "whole" ? t.catalog.wholeCake : t.catalog.piece}
-                </span>
-                <span className="font-display text-display-sm text-brand font-bold tabular-nums">
-                  {priceLabel}
-                </span>
-              </div>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <span className="text-body-sm text-content-secondary">
+                      {variant === "whole" ? t.catalog.wholeCake : t.catalog.piece}
+                    </span>
+                    <span className="font-display text-display-sm text-brand font-bold tabular-nums">
+                      {priceLabel}
+                    </span>
+                  </div>
 
-              <p className="text-body text-content-secondary">{product.note[locale]}</p>
+                  <p className="text-body text-content-secondary">{product.note[locale]}</p>
 
-              <dl className="border-line flex items-baseline justify-between gap-4 border-y py-3">
-                <dt className="text-body-sm text-content-secondary">{t.catalog.weight}</dt>
-                <dd className="font-display text-body font-bold tabular-nums">
-                  {formatWeight(locale, product.weightG)}
-                </dd>
-              </dl>
+                  <dl className="border-line flex items-baseline justify-between gap-4 border-y py-3">
+                    <dt className="text-body-sm text-content-secondary">{t.catalog.weight}</dt>
+                    <dd className="font-display text-body font-bold tabular-nums">
+                      {formatWeight(locale, product.weightG)}
+                    </dd>
+                  </dl>
 
-              <div>
-                <p className="text-micro text-content-secondary mb-2 uppercase">
-                  {t.catalog.storage}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {/* Storage only: "whole" is a variant of the thing, not a way
-                      of keeping it, and listing it here said neither. */}
-                  {product.formats
-                    .filter((f) => f !== "whole")
-                    .map((f) => (
-                      <Badge key={f} tone={storageTone(f)}>
-                        {t.formats[f]}
-                      </Badge>
-                    ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-micro text-content-secondary mb-2 uppercase">
-                  {t.catalog.nutritionTitle}
-                  <span className="lowercase"> — {t.catalog.per100}</span>
-                </p>
-                <dl className="border-line grid grid-cols-2 gap-x-4 gap-y-2 rounded-inner border p-4">
-                  {(
-                    [
-                      [t.catalog.kcal, `${product.nutrition.kcal} kcal`],
-                      [t.catalog.protein, formatWeight(locale, product.nutrition.protein, true)],
-                      [t.catalog.fat, formatWeight(locale, product.nutrition.fat, true)],
-                      [t.catalog.carbs, formatWeight(locale, product.nutrition.carbs, true)],
-                    ] as const
-                  ).map(([label, value]) => (
-                    <div key={label} className="flex items-baseline justify-between gap-3">
-                      <dt className="text-body-sm text-content-secondary">{label}</dt>
-                      <dd className="font-display text-body-sm font-bold tabular-nums">{value}</dd>
+                  <div>
+                    <p className="text-micro text-content-secondary mb-2 uppercase">
+                      {t.catalog.storage}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {/* Storage only: "whole" is a variant of the thing, not a way
+                        of keeping it, and listing it here said neither. */}
+                      {product.formats
+                        .filter((f) => f !== "whole")
+                        .map((f) => (
+                          <Badge key={f} tone={storageTone(f)}>
+                            {t.formats[f]}
+                          </Badge>
+                        ))}
                     </div>
-                  ))}
-                </dl>
-                {/* Said out loud rather than left to be discovered: a declaration
-                    goes out with every delivery, and these are not measurements. */}
-                <p className="text-caption text-content-tertiary mt-2">{t.catalog.nutritionNote}</p>
-              </div>
+                  </div>
 
-              {hasWhole && (
-                <VariantToggle
-                  whole={whole}
-                  onChange={setWhole}
-                  labels={[t.catalog.piece, t.catalog.wholeCake]}
-                />
-              )}
+                  <div>
+                    <p className="text-micro text-content-secondary mb-2 uppercase">
+                      {t.catalog.nutritionTitle}
+                      <span className="lowercase"> — {t.catalog.per100}</span>
+                    </p>
+                    <dl className="border-line grid grid-cols-2 gap-x-4 gap-y-2 rounded-inner border p-4">
+                      {(
+                        [
+                          [t.catalog.kcal, `${product.nutrition.kcal} kcal`],
+                          [
+                            t.catalog.protein,
+                            formatWeight(locale, product.nutrition.protein, true),
+                          ],
+                          [t.catalog.fat, formatWeight(locale, product.nutrition.fat, true)],
+                          [t.catalog.carbs, formatWeight(locale, product.nutrition.carbs, true)],
+                        ] as const
+                      ).map(([label, value]) => (
+                        <div key={label} className="flex items-baseline justify-between gap-3">
+                          <dt className="text-body-sm text-content-secondary">{label}</dt>
+                          <dd className="font-display text-body-sm font-bold tabular-nums">
+                            {value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                    {/* Said out loud rather than left to be discovered: a declaration
+                      goes out with every delivery, and these are not measurements. */}
+                    <p className="text-caption text-content-tertiary mt-2">
+                      {t.catalog.nutritionNote}
+                    </p>
+                  </div>
 
-              <div className="flex items-center gap-3">
-                <Stepper
-                  value={qty}
-                  onDecrement={() => cart.remove(product.slug, variant)}
-                  onIncrement={() => cart.add(product.slug, variant)}
-                  decrementLabel={t.catalog.removeOne}
-                  incrementLabel={t.catalog.addOne}
-                  valueLabel={fill(t.order.lineQuantity, { name: product.name[locale] })}
-                />
-                <Button
-                  variant="solidWipe"
-                  onClick={() => cart.add(product.slug, variant)}
-                  fullWidth
-                >
-                  {variant === "whole" ? t.catalog.addWhole : t.catalog.add}
-                </Button>
-              </div>
-            </div>
-          </Drawer>
+                  {hasWhole && (
+                    <VariantToggle
+                      whole={whole}
+                      onChange={setWhole}
+                      labels={[t.catalog.piece, t.catalog.wholeCake]}
+                    />
+                  )}
+
+                  <div className="flex items-center gap-3">
+                    <Stepper
+                      value={qty}
+                      onDecrement={() => cart.remove(product.slug, variant)}
+                      onIncrement={() => cart.add(product.slug, variant)}
+                      decrementLabel={t.catalog.removeOne}
+                      incrementLabel={t.catalog.addOne}
+                      valueLabel={fill(t.order.lineQuantity, { name: product.name[locale] })}
+                    />
+                    <Button
+                      variant="solidWipe"
+                      onClick={() => cart.add(product.slug, variant)}
+                      fullWidth
+                    >
+                      {variant === "whole" ? t.catalog.addWhole : t.catalog.add}
+                    </Button>
+                  </div>
+                </div>
+              </Drawer>,
+              document.body,
+            )}
 
           <div className="relative z-10 hidden grid-cols-control-fill items-center gap-3 p-5 sm:grid">
             <Stepper

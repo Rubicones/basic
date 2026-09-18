@@ -292,3 +292,23 @@ reference's motion, kept — and a click is now unambiguously "show me everythin
 
 That also fixes a case neither path covered: a touch tablet at `sm` or wider has no
 hover, so before this the note and the storage line were unreachable there.
+
+### Why the panel rendered blank in Firefox
+
+The DOM was all there and correctly sized — 448×840, header, photograph, every row —
+and none of it was painted. Chromium showed it fine; Firefox showed a white rectangle.
+
+The panel was written inside the card, and this card is a 3D rendering context:
+`perspective: 1200px` on the article, `transform-style: preserve-3d` plus a live
+`rotateX/rotateY` on the tilt layer, and `overflow: hidden` on the lift layer. A modal
+`<dialog>` is promoted to the top layer, but a transformed ancestor still establishes
+its containing block, and Firefox paints the subtree into the card's 3D context, where
+it lands invisible.
+
+The fix is `createPortal` to `document.body`, which takes it out of that context
+entirely — where a modal belonged in the first place. Nothing about the markup or the
+state changed; only where it is rendered.
+
+Worth knowing for anything else that has to escape a card: the card's own motion is
+what makes it hostile to overlays, and that motion is the reference's, kept
+deliberately. Anything modal inside it needs the same treatment.
