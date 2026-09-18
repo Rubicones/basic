@@ -414,6 +414,11 @@
 @utility max-h-dialog {
   max-height: 90dvh;
 }
+/* The side panel keeps an equal gap top and bottom, so it reads as a card the page
+   slid out rather than as a wall welded to the edge of the window. */
+@utility max-h-panel {
+  max-height: calc(100dvh - var(--spacing) * 8);
+}
 @utility grid-rows-dialog {
   grid-template-rows: auto 1fr auto;
 }

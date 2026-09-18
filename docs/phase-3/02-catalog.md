@@ -277,3 +277,18 @@ The six were re-cropped to the catalogue's own 4:5 with the same centring rule t
 real photographs got, and each carries a generated blur preview — otherwise the demo
 would flash empty where the real thing does not, and demonstrate a flaw the site does
 not have.
+
+### The detail panel, at every width
+
+Clicking a card now opens the same panel everywhere. On a phone it rises from the
+bottom; from `sm` it slides in from the right and keeps a 16px gap on all four sides —
+a card the page slid out, not a wall welded to the edge of the window. One `Drawer`,
+one set of contents, two entrances.
+
+The in-card tap-to-reveal went with it. It was doing two jobs badly: on a phone the
+caption it revealed no longer existed, and on a wide screen it duplicated what hover
+already does. Hover still reveals the caption over the photograph — that is the
+reference's motion, kept — and a click is now unambiguously "show me everything".
+
+That also fixes a case neither path covered: a touch tablet at `sm` or wider has no
+hover, so before this the note and the storage line were unreachable there.

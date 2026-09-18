@@ -25,7 +25,11 @@ export type DialogProps = {
   title: string;
   children: ReactNode;
   footer?: ReactNode;
-  /** "drawer" enters from the bottom on narrow screens and the right on wide ones. */
+  /**
+   * "drawer" enters from the bottom on narrow screens and from the right on wide
+   * ones, where it keeps a gap on all four sides — a panel the page slid out,
+   * not a wall welded to the edge of the window.
+   */
   variant?: Variant;
   /** Hides the visible heading but keeps it for screen readers. */
   hideTitle?: boolean;
@@ -83,8 +87,8 @@ export function Dialog({
           ? cx(
               "mx-auto mt-auto mb-0 max-h-dialog max-w-none rounded-t-panel",
               "translate-y-4 open:translate-y-0 starting:open:translate-y-4",
-              "sm:my-0 sm:mr-0 sm:ml-auto sm:h-full sm:max-h-none sm:w-drawer sm:max-w-none",
-              "sm:rounded-none sm:rounded-l-panel",
+              "sm:my-auto sm:mr-4 sm:ml-auto sm:h-auto sm:max-h-panel sm:w-drawer sm:max-w-none",
+              "sm:rounded-panel",
               "sm:translate-y-0 sm:translate-x-4 sm:open:translate-x-0 sm:starting:open:translate-x-4",
             )
           : cx(
@@ -97,7 +101,7 @@ export function Dialog({
       {/* A grid with a scrolling middle row: the header and footer stay put while
           only the body scrolls, which is what stops a long form from pushing its
           own submit button off the screen. */}
-      <div className="grid max-h-dialog grid-rows-dialog">
+      <div className="grid max-h-dialog grid-rows-dialog sm:max-h-panel">
         <header className="border-line flex items-start justify-between gap-4 border-b p-6">
           <h2 className={cx("text-display-sm", hideTitle && "sr-only")}>{title}</h2>
           <button

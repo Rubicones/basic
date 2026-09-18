@@ -37,7 +37,6 @@ type Props = {
 
 export function ProductCard({ product, index, locale, t, priority }: Props) {
   const ref = useRef<HTMLElement>(null);
-  const [open, setOpen] = useState(false);
   const [sheet, setSheet] = useState(false);
   const [whole, setWhole] = useState(false);
 
@@ -58,17 +57,6 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
     variant === "whole" ? product.price * WHOLE_MULTIPLIER : product.price,
   );
 
-  /**
-   * On a phone the card has no room for the in-place reveal, so the photograph
-   * opens a sheet with everything that did not fit. The width is read at click
-   * time rather than during render: nothing rendered depends on it, so there is
-   * nothing for hydration to disagree about.
-   */
-  const onPhoto = useCallback(() => {
-    if (window.matchMedia("(min-width: 40rem)").matches) setOpen((v) => !v);
-    else setSheet(true);
-  }, []);
-
   const onPointerMove = useCallback((event: React.PointerEvent<HTMLElement>) => {
     const el = ref.current;
     if (!el || event.pointerType !== "mouse") return;
@@ -88,7 +76,6 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
     <article
       ref={ref}
       data-card
-      data-open={open || undefined}
       style={{ "--i": index } as React.CSSProperties}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
@@ -126,9 +113,8 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
             */}
             <button
               type="button"
-              onClick={onPhoto}
-              aria-expanded={open || sheet}
-              aria-controls={`d-${product.slug}`}
+              onClick={() => setSheet(true)}
+              aria-haspopup="dialog"
               className="block w-full text-left"
             >
               {/* The frame carries the page ground: the margin baked into each photo
@@ -152,12 +138,9 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
                     most of this catalogue is a pale dessert on a pale surface. */}
                 <div
                   aria-hidden="true"
-                  className={cx(
-                    "scrim absolute inset-x-0 bottom-0 h-1/2 transition-surface",
-                    /* On a phone nothing sits on the photo until it is tapped,
-                       so the contrast floor appears with what it is there for. */
-                    "opacity-0 group-data-open/card:opacity-100 sm:opacity-100",
-                  )}
+                  /* A contrast floor for the caption that sits on the photograph,
+                     and nothing sits there below sm. */
+                  className="scrim absolute inset-x-0 bottom-0 hidden h-1/2 sm:block"
                 />
 
                 <div className="absolute inset-x-0 bottom-0 p-5">
