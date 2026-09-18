@@ -52,6 +52,11 @@ export const ru: Messages = {
     carbs: "Углеводы",
     nutritionNote: "Предварительные значения. Кухня их ещё не измеряла.",
     storage: "Как хранится",
+    search: "Поиск по каталогу",
+    searchPlaceholder: "Найти десерт",
+    searchClear: "Очистить поиск",
+    emptySearch: "Ничего не нашлось.",
+    emptySearchHint: "Попробуйте часть названия.",
     filterLabel: "Фильтр по способу хранения",
   },
   formats: {

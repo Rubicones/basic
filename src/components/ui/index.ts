@@ -18,6 +18,7 @@ export {
   IconMinus,
   IconPin,
   IconPlus,
+  IconSearch,
   IconSpinner,
   IconTruck,
   type IconProps,

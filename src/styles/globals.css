@@ -877,3 +877,9 @@
 @utility min-h-title-2 {
   min-height: 2lh;
 }
+
+/* The catalogue's search field. Wide enough for the longest placeholder in the
+   three languages and no wider — the filters have the rest of the row. */
+@utility w-search {
+  width: 18rem;
+}

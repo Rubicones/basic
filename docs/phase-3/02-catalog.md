@@ -312,3 +312,23 @@ state changed; only where it is rendered.
 Worth knowing for anything else that has to escape a card: the card's own motion is
 what makes it hostile to overlays, and that motion is the reference's, kept
 deliberately. Anything modal inside it needs the same treatment.
+
+### Search
+
+Search on the left of the control row, filters flush right. They are two ways of
+narrowing the same list, so they share a row rather than stacking into two bars doing
+the same job; on narrow widths the field takes its own line above the rail.
+
+It matches the **name and the note**, in the language on screen: someone hunting for
+"lemon" should find the tart whether the word is in its title or in the line under it.
+
+Comparison is folded — lower case, accents stripped — so "cizkejk" finds "Čizkejk".
+`đ` is a letter in its own right rather than a d with a mark, so NFD leaves it alone
+and it is mapped by hand; that is the whole reason this is a function and not an
+inline `toLowerCase()`. Verified on `/sr`: `cizkejk`, `Čizkejk` and `med` all return
+what they should.
+
+Two small things the browser does that had to be undone: the search input's native
+clear button is a grey cross that ignores the palette, so it is removed and ours takes
+its place, and the empty state now says which of the two controls emptied the grid —
+"nothing matches that" is a different message from "nothing in this group yet".

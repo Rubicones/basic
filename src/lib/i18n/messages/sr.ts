@@ -52,6 +52,11 @@ export const sr: Messages = {
     carbs: "Ugljeni hidrati",
     nutritionNote: "Privremene vrednosti. Kuhinja ih još nije izmerila.",
     storage: "Kako se čuva",
+    search: "Pretraga kataloga",
+    searchPlaceholder: "Nađite desert",
+    searchClear: "Obriši pretragu",
+    emptySearch: "Ništa se ne poklapa.",
+    emptySearchHint: "Probajte deo naziva.",
     filterLabel: "Filtriraj po načinu čuvanja",
   },
   formats: {
