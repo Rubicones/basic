@@ -161,6 +161,18 @@ writing to a bucket that may not exist.
 Every save in demo mode answers "Demo mode: nothing was saved" rather than silently
 doing nothing, so a click during a presentation does not look like a bug.
 
+## The console on a phone
+
+The bar carries a logo, four links and an account, and it was clamped to `h-header` —
+so on a phone it wrapped to three lines inside a 72px box and printed itself over the
+demo banner underneath. It is a floor now (`min-h-header`), the links sit on their own
+row and scroll horizontally rather than wrapping, and the account stays beside the
+logo.
+
+One Tailwind detail worth remembering: `flex-1` sets a zero flex-basis, so it has to be
+`sm:flex-1` — at base it silently defeated the `w-full` that puts the links on their
+own line. Every console route measures zero horizontal overflow at 390px.
+
 ## Still open
 
 - Wiring the public catalogue to these tables (the fixture is still what renders).

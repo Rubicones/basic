@@ -118,7 +118,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
             className="card-waves text-brand absolute inset-0 z-0 hidden sm:block"
           >
             <div className="bg-surface-page absolute inset-0" />
-            <WavePattern />
+            <WavePattern seed={product.slug} />
           </div>
 
           <div className="relative z-10">
@@ -161,18 +161,12 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
                 />
 
                 <div className="absolute inset-x-0 bottom-0 p-5">
-                  <div className="hidden items-end justify-between gap-4 sm:flex">
-                    <h3 className="font-display text-title text-content-on-photo font-bold text-balance">
-                      {product.name[locale]}
-                    </h3>
-                    <span className="font-display text-content-on-photo shrink-0 overflow-hidden font-bold">
-                      {/* Keyed so a change restarts the slide, the way
-                          AnimatePresence did in the reference. */}
-                      <span key={variant} className="value-slide block text-body-sm">
-                        {priceLabel}
-                      </span>
-                    </span>
-                  </div>
+                  {/* The name only. The price used to sit here as well as under the
+                      photo; one card, one price, and it belongs with the control
+                      that changes it. */}
+                  <h3 className="font-display text-title text-content-on-photo hidden font-bold text-balance sm:block">
+                    {product.name[locale]}
+                  </h3>
 
                   <div id={`d-${product.slug}`} className="card-reveal">
                     <div>
@@ -389,9 +383,24 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               valueLabel={fill(t.order.lineQuantity, { name: product.name[locale] })}
             />
 
-            <Button variant="solidWipe" onClick={() => cart.add(product.slug, variant)} fullWidth>
-              {variant === "whole" ? t.catalog.addWhole : t.catalog.add}
-            </Button>
+            {/*
+              The price, where "add to order" was.
+              The stepper's + is the add: a button that said so as well was a
+              second control for one action, and it cost the card the only place
+              the price could be read at a glance. No "per piece" / "whole cake"
+              beside it either — the toggle above already says which one is
+              priced, and the drawer spells it out.
+            */}
+            <span className="justify-self-end overflow-hidden">
+              {/* Keyed so a change restarts the slide, the way AnimatePresence
+                  did in the reference. */}
+              <span
+                key={variant}
+                className="value-slide font-display text-display-sm block font-bold tabular-nums"
+              >
+                {priceLabel}
+              </span>
+            </span>
           </div>
         </div>
       </div>

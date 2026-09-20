@@ -353,7 +353,16 @@
 }
 /* Reveals and panels: the only two properties safe to animate on the compositor. */
 @utility transition-reveal {
-  transition-property: opacity, transform, grid-template-rows;
+  /* `translate` and `scale`, not only `transform`: Tailwind v4 writes its
+     translate and scale utilities to those separate properties, so a list with
+     `transform` alone transitions neither — the panel was snapping into place
+     while only its opacity faded. */
+  /* `display` and `overlay` are in the list because the exit needs them: closing a
+     <dialog> flips both discretely, and without them the panel is cut to
+     display:none on the first frame and only the entrance is ever seen. They
+     transition because the element also carries `transition-discrete`. */
+  transition-property:
+    opacity, transform, translate, scale, grid-template-rows, display, overlay;
   transition-timing-function: var(--ease-out-smooth);
   transition-duration: var(--duration-slow);
 }
@@ -434,6 +443,12 @@
 /* Header geometry, all derived from --header-h. */
 @utility h-header {
   height: var(--header-h);
+}
+/* A floor, not a ceiling. The console's bar carries a logo, four links and an
+   account, and on a phone that wraps — clamped to a fixed height it wrapped
+   straight through the banner underneath it. */
+@utility min-h-header {
+  min-height: var(--header-h);
 }
 @utility pt-header {
   padding-top: var(--header-h);
@@ -882,4 +897,68 @@
    three languages and no wider — the filters have the rest of the row. */
 @utility w-search {
   width: 18rem;
+}
+
+
+
+/* ── the modal's own motion ──────────────────────────────────────────────────
+   Driven by `data-state`, not by `[open]`.
+   
+   `[open]` plus `@starting-style` plus `transition-behavior: allow-discrete` is
+   the tidy way to write this, and it animates the entrance everywhere — but the
+   exit depends on the `overlay` property being transitionable, and Firefox does
+   not implement `overlay` at all. There the element leaves the top layer on the
+   frame `close()` is called and the panel vanishes mid-slide.
+   
+   So the element stays open through its own exit and the dialog closes itself
+   afterwards. Two attribute values, one transition, no browser-specific parts. */
+@utility dialog-motion {
+  opacity: 0;
+  transition:
+    opacity var(--duration-slow) var(--ease-out-smooth),
+    translate var(--duration-slow) var(--ease-out-smooth),
+    scale var(--duration-slow) var(--ease-out-smooth);
+
+  &::backdrop {
+    opacity: 0;
+    transition: opacity var(--duration-slow) var(--ease-out-smooth);
+  }
+
+  &[data-state="open"] {
+    opacity: 1;
+  }
+
+  &[data-state="open"]::backdrop {
+    opacity: 1;
+  }
+}
+
+/* Centred dialog: a small rise and settle. */
+@utility dialog-motion-centre {
+  translate: 0 calc(var(--spacing) * 2);
+  scale: 0.98;
+
+  &[data-state="open"] {
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* Drawer: up from below the fold on a phone, in from past the right edge on a
+   wide screen. `100%` is the panel's own size, so the distance is right whatever
+   the panel turns out to be. */
+@utility dialog-motion-drawer {
+  translate: 0 100%;
+
+  &[data-state="open"] {
+    translate: 0 0;
+  }
+
+  @variant sm {
+    translate: 100% 0;
+
+    &[data-state="open"] {
+      translate: 0 0;
+    }
+  }
 }

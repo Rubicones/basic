@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { cx } from "./cx";
 import { IconClose } from "./icon";
 
@@ -12,10 +12,19 @@ import { IconClose } from "./icon";
  * library reimplements those, usually incompletely; the reference used a `fixed`
  * div with no focus trap at all.
  *
- * Motion is opacity and transform only, with `allow-discrete` so the element can
- * animate in and out of `display: none`. Where that is unsupported it snaps, which
- * is a perfectly good modal.
+ * The motion is driven by `data-state`, and the element stays open through its own
+ * exit — the dialog closes itself once the transition has finished.
+ *
+ * The tidy way to write this is `[open]` plus `@starting-style` plus
+ * `transition-behavior: allow-discrete`, and the entrance does animate that way
+ * everywhere. The exit does not: it needs the `overlay` property to be
+ * transitionable, and Firefox does not implement `overlay` at all, so the element
+ * leaves the top layer on the frame `close()` is called and the panel disappears
+ * mid-slide. Two attribute values and one ordinary transition work in every
+ * browser, which is worth more here than the shorter stylesheet.
  */
+
+const EXIT_MS = 400; // --duration-slow
 
 type Variant = "dialog" | "drawer";
 
@@ -45,35 +54,61 @@ export function Dialog({
   hideTitle = false,
 }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [phase, setPhase] = useState<"closed" | "open">("closed");
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    if (open && !node.open) node.showModal();
-    if (!open && node.open) node.close();
+    if (timer.current) clearTimeout(timer.current);
+
+    if (open) {
+      if (!node.open) node.showModal();
+      // Two frames: one for the browser to lay the element out in its closed
+      // state, one for the change to be a transition rather than an initial value.
+      const raf = requestAnimationFrame(() => requestAnimationFrame(() => setPhase("open")));
+      return () => cancelAnimationFrame(raf);
+    }
+
+    setPhase("closed");
+    if (node.open) {
+      timer.current = setTimeout(() => node.close(), EXIT_MS);
+    }
+    return;
   }, [open]);
 
-  // Esc and the close button both go through the element's own `close` event, so
-  // there is one path out and the parent's state cannot drift from the DOM.
+  useEffect(() => () => void (timer.current && clearTimeout(timer.current)), []);
+
+  /**
+   * Esc and the backdrop ask the parent to close rather than closing the element,
+   * so every way out runs the same exit. `cancel` is the event Esc fires first;
+   * preventing it is what stops the platform from closing instantly underneath us.
+   */
+  const requestClose = useCallback(() => onClose(), [onClose]);
+
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    const handle = () => onClose();
-    node.addEventListener("close", handle);
-    return () => node.removeEventListener("close", handle);
-  }, [onClose]);
+    const cancel = (event: Event) => {
+      event.preventDefault();
+      requestClose();
+    };
+    node.addEventListener("cancel", cancel);
+    return () => node.removeEventListener("cancel", cancel);
+  }, [requestClose]);
 
   const isDrawer = variant === "drawer";
 
   return (
     <dialog
       ref={ref}
+      data-state={phase}
       aria-label={hideTitle ? title : undefined}
       // Clicking the backdrop closes. The check is on the dialog itself because the
       // ::backdrop pseudo-element is not an event target — a click that lands on
       // the dialog element rather than its content is a backdrop click.
       onClick={(event) => {
-        if (event.target === ref.current) ref.current?.close();
+        if (event.target === ref.current) requestClose();
       }}
       className={cx(
         /* No `m-0`: a <dialog> centres itself with the UA's `margin: auto`, and
@@ -81,32 +116,34 @@ export function Dialog({
            margins it actually wants instead. */
         "bg-surface-raised text-content-primary w-full p-0 shadow-overlay",
         "backdrop:bg-surface-inverse/55",
-        "transition-reveal transition-discrete",
-        "opacity-0 open:opacity-100 starting:open:opacity-0",
+        "dialog-motion",
         isDrawer
           ? cx(
+              "dialog-motion-drawer",
               "mx-auto mt-auto mb-0 max-h-dialog max-w-none rounded-t-panel",
-              "translate-y-4 open:translate-y-0 starting:open:translate-y-4",
               "sm:my-auto sm:mr-4 sm:ml-auto sm:h-auto sm:max-h-panel sm:w-drawer sm:max-w-none",
               "sm:rounded-panel",
-              "sm:translate-y-0 sm:translate-x-4 sm:open:translate-x-0 sm:starting:open:translate-x-4",
             )
-          : cx(
-              "m-auto max-h-dialog max-w-form rounded-panel",
-              "translate-y-2 scale-98 open:translate-y-0 open:scale-100",
-              "starting:open:translate-y-2 starting:open:scale-98",
-            ),
+          : cx("dialog-motion-centre", "m-auto max-h-dialog max-w-form rounded-panel"),
       )}
     >
       {/* A grid with a scrolling middle row: the header and footer stay put while
           only the body scrolls, which is what stops a long form from pushing its
           own submit button off the screen. */}
       <div className="grid max-h-dialog grid-rows-dialog sm:max-h-panel">
-        <header className="border-line flex items-start justify-between gap-4 border-b p-6">
+        <header
+          className={cx(
+            "border-line flex items-start justify-between gap-4 p-6",
+            /* On a phone the photograph begins immediately under the title and a
+               rule between them only cuts the sheet in half. The side panel keeps
+               it: there the header stays put while the body scrolls under it. */
+            isDrawer ? "sm:border-b" : "border-b",
+          )}
+        >
           <h2 className={cx("text-display-sm", hideTitle && "sr-only")}>{title}</h2>
           <button
             type="button"
-            onClick={() => ref.current?.close()}
+            onClick={requestClose}
             aria-label="Close"
             className={cx(
               "border-line-control text-content-secondary grid size-9 shrink-0 place-items-center",

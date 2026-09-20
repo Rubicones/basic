@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Container, Grid, IconCheck, IconClose, IconSearch, Section, Stack } from "@/components/ui";
+import { Container, Grid, IconClose, IconSearch, Section, Stack } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { ProductCard } from "./product-card";
 import { FORMATS, PRODUCTS, type Format } from "@/lib/catalog/products";
@@ -175,14 +175,7 @@ export function Catalog({ locale, t }: { locale: Locale; t: Messages }) {
                         : "border-line-control bg-surface-raised text-content-secondary hover:border-brand hover:text-brand",
                     )}
                   >
-                    <span className="flex items-center gap-1.5">
-                      {on && (
-                        <span className="badge-pop flex">
-                          <IconCheck size={16} />
-                        </span>
-                      )}
-                      {tab.label}
-                    </span>
+                    {tab.label}
                   </button>
                 );
               })}

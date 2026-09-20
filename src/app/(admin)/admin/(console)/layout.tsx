@@ -30,25 +30,37 @@ export default async function ConsoleLayout({ children }: { children: React.Reac
     <div className="min-h-screen">
       <header className="border-line bg-surface-raised border-b">
         <Container>
-          <div className="flex h-header flex-wrap items-center gap-x-6 gap-y-2">
-            <Link href="/admin" className="text-brand flex items-center gap-2.5">
+          {/* A floor rather than a fixed height, and the links scroll instead of
+              wrapping: on a phone the bar used to wrap to three lines inside a
+              72px box and print itself over the banner below. */}
+          <div className="flex min-h-header flex-wrap items-center gap-x-6 gap-y-2 py-3 sm:py-0">
+            <Link href="/admin" className="text-brand mr-auto flex shrink-0 items-center gap-2.5">
               <BlobMark size={24} />
               <span className="font-display text-body font-extrabold">console</span>
             </Link>
 
-            <nav aria-label="Console" className="flex flex-1 flex-wrap items-center gap-1">
+            <nav
+              aria-label="Console"
+              /* `flex-1` only from sm: at base it would set a zero flex-basis and the
+                 `w-full` that puts the links on their own line would never take. */
+              className="scrollbar-none -mx-4 order-last flex w-full items-center gap-1 overflow-x-auto px-4 sm:order-none sm:mx-0 sm:w-auto sm:flex-1 sm:flex-wrap sm:overflow-visible sm:px-0"
+            >
               {NAV.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-body-sm text-content-secondary hover:bg-surface-brand hover:text-brand rounded-pill px-3 py-1.5 transition-surface"
+                  className="text-body-sm text-content-secondary hover:bg-surface-brand hover:text-brand shrink-0 rounded-pill px-3 py-1.5 transition-surface"
                 >
                   {item.label}
                 </Link>
               ))}
             </nav>
 
-            <form action="/admin/auth/sign-out" method="post" className="flex items-center gap-3">
+            <form
+              action="/admin/auth/sign-out"
+              method="post"
+              className="flex shrink-0 items-center gap-3"
+            >
               {demo && (
                 <span className="bg-surface-brand text-brand-hover text-micro rounded-pill px-3 py-1 uppercase">
                   Demo data

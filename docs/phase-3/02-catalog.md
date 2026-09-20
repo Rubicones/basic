@@ -332,3 +332,88 @@ Two small things the browser does that had to be undone: the search input's nati
 clear button is a grey cross that ignores the palette, so it is removed and ours takes
 its place, and the empty state now says which of the two controls emptied the grid —
 "nothing matches that" is a different message from "nothing in this group yet".
+
+### Ribbons drawn per card
+
+The reference drew three fixed strokes and used them on every card, so a grid of
+eighteen showed the same wallpaper eighteen times — the tell that the decoration was
+printed rather than made. Each card now draws its own: the strokes enter at different
+heights, bend by different amounts, leave at different angles, carry different widths
+and opacities, and the whole set sits at its own tilt.
+
+The variation is **seeded from the slug**, not from `Math.random()`. Random here means
+"unlike its neighbours", not "different every time you look" — a card that reshuffled
+on each render would flicker through hydration and would not be a design at all.
+
+One bug fell out of it: the blur filter's id was hardcoded, so eighteen cards declared
+eighteen filters with the same name and every one resolved to whichever happened to be
+first in the document. The id is now per-card.
+
+### Two motion fixes
+
+The panel's entrance never animated. `transition-reveal` listed `opacity, transform,
+grid-template-rows`, and Tailwind v4 writes its translate and scale utilities to the
+separate `translate` and `scale` properties — so the panel snapped into place while
+only its opacity faded, and the four-pixel offset it was written with was invisible
+anyway. The list now includes them, and the offset became a real entrance: up from
+below the fold on a phone, in from beyond the right edge on a wide screen.
+
+That exposed a second one. `@starting-style` needs its own overrides per breakpoint:
+with only the phone's `translate-y-full` declared inside it, the wide panel began its
+entrance still carrying the vertical offset and arrived diagonally.
+
+### Two smaller things
+
+The tick inside the active filter pill changed that pill's width, so the whole row
+jumped left and right on every toggle. It is gone; the active state is still carried by
+colour, border and shadow. Measured: the second tab sits at the same x before and after
+being selected.
+
+The rule between the sheet's title and the photograph is gone on a phone — there the
+photograph begins immediately under the title and a line between them only cuts the
+sheet in half. The side panel keeps it, because there the header stays put while the
+body scrolls under it.
+
+### Ribbons, second pass
+
+Seeding the shapes was not enough: every card still ran lower-left to upper-right,
+because that direction was baked into the coordinates. The strokes are now drawn in a
+centred space as three bands and the whole set is rotated by a seeded angle over the
+full circle, so direction varies along with everything else. Measured across nine
+cards: 48°, 203°, 208°, 230°, 243°, 249°, 292°, 319°, 338°.
+
+Rotation costs reach. The ribbons are drawn out to 340 units from the centre — past
+the card's half-diagonal — so that no angle leaves a corner bare.
+
+Weight was tuned back to the reference's after the first attempt came out thin and
+hard-edged: strokes 62–80 units against a 62–86 gap, blurred at stdDeviation 18 in a
+filter region of 250%. The gap is deliberately close to the stroke width — the
+reference's ribbons nearly touched, and the blur smeared the three into one wash rather
+than leaving three stripes with cream between them. A 200% filter region clipped the
+softest part of the edge and gave each ribbon a visible boundary, which is what made
+the first version look like a different motif.
+
+### The exit
+
+The panel came in and then vanished, and the first fix was wrong for the browser it
+had to work in.
+
+Closing a `<dialog>` flips `display` **and** `overlay` discretely. Adding both to the
+transition list with `allow-discrete` animates the exit in Chromium — but `overlay` is
+what keeps the element in the top layer during that transition, and **Firefox does not
+implement `overlay` at all**. There the element leaves the top layer on the frame
+`close()` is called, so the panel disappears mid-slide however the transition is
+declared. Chromium said it was fixed; the browser the bug was reported from did not.
+
+So the element now stays open through its own exit and closes itself afterwards. The
+motion is driven by a `data-state` attribute instead of `[open]`: opening calls
+`showModal()`, waits two frames — one to lay the element out closed, one so the change
+is a transition rather than an initial value — then flips the attribute. Closing flips
+it back and calls `close()` when the transition is done. Esc goes through the `cancel`
+event, which is prevented so the platform cannot close the element underneath the
+animation, and the backdrop and the × ask the parent to close rather than closing the
+element, so every way out runs the same exit.
+
+That also retired `@starting-style` and `allow-discrete` here: two attribute values and
+one ordinary transition, with no browser-specific parts. Traced at both widths — enter,
+settle, exit, and `open` only becoming false after the panel has left.
