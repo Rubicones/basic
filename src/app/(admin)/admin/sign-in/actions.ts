@@ -1,7 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { env } from "@/lib/env";
 import { SIGN_IN_INITIAL, type SignInState } from "./state";
 
@@ -33,13 +33,38 @@ export async function requestLink(
     return { sent: false, email, error: "That does not look like an email address." };
   }
 
-  const supabase = await createClient();
+  /*
+   * The implicit flow, deliberately — not the PKCE flow the SSR client uses.
+   *
+   * PKCE ties the link to the browser that asked for it: half of the handshake
+   * is a cookie set on this request, and Supabase keeps its half for about five
+   * minutes. For a sign-in link sent by email that is the wrong trade. The
+   * built-in mailer routinely takes minutes, the mail app opens links in its
+   * own browser, the owner asks on the laptop and taps on the phone — and every
+   * one of those fails, with a fresh link, in a way nobody can see the reason
+   * for. That is exactly what kept happening.
+   *
+   * With the implicit flow the link carries the session itself, in the URL
+   * fragment — which browsers never send to any server — to /admin/auth/finish,
+   * which stores it and wipes it from the address bar. It works in any browser
+   * for as long as the link is valid (an hour), once. What is given up is the
+   * binding to one browser; what stands between a stranger and the console is
+   * still the mailbox, and then the `admins` table.
+   */
+  const supabase = createSupabaseClient(env.supabaseUrl, env.supabaseAnonKey, {
+    auth: {
+      flowType: "implicit",
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
       // The link must come back to the host the request came from, or a link
       // requested on localhost opens the production console.
-      emailRedirectTo: `${await currentOrigin()}/admin/auth/callback`,
+      emailRedirectTo: `${await currentOrigin()}/admin/auth/finish`,
       // The console's accounts are made deliberately, not by anyone who can type
       // an address into this box.
       shouldCreateUser: false,

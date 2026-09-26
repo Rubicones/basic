@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container, IconSpinner } from "@/components/ui";
-import { createClient } from "@/lib/supabase/client";
-import { classifyLinkError } from "@/lib/auth/link-errors";
+import { createBrowserClient } from "@supabase/ssr";
+import { env } from "@/lib/env";
+import { classifyLinkError, reasonCode } from "@/lib/auth/link-errors";
 
 export function FinishSignIn() {
   const router = useRouter();
@@ -19,14 +20,21 @@ export function FinishSignIn() {
     // `#error_code=otp_expired&error_description=…` — so read it rather than
     // reporting every failure as the same one.
     if (!accessToken || !refreshToken) {
-      const reason = params.get("error_code") ?? params.get("error_description");
+      const reason = `${params.get("error_code") ?? ""} ${params.get("error_description") ?? ""}`;
       setFailed(true);
-      router.replace(`/admin/sign-in?error=${classifyLinkError(reason)}`);
+      router.replace(signInWith(reason));
       return;
     }
 
     void (async () => {
-      const supabase = createClient();
+      // Told not to read the URL itself: left to its defaults, the browser client
+      // parses the fragment by PKCE rules, refuses a token it did not ask for,
+      // and races the explicit `setSession` below. This page does the reading.
+      const supabase = createBrowserClient(env.supabaseUrl, env.supabaseAnonKey, {
+        auth: { detectSessionInUrl: false },
+      });
+      // The token has done its job; it should not sit in the history entry.
+      window.history.replaceState(null, "", window.location.pathname);
       const { error } = await supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
@@ -34,7 +42,7 @@ export function FinishSignIn() {
 
       // The membership check is not repeated here: `/admin` is behind the guard,
       // and one place deciding who may enter is better than two that can drift.
-      router.replace(error ? `/admin/sign-in?error=${classifyLinkError(error.message)}` : "/admin");
+      router.replace(error ? signInWith(`${error.code ?? ""} ${error.message}`) : "/admin");
     })();
   }, [router]);
 
@@ -50,4 +58,12 @@ export function FinishSignIn() {
       </Container>
     </main>
   );
+}
+
+/** Back to sign-in, saying which failure it was and Supabase's code for it. */
+function signInWith(reason: string): string {
+  const query = new URLSearchParams({ error: classifyLinkError(reason) });
+  const code = reasonCode(reason);
+  if (code) query.set("reason", code);
+  return `/admin/sign-in?${query.toString()}`;
 }

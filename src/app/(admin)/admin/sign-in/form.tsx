@@ -41,9 +41,9 @@ export function SignInForm({ notice }: { notice?: string }) {
               sent is exactly what this form must not reveal — so the advice is
               general rather than a diagnosis. */}
           <p className="text-caption text-content-secondary mt-3">
-            Open it in this browser — it will not work anywhere else. Nothing after a couple of
-            minutes? Only a few sign-in emails can go out per hour, and asking again replaces the
-            previous link, so wait before you do.
+            It opens in any browser, on any device. Nothing after a couple of minutes? Only a few
+            sign-in emails can go out per hour, and asking again replaces the previous link, so wait
+            before you do.
           </p>
 
           <form action={action} className="mt-6">

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import { classifyLinkError } from "@/lib/auth/link-errors";
+import { classifyLinkError, reasonCode } from "@/lib/auth/link-errors";
 
 /**
  * Where the emailed link lands.
@@ -40,6 +40,8 @@ export async function GET(request: NextRequest) {
     );
     console.error("[auth/callback]", reason, safe);
     signIn.searchParams.set("error", classifyLinkError(reason));
+    const code = reasonCode(reason);
+    if (code) signIn.searchParams.set("reason", code);
     return NextResponse.redirect(signIn);
   };
 
@@ -54,10 +56,10 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) return failed(`exchange: ${error.message}`);
+    if (error) return failed(`exchange: ${error.code ?? ""} ${error.message}`);
   } else if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
-    if (error) return failed(`verify: ${error.message}`);
+    if (error) return failed(`verify: ${error.code ?? ""} ${error.message}`);
   } else {
     // Nothing in the query string. The credential may be in the fragment, which
     // only the browser can read — so hand over to a page that can.
