@@ -13,8 +13,8 @@ export default async function OrdersPage() {
       {orders.length === 0 ? (
         <Card>
           <p className="text-body-sm text-content-secondary">
-            No orders yet. The order form does not submit anything until the pricing function is in
-            place — see the note in docs/phase-4-notes.md.
+            No orders yet. They arrive here the moment someone sends the form on the site — priced
+            by the database, not by the browser that submitted it.
           </p>
         </Card>
       ) : (
@@ -27,7 +27,8 @@ export default async function OrdersPage() {
                   className="hover:bg-surface-brand/45 flex flex-wrap items-center gap-4 p-4 transition-surface"
                 >
                   <span className="text-body-sm min-w-0 flex-1">
-                    <span className="font-display block font-bold">
+                    <span className="block font-bold">
+                      #{order.number} ·{" "}
                       {new Date(order.created_at).toLocaleString("en-GB", {
                         day: "numeric",
                         month: "short",
@@ -40,7 +41,7 @@ export default async function OrdersPage() {
                     </span>
                   </span>
 
-                  <span className="font-display text-body-sm shrink-0 font-bold tabular-nums">
+                  <span className="text-body-sm shrink-0 font-bold tabular-nums">
                     {order.total_rsd.toLocaleString("en")} RSD
                   </span>
 

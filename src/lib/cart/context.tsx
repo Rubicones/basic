@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useReducer, type ReactNode } from "react";
-import { PRODUCTS, WHOLE_MULTIPLIER, type Product } from "@/lib/catalog/products";
+import type { Product } from "@/lib/catalog/products";
 import { lineKey, type CartLine, type Variant } from "@/lib/order/cart";
 
 /**
@@ -17,7 +17,8 @@ import { lineKey, type CartLine, type Variant } from "@/lib/order/cart";
  * a dependency would be carrying a library to do `useReducer`'s job.
  *
  * Nothing is persisted, by design. A cart that survives a reload also survives a
- * price change, and this one is priced from `PRODUCTS` on every render.
+ * price change, and this one is priced from the catalogue on every render — and
+ * repriced again in the database when the order is actually placed.
  */
 
 type CartState = Record<string, number>;
@@ -64,7 +65,14 @@ type CartValue = {
 
 const CartContext = createContext<CartValue | null>(null);
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({
+  products,
+  children,
+}: {
+  /** The catalogue this cart prices against. */
+  products: Product[];
+  children: ReactNode;
+}) {
   const [state, dispatch] = useReducer(reducer, {});
 
   const qtyOf = useCallback(
@@ -83,7 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const setQty = useCallback((key: string, qty: number) => dispatch({ type: "set", key, qty }), []);
   const clear = useCallback(() => dispatch({ type: "clear" }), []);
 
-  const lines = useMemo(() => resolve(state), [state]);
+  const lines = useMemo(() => resolve(state, products), [state, products]);
   const count = useMemo(() => lines.reduce((sum, line) => sum + line.qty, 0), [lines]);
   const total = useMemo(
     () => lines.reduce((sum, line) => sum + line.qty * line.unitPrice, 0),
@@ -108,11 +116,11 @@ export function useCart(): CartValue {
  * Cart keys back into products, in catalogue order rather than the order things
  * were tapped — the panel should read like the catalogue it was filled from.
  */
-function resolve(state: CartState): CartLine[] {
-  const bySlug = new Map<string, Product>(PRODUCTS.map((product) => [product.slug, product]));
+function resolve(state: CartState, products: Product[]): CartLine[] {
+  const bySlug = new Map<string, Product>(products.map((product) => [product.slug, product]));
   const lines: CartLine[] = [];
 
-  for (const product of PRODUCTS) {
+  for (const product of products) {
     for (const variant of ["piece", "whole"] as const) {
       const key = lineKey(product.slug, variant);
       const qty = state[key];
@@ -126,7 +134,7 @@ function resolve(state: CartState): CartLine[] {
         product: source,
         variant,
         qty,
-        unitPrice: variant === "whole" ? source.price * WHOLE_MULTIPLIER : source.price,
+        unitPrice: variant === "whole" ? (source.wholePrice ?? source.price) : source.price,
       });
     }
   }

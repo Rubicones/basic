@@ -13,7 +13,7 @@ import { dirname, join } from "node:path";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const { PRODUCTS, WHOLE_MULTIPLIER } = await import(join(root, "src/lib/catalog/products.ts"));
+const { PRODUCTS } = await import(join(root, "src/lib/catalog/products.ts"));
 const { ORDER_FIELDS } = await import(join(root, "src/lib/order/fields.ts"));
 /* Read rather than imported: `photos.json` is the one thing here that is not a
    module, and Node's JSON import attribute is not worth writing into the app. */
@@ -44,21 +44,31 @@ PRODUCTS.forEach((product, index) => {
   const formats = `'{${product.formats.join(",")}}'::product_format[]`;
 
   lines.push(
-    `insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,`,
-    `  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,`,
+    `insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,`,
+    `  formats, photo_path, photo_blur, photo_is_placeholder,`,
+    `  weight_g, kcal, protein_g, fat_g, carbs_g,`,
     `  position, is_published)`,
-    `values (${q(product.slug)}, ${product.price}, ${bool(product.priceIsPlaceholder)},`,
-    `  ${bool(product.whole)}, ${WHOLE_MULTIPLIER}, ${formats}, ${q(photo.file ?? null)},`,
-    `  ${q(photo.blur ?? null)}, ${bool(product.photoIsPlaceholder)}, ${index}, true)`,
+    `values (${q(product.slug)}, ${product.price}, ${bool(product.wholePrice !== null)},`,
+    `  ${product.wholePrice ?? "null"}, ${q(product.tag)}, ${formats},`,
+    `  ${q(photo.file ? `/products/${photo.file}` : null)},`,
+    `  ${q(photo.blur ?? null)}, ${bool(product.photoIsPlaceholder)},`,
+    `  ${product.weightG ?? "null"}, ${product.nutrition?.kcal ?? "null"},`,
+    `  ${product.nutrition?.protein ?? "null"}, ${product.nutrition?.fat ?? "null"},`,
+    `  ${product.nutrition?.carbs ?? "null"}, ${index}, true)`,
     `on conflict (slug) do update set`,
     `  price_rsd = excluded.price_rsd,`,
-    `  price_is_placeholder = excluded.price_is_placeholder,`,
     `  has_whole = excluded.has_whole,`,
-    `  whole_multiplier = excluded.whole_multiplier,`,
+    `  whole_price_rsd = excluded.whole_price_rsd,`,
+    `  tag = excluded.tag,`,
     `  formats = excluded.formats,`,
     `  photo_path = excluded.photo_path,`,
     `  photo_blur = excluded.photo_blur,`,
     `  photo_is_placeholder = excluded.photo_is_placeholder,`,
+    `  weight_g = excluded.weight_g,`,
+    `  kcal = excluded.kcal,`,
+    `  protein_g = excluded.protein_g,`,
+    `  fat_g = excluded.fat_g,`,
+    `  carbs_g = excluded.carbs_g,`,
     `  position = excluded.position,`,
     `  is_published = excluded.is_published;`,
     "",

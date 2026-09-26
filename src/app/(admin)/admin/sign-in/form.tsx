@@ -36,6 +36,16 @@ export function SignInForm({ notice }: { notice?: string }) {
             If {state.email} can sign in, a link is on its way. It works once, for an hour.
           </p>
 
+          {/* The two things that actually go wrong, said before they happen. The
+              reply stays the same for every address — whether a link was really
+              sent is exactly what this form must not reveal — so the advice is
+              general rather than a diagnosis. */}
+          <p className="text-caption text-content-secondary mt-3">
+            Open it in this browser — it will not work anywhere else. Nothing after a couple of
+            minutes? Only a few sign-in emails can go out per hour, and asking again replaces the
+            previous link, so wait before you do.
+          </p>
+
           <form action={action} className="mt-6">
             <input type="hidden" name="intent" value="restart" />
             <Button type="submit" variant="ghost" size="sm" fullWidth>

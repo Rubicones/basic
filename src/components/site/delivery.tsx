@@ -74,7 +74,7 @@ function CityCard({ city, t }: { city: Messages["delivery"]["cities"][number]; t
               </span>
               {t.delivery.minimum}
             </dt>
-            <dd className="font-display text-body-lg mt-2 font-bold">{city.minimum}</dd>
+            <dd className="text-body-lg mt-2 font-bold">{city.minimum}</dd>
           </Tile>
 
           <Tile>
@@ -84,7 +84,7 @@ function CityCard({ city, t }: { city: Messages["delivery"]["cities"][number]; t
               </span>
               {t.delivery.fee}
             </dt>
-            <dd className="font-display text-body-sm mt-2 leading-tight font-bold">{city.fee}</dd>
+            <dd className="text-body-sm mt-2 leading-tight font-bold">{city.fee}</dd>
           </Tile>
 
           <div className="col-span-2">

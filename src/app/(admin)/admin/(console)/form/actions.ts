@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n/config";
 import { env } from "@/lib/env";
+import { revalidateSite } from "@/lib/admin/revalidate";
 
 export type FieldState = { error?: string; savedKey?: string; note?: string };
 /** In demo mode nothing is written — the console is being shown, not used. */
@@ -144,6 +145,7 @@ export async function saveField(_previous: FieldState, formData: FormData): Prom
   }
 
   revalidatePath("/admin/form");
+  revalidateSite();
   return { savedKey: key };
 }
 
@@ -154,6 +156,7 @@ export async function deleteField(formData: FormData): Promise<void> {
   const supabase = await createClient();
   await supabase.from("order_fields").delete().eq("id", id);
   revalidatePath("/admin/form");
+  revalidateSite();
 }
 
 /** Reordering is a swap, so two fields can never share a position. */
@@ -181,6 +184,7 @@ export async function moveField(formData: FormData): Promise<void> {
   await supabase.from("order_fields").update({ position: a.position }).eq("id", b.id);
 
   revalidatePath("/admin/form");
+  revalidateSite();
 }
 
 /** One option per line. Blank lines are how a list gets an invisible empty choice. */

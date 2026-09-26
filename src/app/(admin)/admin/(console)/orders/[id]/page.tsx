@@ -3,10 +3,8 @@ import Link from "next/link";
 import { Button, Card } from "@/components/ui";
 import { getOrder } from "@/lib/admin/queries";
 import { setOrderStatus } from "../actions";
-import { STATUS_LABEL, StatusPill } from "../status";
-import type { OrderStatus } from "@/lib/admin/types";
-
-const NEXT: OrderStatus[] = ["new", "confirmed", "done", "cancelled"];
+import { STATUS_LABEL, STATUS_ORDER, StatusPill } from "../status";
+import type { OrderDetail } from "@/lib/admin/types";
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,6 +24,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             ← All orders
           </Link>
           <h1 className="text-display-md mt-2">
+            #{order.number} ·{" "}
             {new Date(order.created_at).toLocaleString("en-GB", {
               day: "numeric",
               month: "long",
@@ -51,7 +50,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 <span className="text-caption text-content-secondary shrink-0 tabular-nums">
                   {item.qty} × {item.unit_price_rsd.toLocaleString("en")}
                 </span>
-                <span className="font-display text-body-sm shrink-0 font-bold tabular-nums">
+                <span className="text-body-sm shrink-0 font-bold tabular-nums">
                   {(item.qty * item.unit_price_rsd).toLocaleString("en")}
                 </span>
               </li>
@@ -60,7 +59,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
           <div className="border-line mt-4 flex items-baseline justify-between border-t pt-4">
             <span className="text-body-sm text-content-secondary">Total</span>
-            <span className="font-display text-display-sm text-brand font-bold tabular-nums">
+            <span className="text-display-sm text-brand font-bold tabular-nums">
               {order.total_rsd.toLocaleString("en")} RSD
             </span>
           </div>
@@ -89,23 +88,42 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <Card padding="lg">
             <h2 className="text-title mb-4 font-extrabold">Status</h2>
             <div className="flex flex-wrap gap-2">
-              {NEXT.filter((status) => status !== order.status).map((status) => (
+              {STATUS_ORDER.filter((status) => status !== order.status).map((status) => (
                 <form key={status} action={setOrderStatus}>
                   <input type="hidden" name="id" value={order.id} />
                   <input type="hidden" name="status" value={status} />
                   <Button
                     type="submit"
                     size="sm"
-                    variant={status === "cancelled" ? "danger" : "outline"}
+                    variant={status === "canceled" ? "danger" : "outline"}
                   >
                     {STATUS_LABEL[status]}
                   </Button>
                 </form>
               ))}
             </div>
+            <TelegramState order={order} />
           </Card>
         </div>
       </div>
     </>
   );
+}
+
+/**
+ * Where the staff chat stands on this order.
+ *
+ * Said here because it is the question after pressing a status button — "did
+ * the chat get it?" — and the answer otherwise lives in a database column.
+ */
+function TelegramState({ order }: { order: OrderDetail }) {
+  const line = !order.notified_at
+    ? order.notify_error
+      ? `Not in the staff chat yet — ${order.notify_attempts} attempt(s), last: ${order.notify_error}`
+      : "Not in the staff chat yet — on its way."
+    : order.telegram_status === order.status
+      ? `The staff chat shows ${STATUS_LABEL[order.status]}.`
+      : "The staff chat is catching up with this change — usually within seconds.";
+
+  return <p className="text-caption text-content-secondary mt-4">{line}</p>;
 }

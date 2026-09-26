@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n/config";
 import { FORMATS, type Format } from "@/lib/catalog/products";
 import { env } from "@/lib/env";
+import { revalidateSite } from "@/lib/admin/revalidate";
+import { TAG_MAX } from "./limits";
 
 export type SaveState = { error?: string; note?: string };
 /** In demo mode nothing is written — the console is being shown, not used. */
@@ -37,6 +39,51 @@ export async function saveProduct(_previous: SaveState, formData: FormData): Pro
     return { error: "The price must be a whole number of dinars." };
   }
 
+  // The toggle and the whole-cake price are one fact: offering "whole" with no
+  // figure behind it puts a card on the site with nothing to show for it. The
+  // table checks the same thing; a message that names the field beats a quoted
+  // constraint.
+  const hasWhole = formData.get("has_whole") === "on";
+  const wholeRaw = String(formData.get("whole_price_rsd") ?? "").trim();
+  const wholePrice = wholeRaw === "" ? null : Number(wholeRaw);
+
+  if (wholePrice !== null && (!Number.isInteger(wholePrice) || wholePrice < 0)) {
+    return { error: "The whole-cake price must be a whole number of dinars." };
+  }
+  if (hasWhole && wholePrice === null) {
+    return { error: "A product that offers the whole cake needs a price for it." };
+  }
+
+  // One language, as typed: the tag is not translated, and an absent one is null
+  // rather than "", so "has a tag" is one test on the card and not two.
+  const tag = String(formData.get("tag") ?? "").trim();
+  if (tag.length > TAG_MAX) {
+    return { error: `The corner tag has to fit in ${TAG_MAX} characters.` };
+  }
+
+  // Weight and the declaration. Four macros or none: the site shows the panel
+  // only when it is whole, and a panel with a blank in it reads as a measured
+  // zero — which is a claim about food, not a missing field.
+  const weight = optionalNumber(formData.get("weight_g"));
+  const macros = {
+    kcal: optionalNumber(formData.get("kcal")),
+    protein_g: optionalNumber(formData.get("protein_g")),
+    fat_g: optionalNumber(formData.get("fat_g")),
+    carbs_g: optionalNumber(formData.get("carbs_g")),
+  };
+
+  if (weight === false || Object.values(macros).includes(false)) {
+    return { error: "Weight and the declaration have to be numbers, and none of them negative." };
+  }
+
+  const given = Object.values(macros).filter((value) => value !== null).length;
+  if (given > 0 && given < 4) {
+    return {
+      error:
+        "A declaration needs all four figures — energy, protein, fat and carbohydrate — or none of them.",
+    };
+  }
+
   const names = new Map<Locale, string>();
   const notes = new Map<Locale, string>();
   for (const locale of LOCALES) {
@@ -62,9 +109,16 @@ export async function saveProduct(_previous: SaveState, formData: FormData): Pro
   const draft = {
     slug,
     price_rsd: price,
-    price_is_placeholder: formData.get("price_is_placeholder") === "on",
-    has_whole: formData.get("has_whole") === "on",
-    whole_multiplier: Number(formData.get("whole_multiplier")) || 6,
+    has_whole: hasWhole,
+    // Kept even when the toggle is off, so turning it back on does not ask for a
+    // number the owner already typed once.
+    whole_price_rsd: wholePrice,
+    tag: tag || null,
+    weight_g: weight as number | null,
+    kcal: macros.kcal as number | null,
+    protein_g: macros.protein_g as number | null,
+    fat_g: macros.fat_g as number | null,
+    carbs_g: macros.carbs_g as number | null,
     formats,
     photo_path: String(formData.get("photo_path") ?? "") || null,
     photo_blur: String(formData.get("photo_blur") ?? "") || null,
@@ -115,6 +169,7 @@ export async function saveProduct(_previous: SaveState, formData: FormData): Pro
   }
 
   revalidatePath("/admin/products");
+  revalidateSite();
   redirect(`/admin/products/${slug}`);
 }
 
@@ -127,7 +182,21 @@ export async function deleteProduct(formData: FormData): Promise<void> {
   // a product should not also destroy the only copy of its photo.
   await supabase.from("products").delete().eq("slug", slug);
   revalidatePath("/admin/products");
+  revalidateSite();
   redirect("/admin/products");
+}
+
+/**
+ * An empty numeric field is a fact that is not known, not a zero.
+ *
+ * `false` is the third answer — "something was typed and it was not a number" —
+ * because `null` already means "left blank" and the two must not be confused.
+ */
+function optionalNumber(raw: FormDataEntryValue | null): number | null | false {
+  const value = String(raw ?? "").trim();
+  if (value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : false;
 }
 
 /** Turns the two constraint violations a person can actually cause into sentences. */

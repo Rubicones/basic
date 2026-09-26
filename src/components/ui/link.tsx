@@ -23,19 +23,17 @@ export type LinkProps = {
 };
 
 const tones: Record<Tone, string> = {
-  inline:
-    "text-brand underline underline-offset-4 decoration-1 hover:decoration-2 transition-ink",
-  quiet:
-    "text-content-secondary hover:text-brand transition-ink no-underline",
+  inline: "text-brand underline underline-offset-4 decoration-1 hover:decoration-2 transition-ink",
+  quiet: "text-content-secondary hover:text-brand transition-ink no-underline",
   button: cx(
     "inline-flex items-center justify-center gap-2 rounded-pill no-underline",
-    "font-display font-bold whitespace-nowrap",
+    "font-bold whitespace-nowrap",
     "bg-brand text-content-on-brand hover:bg-brand-hover shadow-soft hover:shadow-lift",
     "transition-control active:translate-y-px",
   ),
   buttonOutline: cx(
     "inline-flex items-center justify-center gap-2 rounded-pill no-underline",
-    "font-display font-bold whitespace-nowrap",
+    "font-bold whitespace-nowrap",
     "border border-line-control bg-surface-raised text-content-primary",
     "hover:border-brand hover:text-brand",
     "transition-control active:translate-y-px",

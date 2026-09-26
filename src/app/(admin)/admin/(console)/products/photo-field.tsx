@@ -2,23 +2,25 @@
 
 import { useState, type ChangeEvent } from "react";
 import { Button, Field, IconAlert } from "@/components/ui";
-import { createClient } from "@/lib/supabase/client";
 import { env } from "@/lib/env";
 
 /**
- * Photo upload, with the blur placeholder made in the browser.
+ * Photo upload.
  *
- * The site's cards render a base64 preview under every photograph, so one has to
- * exist for each upload. Producing it on the server would mean an image library in
- * the bundle; a 10×12 canvas draw costs nothing and needs no dependency at all.
+ * The file goes to /admin/api/photo, which turns it into a WebP, names it by a
+ * hash of the result, stores it and hands back the path and the blur placeholder
+ * — see that route for why the conversion cannot be left to the browser.
  *
- * The stored name carries a hash of the file's own bytes. Next keys its image
- * cache on the URL, so re-uploading a corrected photograph under a name it has
- * already cached leaves the old one being served — which is exactly the bug that
- * cost two rounds of "the photos are still cropped" earlier in this project.
+ * The browser does one thing first: a 12-megapixel phone photo is 5–8 MB, and a
+ * serverless function will not accept a request body that size. So a large image
+ * is redrawn at 2400 px as a high-quality JPEG before it leaves, and the server
+ * makes the real WebP from that. A small one is sent untouched, so it is not
+ * compressed twice for no reason.
  */
 
 const BUCKET = "product-photos";
+const SHRINK_EDGE = 2400;
+const SEND_AS_IS_BYTES = 2.5 * 1024 * 1024;
 
 export function PhotoField({
   initialPath,
@@ -50,21 +52,28 @@ export function PhotoField({
         return;
       }
 
-      const bytes = await file.arrayBuffer();
-      const name = `${await hash(bytes)}.${extensionOf(file)}`;
+      const body = new FormData();
+      body.set("file", await shrink(file));
 
-      const supabase = createClient();
-      const { error: uploadError } = await supabase.storage.from(BUCKET).upload(name, file, {
-        // The name already changes when the bytes do, so the object itself never
-        // has to be revalidated.
-        cacheControl: "31536000",
-        upsert: true,
-        contentType: file.type,
-      });
-      if (uploadError) throw new Error(uploadError.message);
+      const response = await fetch("/admin/api/photo", { method: "POST", body });
+      const result = (await response.json().catch(() => ({}))) as {
+        path?: string;
+        blur?: string;
+        error?: string;
+      };
 
-      setBlur(await makeBlur(file));
-      setPath(name);
+      if (!response.ok || !result.path) {
+        throw new Error(
+          result.error ??
+            (response.status === 413
+              ? "That photo is too large to send. Export it smaller and try again."
+              : `The upload failed (${response.status}).`),
+        );
+      }
+
+      setLocal(null);
+      setBlur(result.blur ?? "");
+      setPath(result.path);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "The upload failed.");
     } finally {
@@ -101,7 +110,7 @@ export function PhotoField({
             <label className="inline-flex">
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept="image/*"
                 onChange={handleFile}
                 disabled={busy}
                 className="sr-only"
@@ -144,17 +153,52 @@ export function PhotoField({
   );
 }
 
-async function hash(bytes: ArrayBuffer): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(digest).slice(0, 4))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+/**
+ * Small enough to send.
+ *
+ * Redrawn only when it is worth it — larger than 2400 px on its long edge, or
+ * heavier than 2.5 MB. The browser applies EXIF orientation when it decodes, so
+ * the redraw is upright. A file the browser cannot decode at all (HEIC on a
+ * desktop browser) is sent as it is, and the server says what to do about it.
+ */
+async function shrink(file: File): Promise<Blob> {
+  const image = await decode(file).catch(() => null);
+  if (!image) return file;
+
+  const longest = Math.max(image.naturalWidth, image.naturalHeight);
+  if (longest <= SHRINK_EDGE && file.size <= SEND_AS_IS_BYTES) return file;
+
+  const scale = Math.min(1, SHRINK_EDGE / longest);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(image.naturalWidth * scale);
+  canvas.height = Math.round(image.naturalHeight * scale);
+  const context = canvas.getContext("2d");
+  if (!context) return file;
+
+  context.imageSmoothingQuality = "high";
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  // JPEG because every browser can encode it — WebP is the server's job.
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", 0.9),
+  );
+  return blob ?? file;
 }
 
-function extensionOf(file: File): string {
-  if (file.type === "image/png") return "png";
-  if (file.type === "image/webp") return "webp";
-  return "jpg";
+function decode(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("undecodable"));
+    };
+    image.src = url;
+  });
 }
 
 /** A 10×12 JPEG, which is all a blurred backdrop ever needed to be. */

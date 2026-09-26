@@ -65,6 +65,15 @@ export const IconPlus = (p: IconProps) => (
   </Svg>
 );
 
+/** A file going up: the import screen, and nothing else so far. */
+export const IconUpload = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 16V4" />
+    <path d="m7 9 5-5 5 5" />
+    <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+  </Svg>
+);
+
 export const IconMinus = (p: IconProps) => (
   <Svg {...p}>
     <path d="M5 12h14" />

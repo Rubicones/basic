@@ -52,7 +52,15 @@ const LONG = {
   },
 } as const;
 
-function Row({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
+function Row({
+  title,
+  note,
+  children,
+}: {
+  title: string;
+  note?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="border-line border-t pt-6">
       <h3 className="text-display-sm">{title}</h3>
@@ -106,8 +114,8 @@ export default async function UiKitPage({ params }: { params: Promise<{ locale: 
             <p className="text-micro text-brand uppercase">Phase 2 · review surface</p>
             <h1 className="text-display-lg mt-3">UI kit</h1>
             <p className="text-body-lg text-content-secondary mt-4 max-w-measure">
-              Every primitive in every state. Tab through this page — focus must be visible on
-              every interactive element, without exception.
+              Every primitive in every state. Tab through this page — focus must be visible on every
+              interactive element, without exception.
             </p>
             <Stack direction="row" gap={3} wrap>
               <div className="mt-6 flex gap-3">
@@ -152,11 +160,11 @@ export default async function UiKitPage({ params }: { params: Promise<{ locale: 
                 note="Display sizes are the display face; the rest is the body face. In Russian both come from Onest, which has Cyrillic — Outfit and DM Sans do not."
               >
                 <Stack gap={4}>
-                  <p className="text-display-xl">Display xl</p>
-                  <p className="text-display-lg">Display lg</p>
-                  <p className="text-display-md">Display md</p>
-                  <p className="text-display-sm">Display sm</p>
-                  <p className="text-title">Title</p>
+                  <p className="font-display text-display-xl">Display xl</p>
+                  <p className="font-display text-display-lg">Display lg</p>
+                  <p className="font-display text-display-md">Display md</p>
+                  <p className="font-display text-display-sm">Display sm</p>
+                  <p className="font-display text-title">Title</p>
                   <p className="text-body-lg">Body lg — a paragraph at reading size.</p>
                   <p className="text-body">Body — the default.</p>
                   <p className="text-body-sm">Body sm — dense UI and form text.</p>
@@ -279,7 +287,7 @@ export default async function UiKitPage({ params }: { params: Promise<{ locale: 
                   <Textarea name="h" label="Textarea, error" wide error="This field is required." />
                 </Grid>
 
-                <Stack gap={4} >
+                <Stack gap={4}>
                   <div className="mt-6">
                     <Stack gap={4}>
                       <Checkbox name="k1" label="Show on the site" defaultChecked />
@@ -427,7 +435,9 @@ export default async function UiKitPage({ params }: { params: Promise<{ locale: 
                     </p>
                   </Tile>
                   <Tile>
-                    <p className="text-body-sm">Grid: 2 / 3 / 4 columns, one collapse ladder each</p>
+                    <p className="text-body-sm">
+                      Grid: 2 / 3 / 4 columns, one collapse ladder each
+                    </p>
                   </Tile>
                 </Stack>
               </Row>

@@ -13,8 +13,20 @@ import "@/styles/globals.css";
  * The font pair is chosen per locale — see src/styles/fonts.ts.
  */
 
-export function generateStaticParams() {
-  return LOCALES.map((locale) => ({ locale }));
+/**
+ * The three locales are known, and deliberately not pre-generated.
+ *
+ * Returning them here would have the build render the landing page, and the
+ * landing page is a catalogue that lives in a database — so a deploy would start
+ * failing whenever Supabase blinked, and a build made before the shop added a
+ * product would ship that emptiness as a static file. The pages are rendered on
+ * first request and cached from then on (`revalidate` on the page), which is the
+ * same output with none of that coupling.
+ *
+ * `dynamicParams` is on by default; `isLocale` is what refuses a fourth language.
+ */
+export function generateStaticParams(): { locale: string }[] {
+  return [];
 }
 
 export async function generateMetadata({
@@ -59,7 +71,7 @@ export default async function LocaleLayout({
   const t = getDictionary(locale);
 
   return (
-    <html lang={HTML_LANG[locale]} className={fontClassNames(locale)}>
+    <html lang={HTML_LANG[locale]} className={fontClassNames()}>
       <body>
         <a href="#main" className="sr-only focus:not-sr-only">
           {t.nav.skipToContent}

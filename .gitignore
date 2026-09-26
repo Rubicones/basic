@@ -4,6 +4,8 @@ out
 build
 .env
 .env.local
+# The notifier's local run: a real bot token, on a laptop.
+supabase/.env.local
 *.tsbuildinfo
 next-env.d.ts
 .DS_Store

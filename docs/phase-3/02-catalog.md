@@ -10,17 +10,17 @@ Reviewed before rebuilding: `Catalog.tsx` (120 lines), `MobileCatalog.tsx` (384)
 `Catalog` is `hidden md:block`; `MobileCatalog` is `md:hidden`. Both are mounted at every
 width, both ship, both run scroll listeners and motion. They had already drifted:
 
-| | desktop | mobile |
-|---|---|---|
-| card radius | 2rem | 1.75rem |
-| card surface | `bg-cream-deep` | `bg-card` |
-| stepper | `h-11`, `size-8` buttons | `h-12`, `size-9` |
-| filter pills | no `aria-pressed` | `aria-pressed` ✓ |
-| filter pills | no check icon | animated check |
-| haptics | — | `navigator.vibrate(8)` |
-| column switcher | 3 / 4 / 5 | absent |
-| detail reveal | over the photo | accordion below it |
-| entrance spring | 120 / 16 | 240 / 26 / 0.75 |
+|                 | desktop                  | mobile                 |
+| --------------- | ------------------------ | ---------------------- |
+| card radius     | 2rem                     | 1.75rem                |
+| card surface    | `bg-cream-deep`          | `bg-card`              |
+| stepper         | `h-11`, `size-8` buttons | `h-12`, `size-9`       |
+| filter pills    | no `aria-pressed`        | `aria-pressed` ✓       |
+| filter pills    | no check icon            | animated check         |
+| haptics         | —                        | `navigator.vibrate(8)` |
+| column switcher | 3 / 4 / 5                | absent                 |
+| detail reveal   | over the photo           | accordion below it     |
+| entrance spring | 120 / 16                 | 240 / 26 / 0.75        |
 
 504 lines for one screen, and nine details on which the two disagreed.
 
@@ -34,7 +34,7 @@ width, both ship, both run scroll listeners and motion. They had already drifted
    the mobile card animates its photo's `height` 260px ↔ 200px. Both lay out the card on
    every frame.
 3. **Two animations fight over one node.** The outer `<article>` carries Framer's `layout`
-   *and* a scroll-driven `y` transform. They write the same property, so the card jitters
+   _and_ a scroll-driven `y` transform. They write the same property, so the card jitters
    whenever the grid reflows — which is every time the filter changes.
 4. **The variant toggle is two `aria-pressed` buttons**, which announces two independent
    switches rather than one choice of two.
@@ -51,7 +51,7 @@ width, both ship, both run scroll listeners and motion. They had already drifted
 
 `products.category_slug` is a single column, so a product sits in exactly one group. The
 real catalogue does not work that way: the New York cheesecake is a whole cake, a frozen
-item *and* a display-case item. The reference's model cannot express its own catalogue.
+item _and_ a display-case item. The reference's model cannot express its own catalogue.
 
 ## What the rebuild does
 
@@ -75,15 +75,15 @@ are physics, not bezier curves; each one below is the analytic solution of its d
 harmonic oscillator, sampled and emitted as a CSS `linear()` — overshoot included, which is
 the part a `cubic-bezier` cannot express and the part you see.
 
-| motion | reference spring | settle | where |
-|---|---|---|---|
-| card entrance | 120 / 16 / 1 | 721ms | `--ease-spring-enter` |
-| hover lift −6px | 220 / 20 / 1 | 693ms | `--ease-spring-lift` |
-| pointer tilt ±7° / ±6°, photo parallax ±14px | 140 / 18 / 0.4 | 489ms | `--ease-spring-tilt` |
-| photo frame 1 → 0.915, radius 32 → 28 | 180 / 20 / 1 | 602ms | `--ease-spring-zoom` |
-| quantity badge 0.4 → 1 | 400 / 14 / 1 | 916ms | `--ease-spring-pop` |
-| value change, slide from +14px | 420 / 30 / 1 | 395ms | `--ease-spring-slide` |
-| variant indicator | 480 / 34 / 0.6 | 330ms | `--ease-spring-pill` |
+| motion                                       | reference spring | settle | where                 |
+| -------------------------------------------- | ---------------- | ------ | --------------------- |
+| card entrance                                | 120 / 16 / 1     | 721ms  | `--ease-spring-enter` |
+| hover lift −6px                              | 220 / 20 / 1     | 693ms  | `--ease-spring-lift`  |
+| pointer tilt ±7° / ±6°, photo parallax ±14px | 140 / 18 / 0.4   | 489ms  | `--ease-spring-tilt`  |
+| photo frame 1 → 0.915, radius 32 → 28        | 180 / 20 / 1     | 602ms  | `--ease-spring-zoom`  |
+| quantity badge 0.4 → 1                       | 400 / 14 / 1     | 916ms  | `--ease-spring-pop`   |
+| value change, slide from +14px               | 420 / 30 / 1     | 395ms  | `--ease-spring-slide` |
+| variant indicator                            | 480 / 34 / 0.6   | 330ms  | `--ease-spring-pill`  |
 
 The rest carried over as written: photo 1.02 → 1.14 over 700ms on the house curve, wave
 layer 0.46 → 1, the ribbons' 8-second drift while open, the ink wipe under the add button,
@@ -120,11 +120,19 @@ variant rather than separate items.
 
 - **Price** is the recommended venue retail column, as one figure: the sheet quotes
   ranges and a card shows one number, so each is the middle of its range rounded to
-  the nearest 10. Syrniki had no venue price and carries a stand-in, flagged in the
-  fixture as `priceIsPlaceholder`.
-- **Whole cake** is the piece price × 6. The sheet does carry two real whole-cake
-  figures — medovik 5.600 and napoleon 7.800 — and both are well above ×6, so those
-  two are currently under-priced.
+  the nearest 10. Syrniki had no venue price and carries a stand-in.
+- **Whole cake** carries its own figure, `wholePrice`. The cheesecakes' is the
+  piece price × 6, because the sheet has no row for either, but it is written out
+  as a number rather than derived. The sheet's two real whole-cake figures —
+  medovik 5.600 and napoleon 7.800 — are both well above ×6, which is why a
+  multiplier could not stay: a whole cake is priced, not scaled.
+
+> **Superseded, 21 Sep.** `priceIsPlaceholder` / `price_is_placeholder` is gone —
+> no surface ever rendered it, and "no price yet" is said by leaving the product
+> unpublished. `whole_multiplier` is gone with it, replaced by `whole_price_rsd`
+> (migration `0003_whole_price.sql`, back-filled at `price_rsd × multiplier`, with
+> a check that a product offering the whole cake has a price for it).
+
 - **Storage formats** are read from the sheet's own storage and shelf-life columns
   rather than guessed, which also replaced the deck-derived grouping. "Extras" is
   gone: the caramels are not on the price list.
@@ -149,7 +157,6 @@ variant rather than separate items.
   images need `.next` cleared before they appear.
 
 ## Open
-
 
 - **Prices.** Every card renders its "on request" state. The catalogue needs real ones.
 - **Descriptions.** The reference revealed a tasting note; there is no source for one, so

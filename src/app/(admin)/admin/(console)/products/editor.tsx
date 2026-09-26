@@ -15,6 +15,7 @@ import {
 import { LOCALES, LOCALE_LABEL, DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { FORMATS } from "@/lib/catalog/products";
 import { saveProduct, type SaveState } from "./actions";
+import { TAG_MAX } from "./limits";
 import { PhotoField } from "./photo-field";
 import type { ProductWithTranslations } from "@/lib/admin/types";
 
@@ -67,12 +68,23 @@ export function ProductEditor({ product }: { product: ProductWithTranslations | 
             help="Per piece. Whole dinars."
           />
           <Input
-            name="whole_multiplier"
+            name="whole_price_rsd"
             type="number"
-            min={1}
-            label="Whole-cake multiplier"
-            defaultValue={String(product?.whole_multiplier ?? 6)}
-            help="What the piece price is multiplied by for a whole cake."
+            min={0}
+            step={10}
+            label="Price for a whole cake, RSD"
+            defaultValue={product?.whole_price_rsd == null ? "" : String(product.whole_price_rsd)}
+            help="Only where the toggle below is on. A whole cake is priced, not multiplied."
+          />
+          <Input
+            name="tag"
+            label="Corner tag"
+            maxLength={TAG_MAX}
+            defaultValue={product?.tag ?? ""}
+            wide
+            help={
+              'The word in the corner of the card — "Hit", "Novo". One language, shown as typed. Leave it empty for no tag.'
+            }
           />
         </div>
 
@@ -81,12 +93,6 @@ export function ProductEditor({ product }: { product: ProductWithTranslations | 
             name="has_whole"
             label="Offer the piece / whole-cake toggle"
             defaultChecked={product?.has_whole ?? false}
-          />
-          <Checkbox
-            name="price_is_placeholder"
-            label="The price is a stand-in"
-            help="Shown as provisional until a real one is set."
-            defaultChecked={product?.price_is_placeholder ?? false}
           />
           <Checkbox
             name="is_published"
@@ -110,6 +116,58 @@ export function ProductEditor({ product }: { product: ProductWithTranslations | 
             ))}
           </div>
         </fieldset>
+      </Card>
+
+      <Card padding="lg">
+        <h2 className="text-title mb-6 font-extrabold">
+          Weight and declaration
+          <span className="text-caption text-content-secondary ml-3 font-normal">
+            optional — a card shows this only when it is filled in
+          </span>
+        </h2>
+
+        <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+          <Input
+            name="weight_g"
+            type="number"
+            min={1}
+            label="Weight, g"
+            defaultValue={product?.weight_g == null ? "" : String(product.weight_g)}
+            help="One piece — or the whole cake, on a whole-cake product."
+          />
+          <Input
+            name="kcal"
+            type="number"
+            min={0}
+            label="kcal per 100 g"
+            defaultValue={product?.kcal == null ? "" : String(product.kcal)}
+          />
+          <Input
+            name="protein_g"
+            type="number"
+            min={0}
+            step={0.1}
+            label="Protein, g per 100 g"
+            defaultValue={product?.protein_g == null ? "" : String(product.protein_g)}
+          />
+          <Input
+            name="fat_g"
+            type="number"
+            min={0}
+            step={0.1}
+            label="Fat, g per 100 g"
+            defaultValue={product?.fat_g == null ? "" : String(product.fat_g)}
+          />
+          <Input
+            name="carbs_g"
+            type="number"
+            min={0}
+            step={0.1}
+            label="Carbohydrate, g per 100 g"
+            defaultValue={product?.carbs_g == null ? "" : String(product.carbs_g)}
+            help="All four figures or none — a declaration with a gap in it is a wrong one."
+          />
+        </div>
       </Card>
 
       <Card padding="lg">

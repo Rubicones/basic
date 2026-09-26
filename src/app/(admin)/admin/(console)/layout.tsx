@@ -20,6 +20,7 @@ const NAV = [
   { href: "/admin/form", label: "Order form" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/team", label: "Access" },
+  { href: "/admin/notifications", label: "Notifications" },
 ] as const;
 
 export default async function ConsoleLayout({ children }: { children: React.ReactNode }) {

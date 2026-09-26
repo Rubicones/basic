@@ -25,7 +25,7 @@ export default async function TeamPage() {
               return (
                 <li key={admin.user_id} className="flex items-center gap-4 p-4">
                   <span className="min-w-0 flex-1">
-                    <span className="font-display text-body-sm block font-bold">
+                    <span className="text-body-sm block font-bold">
                       {admin.email}
                       {isMe && (
                         <span className="text-caption text-content-secondary ml-2 font-normal">

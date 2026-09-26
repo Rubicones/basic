@@ -21,9 +21,7 @@ export default async function ConsoleHome() {
             <Link key={card.href} href={card.href}>
               <Card interactive>
                 <p className="text-micro text-content-secondary uppercase">{card.label}</p>
-                <p className="font-display text-display-md mt-2 font-extrabold tabular-nums">
-                  {card.value}
-                </p>
+                <p className="text-display-md mt-2 font-extrabold tabular-nums">{card.value}</p>
               </Card>
             </Link>
           ))}

@@ -8,6 +8,7 @@ import type {
   OrderFieldWithTranslations,
   OrderRow,
   ProductWithTranslations,
+  PushDeviceRow,
 } from "./types";
 
 /**
@@ -145,4 +146,35 @@ export async function overviewCounts(): Promise<{
     fields: fields.count ?? 0,
     newOrders: orders.count ?? 0,
   };
+}
+
+/** This administrator's own devices — RLS scopes it; the filter says so out loud. */
+export async function listMyDevices(): Promise<PushDeviceRow[]> {
+  if (demo()) return [];
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("push_subscriptions")
+    .select("id, endpoint, label, created_at, last_success_at, last_error, failures")
+    .eq("user_id", user.id)
+    .order("created_at");
+
+  if (error) throw new Error(error.message);
+  return (data ?? []) as PushDeviceRow[];
+}
+
+/** Null until `npm run vapid` has been run and its public key stored. */
+export async function vapidPublicKey(): Promise<string | null> {
+  if (demo()) return null;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("settings")
+    .select("value")
+    .eq("key", "vapid_public_key")
+    .maybeSingle();
+  return typeof data?.value === "string" && data.value ? data.value : null;
 }

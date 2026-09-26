@@ -15,9 +15,18 @@ export type ProductRow = {
   id: string;
   slug: string;
   price_rsd: number;
-  price_is_placeholder: boolean;
   has_whole: boolean;
-  whole_multiplier: number;
+  /** RSD for the whole cake. Null wherever `has_whole` is false. */
+  whole_price_rsd: number | null;
+  /** The corner label on the card. One language, as typed. */
+  tag: string | null;
+  /** Grams, per piece — or per cake on the whole-cake rows. */
+  weight_g: number | null;
+  /** Per 100g. All four or none: a declaration with a gap in it is a wrong one. */
+  kcal: number | null;
+  protein_g: number | null;
+  fat_g: number | null;
+  carbs_g: number | null;
   formats: Format[];
   photo_path: string | null;
   photo_blur: string | null;
@@ -65,15 +74,31 @@ export type AdminRow = {
   created_at: string;
 };
 
-export type OrderStatus = "new" | "confirmed" | "done" | "cancelled";
+/** Renamed in 0009 to the shop's own words. */
+export type OrderStatus = "new" | "processing" | "completed" | "canceled";
 
 export type OrderRow = {
   id: string;
+  number: number;
   created_at: string;
   status: OrderStatus;
   locale: Locale;
   total_rsd: number;
   notified_at: string | null;
+  notify_error: string | null;
+  notify_attempts: number;
+  telegram_status: OrderStatus | null;
+};
+
+/** One device an administrator enabled push on. Keys are not selected. */
+export type PushDeviceRow = {
+  id: string;
+  endpoint: string;
+  label: string;
+  created_at: string;
+  last_success_at: string | null;
+  last_error: string | null;
+  failures: number;
 };
 
 export type OrderItemRow = {

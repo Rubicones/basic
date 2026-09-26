@@ -21,6 +21,7 @@ export {
   IconSearch,
   IconSpinner,
   IconTruck,
+  IconUpload,
   type IconProps,
 } from "./icon";
 export { Input, type InputProps } from "./input";

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container, IconSpinner } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
+import { classifyLinkError } from "@/lib/auth/link-errors";
 
 export function FinishSignIn() {
   const router = useRouter();
@@ -14,9 +15,13 @@ export function FinishSignIn() {
     const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
 
+    // Supabase puts its refusal in the fragment on this flow —
+    // `#error_code=otp_expired&error_description=…` — so read it rather than
+    // reporting every failure as the same one.
     if (!accessToken || !refreshToken) {
+      const reason = params.get("error_code") ?? params.get("error_description");
       setFailed(true);
-      router.replace("/admin/sign-in?error=link");
+      router.replace(`/admin/sign-in?error=${classifyLinkError(reason)}`);
       return;
     }
 
@@ -29,7 +34,7 @@ export function FinishSignIn() {
 
       // The membership check is not repeated here: `/admin` is behind the guard,
       // and one place deciding who may enter is better than two that can drift.
-      router.replace(error ? "/admin/sign-in?error=link" : "/admin");
+      router.replace(error ? `/admin/sign-in?error=${classifyLinkError(error.message)}` : "/admin");
     })();
   }, [router]);
 

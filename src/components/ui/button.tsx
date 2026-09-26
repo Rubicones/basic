@@ -37,7 +37,7 @@ export type ButtonProps = Omit<
 
 const base = cx(
   "relative inline-flex items-center justify-center gap-2 rounded-pill",
-  "font-display font-bold whitespace-nowrap",
+  "font-bold whitespace-nowrap",
   "transition-control",
   "active:translate-y-px",
   "disabled:pointer-events-none disabled:shadow-none",

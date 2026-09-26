@@ -12,7 +12,7 @@ is an INSERT.
 
 The cost is the one thing localised columns gave for free: `name_en text not null`
 would have made "English always exists" a column constraint. A side table cannot
-express that, so it is enforced instead as an invariant on *publishing*:
+express that, so it is enforced instead as an invariant on _publishing_:
 
 - `products_default_translation` / `order_fields_default_translation` — deferred
   constraint triggers. A row may be drafted in one language; it cannot be published or
@@ -33,14 +33,14 @@ shared secret anyone has to remember to rotate.
 
 ## What RLS allows
 
-| table | anon | admin |
-| --- | --- | --- |
-| `locales` | read | read |
-| `products`, `product_translations` | read **when published** | everything |
-| `order_fields`, `order_field_translations` | read **when enabled** | everything |
-| `orders`, `order_items`, `order_answers` | nothing | everything |
-| `admins` | nothing | read |
-| `storage: product-photos` | read | everything |
+| table                                      | anon                    | admin      |
+| ------------------------------------------ | ----------------------- | ---------- |
+| `locales`                                  | read                    | read       |
+| `products`, `product_translations`         | read **when published** | everything |
+| `order_fields`, `order_field_translations` | read **when enabled**   | everything |
+| `orders`, `order_items`, `order_answers`   | nothing                 | everything |
+| `admins`                                   | nothing                 | read       |
+| `storage: product-photos`                  | read                    | everything |
 
 Orders have no anonymous INSERT policy, deliberately. A public insert would let anyone
 post their own `total_rsd`, and a cart the client prices is a cart the client can
@@ -74,7 +74,7 @@ was one shared `app/layout.tsx`, and that would have cost the thing the whole i1
 design rests on — `<html lang>` being the rendered locale rather than a constant.
 Public URLs did not change.
 
-Inside the console group, sign-in sits *outside* the guard: `(console)` holds the
+Inside the console group, sign-in sits _outside_ the guard: `(console)` holds the
 layout that redirects, so `/admin/sign-in` and `/admin/auth/*` have to live
 beside it rather than under it, or the page you are redirected to would redirect you.
 
@@ -179,3 +179,158 @@ own line. Every console route measures zero horizontal overflow at 390px.
 - The console itself: sign-in, product CRUD, photo upload, the form-field editor, the
   order list.
 - The submission function and the Telegram notification.
+
+---
+
+# Phase 5 — the site reads the database, and orders come back
+
+Everything above described a console with a database behind it and a site that still
+read a fixture. This is the seam being closed, in three moves.
+
+## 1. The catalogue
+
+`lib/catalog/source.ts` is the one function the fixture's own comment promised. It
+returns `Product[]`; every section takes that as a prop, so nothing below the page
+knows or cares where the products came from.
+
+- **No Supabase configured → the fixture.** That is what keeps a fresh clone running
+  and the design reviewable with no database behind it.
+- **Supabase configured → the database, even when it is empty.** An empty catalogue is
+  a true statement about a shop that has not added anything yet. Showing eighteen
+  fixture desserts instead would be a lie told at the worst possible moment — right
+  after the owner wondered why their import did not appear.
+- **A failed read throws.** A catalogue that could not load is not a catalogue with
+  nothing in it, and the two must not render the same.
+
+The order form resolves the same way (`lib/order/public-fields.ts`), with one
+difference: an _empty_ field set falls back to the shipped seven. An empty catalogue is
+a fact about the shop; an empty form is a configuration accident that would leave the
+shop unreachable.
+
+Photographs follow the path in the row: one starting with `/` is a file in `public`
+(that is what the seed writes), anything else is an object in the `product-photos`
+bucket. `NEXT_PUBLIC_CATALOG_DEMO_PHOTOS` still overrides both.
+
+### Why the landing page is not pre-generated
+
+`generateStaticParams` returns nothing on purpose. Pre-generating the three locales
+would make every deploy render the catalogue at build time: a build would start failing
+whenever Supabase blinked, and a build made before the first import would ship that
+emptiness as a static file. The pages render on first request and are cached for 60
+seconds (`revalidate`), and the console calls `revalidatePath("/[locale]", "page")`
+whenever it saves — so an edit is visible immediately rather than within a minute.
+
+## 2. Submission
+
+`submit_order(p_locale, p_items, p_answers)` — `security definer`, granted to `anon`,
+and the only way a row reaches `orders`.
+
+What crosses the wire is what the browser is entitled to know: slug, variant, quantity,
+and the answers typed into the form. Every dinar is recomputed from `products`; the
+piece price and the whole-cake price are read there, a `whole` line on a product that
+does not offer one is refused, and unpublished products do not exist as far as the
+function is concerned. Names and labels are snapshotted at that moment, in the language
+the customer was reading.
+
+Required fields are checked against `order_fields` as it stands right now, not against
+a list the page was built with, and failures come back as codes (`order_empty`,
+`order_missing_field:<key>`) rather than sentences — the database does not speak three
+languages and should not try.
+
+What is deliberately not here: a rate limit, and the Telegram notification.
+`orders.notified_at` is the column the notifier will set.
+
+## 3. Weight and the declaration
+
+`weight_g`, `kcal`, `protein_g`, `fat_g`, `carbs_g` on `products`, nullable, with the
+console asking for all four macros or none. The detail panel shows the block only when
+it is whole: a declaration with a gap in it is not a shorter declaration, it is a wrong
+one. The figures in the fixture remain mocked until the kitchen measures.
+
+## The spreadsheet import
+
+`/admin/products/import`, and `public/import-template.xlsx` next to it.
+
+A shop's catalogue already exists in a spreadsheet — typing eighteen products into a
+form to get started is the kind of work that makes an owner decide the console is not
+worth using. So the first load is a file, and re-importing a corrected file updates
+what is there rather than doubling it, because rows are matched by slug.
+
+**No new dependency.** An .xlsx is a zip of XML; `node:zlib` inflates the entries and
+`lib/import/xlsx.ts` reads the central directory, the shared-string table and the first
+worksheet — about two hundred lines against a library that would ship into every build
+for the sake of one screen used once. CSV and TSV go through the same entry point,
+with the delimiter detected (Excel writes semicolons on a machine whose decimal
+separator is a comma, which is what a Serbian Windows hands over). The old binary .xls
+is refused with the one instruction that fixes it.
+
+Forgiving about how a person writes, strict about what lands in the table:
+
+- Headings match however they are typed — case, spacing and punctuation ignored — and
+  in all three languages (`cena`, `цена`, `price_rsd`; `naziv_sr`, `название_ru`).
+- `1 250`, `1.250`, `1,250` and `1250 RSD` are all 1250. A lone separator with exactly
+  three digits behind it is a thousands separator; otherwise the last separator is the
+  decimal one, which is the rule Excel itself exports by.
+- Storage words match by meaning: `frizider`, `заморожено`, `sobna temperatura`.
+- A missing slug is made from the default-language name, transliterating Cyrillic — so
+  "Медовик" and "Medovik" cannot become two products.
+- `published` takes yes/no/da/ne/да/нет; empty means yes.
+
+Nothing is written unless every row reads cleanly. A half-imported price list is worse
+than a refused one: the owner cannot tell which half, and the fix would be to work out
+what already exists. Errors come back with the row number the person sees in their own
+spreadsheet.
+
+---
+
+# Phase 6 — Telegram
+
+`submit_order` commits the row and answers the customer; a database webhook wakes
+the `notify-order` Edge Function, which reprints the order into the staff group and
+writes back `telegram_message_id` — which is also the flag that stops a second
+webhook sending a second copy. A `pg_cron` sweep every two minutes picks up
+anything the webhook did not manage, backing off by attempt count and giving up
+after ten, at which point the order stays visible in
+`public.orders_awaiting_notification`.
+
+The token is an Edge Function secret and appears nowhere else. The chat id is a
+row in `settings`, because Telegram reissues it when a group becomes a supergroup —
+the function catches that, writes the new id and re-sends.
+
+Setup, testing and the "it did not arrive" checklist: `docs/telegram-setup.md`.
+
+---
+
+# Phase 7 — statuses in the chat, push, WebP, and a real test run
+
+**Statuses** are `new / processing / completed / canceled` (0009 renamed them in
+place). A change in the console edits the order's Telegram message rather than
+posting a new one; `telegram_status` records what the message shows and the sweep
+closes any gap for a day. `docs/telegram-setup.md` §7.
+
+**Push** (0010): Web Push to each administrator's own devices, sent once per new
+order from `notify-order`, independent of Telegram. Encryption and VAPID are
+hand-written on WebCrypto (`push.ts`) and checked two ways: decrypted by a
+browser-side implementation in `scripts/check-web-push.ts`, and — once, outside
+the repository — by `http_ece`, the reference implementation behind the
+`web-push` package (25/25). The console is installable (`admin.webmanifest`),
+because an iPhone only delivers Web Push to Home Screen apps. `docs/push-setup.md`.
+
+**Photos** become WebP on the server (`/admin/api/photo`), because Safari's canvas
+silently answers a WebP request with a PNG. `sharp` is declared as a dependency
+but adds nothing to the install: it is the encoder Next already ships for
+`next/image`. The browser only shrinks very large photos first, to stay under
+the platform's request-size limit.
+
+**The import no longer wipes photos** on a re-import with an empty photo column —
+a bulk upsert sends a missing key as null, so rows with and without a photo go in
+separate batches.
+
+**The template required the wrong name column.** The default locale is English
+(code and database agree); the template marked `name_sr` required. Fixed, and the
+generator is now in the repository (`scripts/build-import-template.py`).
+
+**`npm run check:db`** runs every migration, the seed, and 47 behaviour checks on
+a throwaway local Postgres, with Supabase's own pieces stubbed
+(`scripts/db-test/`). What it cannot cover is PostgREST, Storage, Auth email and
+the Edge runtime themselves.

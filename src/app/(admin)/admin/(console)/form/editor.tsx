@@ -85,7 +85,7 @@ export function FieldEditor({
             <IconChevronDown size={16} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="font-display text-body-sm block font-bold">
+            <span className="text-body-sm block font-bold">
               {textFor(DEFAULT_LOCALE)?.label ?? field?.key ?? "New field"}
             </span>
             <span className="text-caption text-content-secondary block truncate">

@@ -1,0 +1,14 @@
+{
+  "name": "basic console",
+  "short_name": "basic",
+  "description": "Orders, products and the order form for basic.",
+  "start_url": "/admin/orders",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#fbf7ed",
+  "theme_color": "#e3735a",
+  "icons": [
+    { "src": "/admin-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/admin-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

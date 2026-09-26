@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Container, Grid, IconClose, IconSearch, Section, Stack } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { ProductCard } from "./product-card";
-import { FORMATS, PRODUCTS, type Format } from "@/lib/catalog/products";
+import { FORMATS, type Format, type Product } from "@/lib/catalog/products";
 import type { Messages } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/lib/i18n/config";
 
@@ -42,13 +42,22 @@ function fold(value: string): string {
     .toLowerCase();
 }
 
-export function Catalog({ locale, t }: { locale: Locale; t: Messages }) {
+export function Catalog({
+  locale,
+  t,
+  products,
+}: {
+  locale: Locale;
+  t: Messages;
+  /** Read on the server — the fixture or the database, identical either way. */
+  products: Product[];
+}) {
   const [filter, setFilter] = useState<Filter>(ALL);
   const [query, setQuery] = useState("");
   const gridRef = useRef<HTMLDivElement>(null);
 
   const list = useMemo(() => {
-    const byFormat = filter === ALL ? PRODUCTS : PRODUCTS.filter((p) => p.formats.includes(filter));
+    const byFormat = filter === ALL ? products : products.filter((p) => p.formats.includes(filter));
 
     const needle = fold(query.trim());
     if (!needle) return byFormat;
@@ -56,7 +65,7 @@ export function Catalog({ locale, t }: { locale: Locale; t: Messages }) {
     // Name and note, in the language on screen: someone hunting for "lemon" should
     // find the tart whether the word is in its title or in the line under it.
     return byFormat.filter((p) => fold(`${p.name[locale]} ${p.note[locale]}`).includes(needle));
-  }, [filter, query, locale]);
+  }, [filter, query, locale, products]);
 
   /**
    * The entrance plays once, when a card is first seen — Framer's

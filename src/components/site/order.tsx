@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import {
   Button,
   Card,
@@ -21,10 +21,10 @@ import {
 } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { BlobMark } from "@/components/brand/blob-mark";
-import { photoFor } from "@/lib/catalog/photos";
 import { cartTotal, type CartLine } from "@/lib/order/cart";
 import { useCart } from "@/lib/cart/context";
-import { ORDER_FIELDS, fieldText, type OrderField } from "@/lib/order/fields";
+import type { PublicField } from "@/lib/order/public-fields";
+import { submitOrder } from "@/app/(site)/[locale]/actions";
 import type { Locale } from "@/lib/i18n/config";
 import type { Messages } from "@/lib/i18n/dictionaries";
 import { fill, formatPrice, plural } from "@/lib/i18n/format";
@@ -33,11 +33,10 @@ import { fill, formatPrice, plural } from "@/lib/i18n/format";
  * The order screen: the customer's details, the box they have filled, and the
  * button that will one day send both.
  *
- * Two things are deliberately absent, because the brief puts them out of scope
- * for this phase: the cart is not connected to the catalog, and the form does not
- * submit. Both have a seam. `lines` is the shape the cart work will produce, and
- * `status` is the union the submit work will drive — every state each of them can
- * be in is built and reviewable now.
+ * The form posts nothing but facts it is entitled to: which product, which
+ * variant, how many, and what was typed. Prices are recomputed in the database —
+ * see `submit_order` — so the total shown here is a quotation, never the figure
+ * the order is written at.
  *
  * The layout difference from the reference is the one that matters: form and cart
  * are a single `<form>`, and the cart is above the submit button in source order
@@ -51,19 +50,47 @@ export type OrderStatus = "idle" | "busy" | "sent" | "failed";
 type Props = {
   locale: Locale;
   t: Messages;
-  /** Driven by the submit wiring later; every branch is rendered from it today. */
-  status?: OrderStatus;
+  /** The form as the console has it — see lib/order/public-fields.ts. */
+  fields: PublicField[];
 };
 
-export function Order({ locale, t, status = "idle" }: Props) {
+export function Order({ locale, t, fields }: Props) {
   // The same cart the cards add to — see src/lib/cart/context.tsx.
   const { lines, total, setQty, clear } = useCart();
   const empty = lines.length === 0;
+  const [status, setStatus] = useState<OrderStatus>("idle");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    // Submission is the next phase. Preventing the default keeps the page from
-    // navigating in the meantime; nothing here pretends to have sent anything.
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (empty || status === "busy") return;
+
+    const form = event.currentTarget;
+    const answers: Record<string, string> = {};
+    for (const [key, value] of new FormData(form).entries()) {
+      if (typeof value === "string") answers[key] = value;
+    }
+
+    setStatus("busy");
+    const result = await submitOrder({
+      locale,
+      items: lines.map((line) => ({
+        slug: line.product.slug,
+        variant: line.variant,
+        qty: line.qty,
+      })),
+      answers,
+    });
+
+    if (!result.ok) {
+      setStatus("failed");
+      return;
+    }
+
+    // The order exists now, so the things that made it must not: a cart left
+    // full is an invitation to send the same order twice.
+    setStatus("sent");
+    clear();
+    form.reset();
   }
 
   return (
@@ -102,8 +129,8 @@ export function Order({ locale, t, status = "idle" }: Props) {
           <div className="lg:col-start-1 lg:row-start-1">
             <Card padding="lg">
               <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
-                {ORDER_FIELDS.map((field) => (
-                  <OrderControl key={field.key} field={field} t={t} />
+                {fields.map((field) => (
+                  <OrderControl key={field.key} field={field} />
                 ))}
               </div>
 
@@ -175,16 +202,14 @@ function Note({ children, icon }: { children: ReactNode; icon: ReactNode }) {
  * reason the kit's controls take `label` and `help` as props instead of being
  * wrapped in a hand-written `<label>` the way the reference wrapped them.
  */
-function OrderControl({ field, t }: { field: OrderField; t: Messages }) {
-  const text = fieldText(t, field.key);
-
+function OrderControl({ field }: { field: PublicField }) {
   if (field.control === "textarea") {
     return (
       <Textarea
         name={field.key}
-        label={text.label}
-        {...(text.placeholder ? { placeholder: text.placeholder } : {})}
-        {...(text.help ? { help: text.help } : {})}
+        label={field.label}
+        {...(field.placeholder ? { placeholder: field.placeholder } : {})}
+        {...(field.help ? { help: field.help } : {})}
         required={field.required}
         rows={field.rows}
         wide={field.wide}
@@ -196,12 +221,12 @@ function OrderControl({ field, t }: { field: OrderField; t: Messages }) {
     return (
       <Select
         name={field.key}
-        label={text.label}
-        {...(text.placeholder ? { placeholder: text.placeholder } : {})}
-        {...(text.help ? { help: text.help } : {})}
+        label={field.label}
+        {...(field.placeholder ? { placeholder: field.placeholder } : {})}
+        {...(field.help ? { help: field.help } : {})}
         required={field.required}
         wide={field.wide}
-        options={t.delivery.cities.map((city) => ({ value: city.slug, label: city.name }))}
+        options={field.options}
       />
     );
   }
@@ -209,11 +234,11 @@ function OrderControl({ field, t }: { field: OrderField; t: Messages }) {
   return (
     <Input
       name={field.key}
-      label={text.label}
+      label={field.label}
       type={field.type}
       {...(field.autoComplete ? { autoComplete: field.autoComplete } : {})}
-      {...(text.placeholder ? { placeholder: text.placeholder } : {})}
-      {...(text.help ? { help: text.help } : {})}
+      {...(field.placeholder ? { placeholder: field.placeholder } : {})}
+      {...(field.help ? { help: field.help } : {})}
       required={field.required}
       wide={field.wide}
     />
@@ -258,7 +283,7 @@ function CartPanel({
 
           <div className="border-line mt-6 flex items-baseline justify-between gap-4 border-t pt-5">
             <span className="text-body-sm text-content-secondary">{t.order.total}</span>
-            <output className="font-display text-display-sm text-brand font-bold tabular-nums">
+            <output className="text-display-sm text-brand font-bold tabular-nums">
               {formatPrice(locale, total)}
             </output>
           </div>
@@ -285,7 +310,7 @@ function CartRow({
   t: Messages;
   onQty: (key: string, next: number) => void;
 }) {
-  const photo = photoFor(line.product.slug);
+  const photo = line.product.photo;
   const name = line.product.name[locale];
   // A whole cake is a different thing to order, not a suffix bolted onto a
   // translated name — so the whole label is one message with one placeholder.
@@ -310,7 +335,7 @@ function CartRow({
             {/* No truncation: at 390 px the stepper and the thumbnail leave about
                 130 px here, and a clipped "New York ch…" is not a thing anyone can
                 confirm they ordered. It wraps instead. */}
-            <p className="font-display text-body-sm font-bold">{label}</p>
+            <p className="text-body-sm font-bold">{label}</p>
             <p className="text-caption text-content-secondary">
               {fill(t.order.each, { price: formatPrice(locale, line.unitPrice) })}
             </p>
@@ -360,14 +385,14 @@ export function OrderBar({ locale, t }: { locale: Locale; t: Messages }) {
             <span className="bg-surface-inverse grid size-9 shrink-0 place-items-center rounded-pill">
               <IconBag size={16} />
             </span>
-            <span className="font-display truncate text-body font-bold">
+            <span className="truncate text-body font-bold">
               {fill(t.order.barSummary, {
                 count: plural(locale, count, t.units.pieces),
                 total: formatPrice(locale, total),
               })}
             </span>
           </span>
-          <span className="font-display text-body-sm flex shrink-0 items-center gap-1.5 font-bold">
+          <span className="text-body-sm flex shrink-0 items-center gap-1.5 font-bold">
             {t.order.barCheckout}
             <IconArrowRight size={16} />
           </span>

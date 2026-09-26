@@ -58,11 +58,7 @@ export async function inviteAdmin(
   }
 
   if (!userId) {
-    return {
-      error:
-        inviteError?.message ??
-        "The invitation could not be sent and no existing account matches that address.",
-    };
+    return { error: inviteFailure(inviteError) };
   }
 
   const { error: rowError } = await admin
@@ -122,4 +118,38 @@ async function currentOrigin(): Promise<string> {
   const protocol =
     headerList.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   return `${protocol}://${host}`;
+}
+
+/**
+ * Why an invitation did not go out, in terms of what to do about it.
+ *
+ * The two that actually happen are both Supabase's built-in mailer, which exists
+ * for trying things out: it only delivers to members of the Supabase project's
+ * own team, and only a few messages an hour. Neither is a bug here, and neither
+ * is fixed by trying again — so the message says what does fix it.
+ */
+function inviteFailure(
+  error: { code?: string | undefined; status?: number | undefined; message: string } | null,
+): string {
+  if (!error)
+    return "The invitation could not be sent and no existing account matches that address.";
+
+  const text = `${error.code ?? ""} ${error.message}`.toLowerCase();
+
+  if (text.includes("not_authorized") || text.includes("not authorized")) {
+    return (
+      "Supabase's built-in mailer only sends to members of the Supabase project team. " +
+      "Connect your own sender (Authentication → Emails → SMTP Settings) to invite anyone else."
+    );
+  }
+  if (error.status === 429 || text.includes("rate limit")) {
+    return (
+      "Too many emails this hour — the built-in mailer allows only a few. Wait, or connect " +
+      "your own sender under Authentication → Emails → SMTP Settings."
+    );
+  }
+  if (text.includes("sending") && text.includes("email")) {
+    return `The email could not be sent: ${error.message}. Check the SMTP settings in Supabase.`;
+  }
+  return error.message;
 }

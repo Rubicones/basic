@@ -42,7 +42,7 @@ export function Stepper({
       </StepperButton>
       <output
         aria-label={valueLabel}
-        className="font-display w-6 text-center text-body-sm leading-none font-bold tabular-nums"
+        className="w-6 text-center text-body-sm leading-none font-bold tabular-nums"
       >
         {value}
       </output>

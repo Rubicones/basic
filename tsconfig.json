@@ -21,11 +21,17 @@
     "noUnusedParameters": true,
     "exactOptionalPropertyTypes": true,
     "verbatimModuleSyntax": true,
+    // The notifier's pure modules are imported by the check scripts, which Node
+    // runs directly — so the extension is written out, the way Node needs it.
+    "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
 
     "plugins": [{ "name": "next" }],
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  // supabase/ runs on Deno (functions, and the dashboard build of them), not on
+  // this project's lib or globals.
+  // Its pure modules are still typechecked, because the check scripts import them.
+  "exclude": ["node_modules", "supabase"]
 }

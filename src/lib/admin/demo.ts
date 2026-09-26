@@ -33,9 +33,14 @@ function product(
     id: `demo-product-${index}`,
     slug,
     price_rsd: 500,
-    price_is_placeholder: false,
     has_whole: false,
-    whole_multiplier: 6,
+    whole_price_rsd: null,
+    tag: null,
+    weight_g: 120,
+    kcal: 350,
+    protein_g: 5,
+    fat_g: 20,
+    carbs_g: 38,
     formats: ["chilled"],
     photo_path: null,
     photo_blur: null,
@@ -61,6 +66,8 @@ export const DEMO_PRODUCTS: ProductWithTranslations[] = [
     {
       price_rsd: 570,
       has_whole: true,
+      whole_price_rsd: 3420,
+      tag: "Hit",
       formats: ["chilled", "whole"],
       photo_path: photo("cizkejk-njujork-ab7e1395.jpg"),
     },
@@ -74,6 +81,7 @@ export const DEMO_PRODUCTS: ProductWithTranslations[] = [
     {
       price_rsd: 590,
       has_whole: true,
+      whole_price_rsd: 3540,
       formats: ["chilled", "whole"],
       photo_path: photo("cizkejk-mandarina-f1aa80bf.jpg"),
     },
@@ -94,6 +102,7 @@ export const DEMO_PRODUCTS: ProductWithTranslations[] = [
     ["Lemon tart", "Sharp lemon curd in a crisp shell."],
     {
       price_rsd: 460,
+      tag: "Novo",
       formats: ["chilled"],
       photo_path: photo("limun-tart-a7c56ae2.jpg"),
       photo_is_placeholder: true,
@@ -109,7 +118,6 @@ export const DEMO_PRODUCTS: ProductWithTranslations[] = [
       price_rsd: 320,
       formats: ["ambient"],
       photo_path: photo("brauni-413c2ff4.jpg"),
-      price_is_placeholder: true,
     },
   ),
   product(
@@ -203,47 +211,40 @@ export const DEMO_FIELDS: OrderFieldWithTranslations[] = [
 const hoursAgo = (hours: number) => new Date(Date.now() - hours * 3_600_000).toISOString();
 
 export const DEMO_ORDERS: OrderRow[] = [
-  {
-    id: "demo-order-1",
-    created_at: hoursAgo(3),
-    status: "new",
-    locale: "sr",
-    total_rsd: 7640,
-    notified_at: null,
-  },
-  {
-    id: "demo-order-2",
-    created_at: hoursAgo(20),
-    status: "confirmed",
-    locale: "ru",
-    total_rsd: 12400,
-    notified_at: hoursAgo(20),
-  },
-  {
-    id: "demo-order-3",
-    created_at: hoursAgo(52),
-    status: "done",
-    locale: "sr",
-    total_rsd: 4380,
-    notified_at: hoursAgo(52),
-  },
-  {
-    id: "demo-order-4",
-    created_at: hoursAgo(74),
-    status: "cancelled",
-    locale: "en",
-    total_rsd: 2960,
-    notified_at: hoursAgo(74),
-  },
-  {
-    id: "demo-order-5",
-    created_at: hoursAgo(96),
-    status: "done",
-    locale: "sr",
-    total_rsd: 18900,
-    notified_at: hoursAgo(96),
-  },
+  order(1, 3, "new", "sr", 7640, {
+    notified: false,
+    error: "Bad Request: chat not found",
+    attempts: 3,
+  }),
+  order(2, 20, "processing", "ru", 12400),
+  order(3, 52, "completed", "sr", 4380),
+  order(4, 74, "canceled", "en", 2960),
+  order(5, 96, "completed", "sr", 18900),
 ];
+
+/** One demo order; the first one is left undelivered so that state is visible too. */
+function order(
+  n: number,
+  hours: number,
+  status: OrderRow["status"],
+  locale: OrderRow["locale"],
+  total: number,
+  telegram: { notified?: boolean; error?: string; attempts?: number } = {},
+): OrderRow {
+  const notified = telegram.notified ?? true;
+  return {
+    id: `demo-order-${n}`,
+    number: 100 + n,
+    created_at: hoursAgo(hours),
+    status,
+    locale,
+    total_rsd: total,
+    notified_at: notified ? hoursAgo(hours) : null,
+    notify_error: telegram.error ?? null,
+    notify_attempts: telegram.attempts ?? (notified ? 1 : 0),
+    telegram_status: notified ? status : null,
+  };
+}
 
 export const DEMO_ADMINS: AdminRow[] = [
   { user_id: "demo-admin-1", email: "demo@basic.rs", created_at: "2026-06-02T09:12:00.000Z" },

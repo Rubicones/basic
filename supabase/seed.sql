@@ -5,21 +5,31 @@ begin;
 set constraints all deferred;
 
 -- ── products ──────────────────────────────────────────────────────────────
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
-values ($seed$cizkejk-njujork$seed$, 570, false,
-  true, 6, '{chilled,whole}'::product_format[], $seed$cizkejk-njujork-ab7e1395.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCSe7nWJkmtBKvQsrdagHnkArp7AHp83/1qIJ5BJHzw/UHtVprqXceR19Khysactz//2Q==$seed$, false, 0, true)
+values ($seed$cizkejk-njujork$seed$, 570, true,
+  3420, null, '{chilled,whole}'::product_format[],
+  $seed$/products/cizkejk-njujork-ab7e1395.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCSe7nWJkmtBKvQsrdagHnkArp7AHp83/1qIJ5BJHzw/UHtVprqXceR19Khysactz//2Q==$seed$, false,
+  130, 341,
+  5.8, 23.1,
+  27.4, 0, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -39,21 +49,31 @@ from public.products where slug = $seed$cizkejk-njujork$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
-values ($seed$cizkejk-mandarina$seed$, 570, false,
-  true, 6, '{chilled,whole}'::product_format[], $seed$cizkejk-mandarina-f1aa80bf.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCR7mRLgb32oRgDPU1P5zei/lWY+7zvLLswBwM8kVoC1jwM7j+NcnLPudT5ex//2Q==$seed$, false, 1, true)
+values ($seed$cizkejk-mandarina$seed$, 570, true,
+  3420, null, '{chilled,whole}'::product_format[],
+  $seed$/products/cizkejk-mandarina-f1aa80bf.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCR7mRLgb32oRgDPU1P5zei/lWY+7zvLLswBwM8kVoC1jwM7j+NcnLPudT5ex//2Q==$seed$, false,
+  135, 318,
+  5.5, 20.4,
+  28.9, 1, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -73,21 +93,31 @@ from public.products where slug = $seed$cizkejk-mandarina$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$medovik$seed$, 450, false,
-  false, 6, '{chilled,frozen}'::product_format[], $seed$medovik-8e813a15.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBMgdTijfjjceKj29sn86Me5/OuWx2H/9k=$seed$, false, 2, true)
+  null, null, '{chilled,frozen}'::product_format[],
+  $seed$/products/medovik-8e813a15.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBMgdTijfjjceKj29sn86Me5/OuWx2H/9k=$seed$, false,
+  120, 362,
+  4.9, 19.7,
+  41.8, 2, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -107,21 +137,31 @@ from public.products where slug = $seed$medovik$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$napoleon$seed$, 410, false,
-  false, 6, '{chilled,frozen}'::product_format[], $seed$napoleon-2eecf428.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB8U6yH5WHfj0qfGeRUaqoCgAYY+nT6VawKiDb1KkktD//Z$seed$, false, 3, true)
+  null, null, '{chilled,frozen}'::product_format[],
+  $seed$/products/napoleon-2eecf428.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB8U6yH5WHfj0qfGeRUaqoCgAYY+nT6VawKiDb1KkktD//Z$seed$, false,
+  125, 384,
+  5.2, 24.6,
+  35.1, 3, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -141,21 +181,31 @@ from public.products where slug = $seed$napoleon$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$medovik-cela-torta$seed$, 5600, false,
-  false, 6, '{whole,chilled,frozen}'::product_format[], $seed$medovik-cela-torta-8e813a15.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBMgdTijfjjceKj29sn86Me5/OuWx2H/9k=$seed$, true, 4, true)
+  null, null, '{whole,chilled,frozen}'::product_format[],
+  $seed$/products/medovik-cela-torta-8e813a15.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBMgdTijfjjceKj29sn86Me5/OuWx2H/9k=$seed$, true,
+  2500, 362,
+  4.9, 19.7,
+  41.8, 4, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -175,21 +225,31 @@ from public.products where slug = $seed$medovik-cela-torta$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$napoleon-cela-torta-2700$seed$, 7800, false,
-  false, 6, '{whole,chilled,frozen}'::product_format[], $seed$napoleon-cela-torta-2700-2eecf428.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB8U6yH5WHfj0qfGeRUaqoCgAYY+nT6VawKiDb1KkktD//Z$seed$, true, 5, true)
+  null, null, '{whole,chilled,frozen}'::product_format[],
+  $seed$/products/napoleon-cela-torta-2700-2eecf428.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB8U6yH5WHfj0qfGeRUaqoCgAYY+nT6VawKiDb1KkktD//Z$seed$, true,
+  2700, 384,
+  5.2, 24.6,
+  35.1, 5, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -209,21 +269,31 @@ from public.products where slug = $seed$napoleon-cela-torta-2700$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
-values ($seed$napoleon-cela-torta-1300$seed$, 3800, true,
-  false, 6, '{whole,chilled,frozen}'::product_format[], $seed$napoleon-cela-torta-1300-2eecf428.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB8U6yH5WHfj0qfGeRUaqoCgAYY+nT6VawKiDb1KkktD//Z$seed$, true, 6, true)
+values ($seed$napoleon-cela-torta-1300$seed$, 3800, false,
+  null, null, '{whole,chilled,frozen}'::product_format[],
+  $seed$/products/napoleon-cela-torta-1300-2eecf428.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB8U6yH5WHfj0qfGeRUaqoCgAYY+nT6VawKiDb1KkktD//Z$seed$, true,
+  1300, 384,
+  5.2, 24.6,
+  35.1, 6, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -243,21 +313,31 @@ from public.products where slug = $seed$napoleon-cela-torta-1300$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$limun-tart$seed$, 460, false,
-  false, 6, '{chilled}'::product_format[], $seed$limun-tart-a7c56ae2.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB4RI9pKFxj5iTgCmeVG3zfbYRnnHPFX5LaO6tyzjaSOSvFIulW20cP09ahXKZ//9k=$seed$, false, 7, true)
+  null, null, '{chilled}'::product_format[],
+  $seed$/products/limun-tart-a7c56ae2.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB4RI9pKFxj5iTgCmeVG3zfbYRnnHPFX5LaO6tyzjaSOSvFIulW20cP09ahXKZ//9k=$seed$, false,
+  110, 336,
+  4.4, 18.9,
+  37.2, 7, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -277,21 +357,31 @@ from public.products where slug = $seed$limun-tart$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$tart-bobice$seed$, 460, false,
-  false, 6, '{ambient}'::product_format[], $seed$tart-bobice-881ab9a0.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBWJZQWUBh0O3G4elRC4QDGW/Mf4U0sRGec4k71JI4EjDYnBPaue522P//Z$seed$, true, 8, true)
+  null, null, '{ambient}'::product_format[],
+  $seed$/products/tart-bobice-881ab9a0.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBWJZQWUBh0O3G4elRC4QDGW/Mf4U0sRGec4k71JI4EjDYnBPaue522P//Z$seed$, true,
+  115, 309,
+  4.1, 16.8,
+  35.6, 8, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -311,21 +401,31 @@ from public.products where slug = $seed$tart-bobice$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$pticje-mleko$seed$, 450, false,
-  false, 6, '{chilled}'::product_format[], $seed$pticje-mleko-c0347381.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCoNxPfB9Qf8KODzt/8db/CqwuDhf3ack9jx+tI85VyNi8HHU/41maH/9k=$seed$, true, 9, true)
+  null, null, '{chilled}'::product_format[],
+  $seed$/products/pticje-mleko-c0347381.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCoNxPfB9Qf8KODzt/8db/CqwuDhf3ack9jx+tI85VyNi8HHU/41maH/9k=$seed$, true,
+  95, 298,
+  4.7, 15.2,
+  36.4, 9, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -345,21 +445,31 @@ from public.products where slug = $seed$pticje-mleko$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$kolutici$seed$, 410, false,
-  false, 6, '{chilled}'::product_format[], $seed$kolutici-142c26d8.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBTex2j+TJmV+PMZRgA+1P+32R/5eGH/ATTb6wt0u4iilfO+8AeKcRGhKiCLA45WosW2f/Z$seed$, true, 10, true)
+  null, null, '{chilled}'::product_format[],
+  $seed$/products/kolutici-142c26d8.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBTex2j+TJmV+PMZRgA+1P+32R/5eGH/ATTb6wt0u4iilfO+8AeKcRGhKiCLA45WosW2f/Z$seed$, true,
+  80, 412,
+  5.6, 22.3,
+  47.1, 10, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -379,21 +489,31 @@ from public.products where slug = $seed$kolutici$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$kartoska$seed$, 340, false,
-  false, 6, '{chilled,frozen}'::product_format[], $seed$kartoska-7c6aacf4.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBLrVGVylqFZ0bDbu/0p66leFQfso5H901Ss4I7mUtIuDtyccZrdVQFABPSklct2Wh//9k=$seed$, false, 11, true)
+  null, null, '{chilled,frozen}'::product_format[],
+  $seed$/products/kartoska-7c6aacf4.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBLrVGVylqFZ0bDbu/0p66leFQfso5H901Ss4I7mUtIuDtyccZrdVQFABPSklct2Wh//9k=$seed$, false,
+  90, 398,
+  5.1, 21.7,
+  45.3, 11, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -413,21 +533,31 @@ from public.products where slug = $seed$kartoska$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$mravinjak$seed$, 280, false,
-  false, 6, '{chilled,frozen}'::product_format[], $seed$mravinjak-4e27168f.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwAvNTZXaK22mRGwd3f6UwarfED/AEdf++TVa1gS5mDOMNtySvGa2ERVRQBwBgUkrluy0P/Z$seed$, true, 12, true)
+  null, null, '{chilled,frozen}'::product_format[],
+  $seed$/products/mravinjak-4e27168f.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwAvNTZXaK22mRGwd3f6UwarfED/AEdf++TVa1gS5mDOMNtySvGa2ERVRQBwBgUkrluy0P/Z$seed$, true,
+  85, 437,
+  5.3, 26.8,
+  45.9, 12, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -447,21 +577,31 @@ from public.products where slug = $seed$mravinjak$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$morkovni-keks$seed$, 390, false,
-  false, 6, '{ambient,frozen}'::product_format[], $seed$morkovni-keks-8f3f1819.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBPypPLP94Ux3IUGmrKdo+VenpXIdh//9k=$seed$, true, 13, true)
+  null, null, '{ambient,frozen}'::product_format[],
+  $seed$/products/morkovni-keks-8f3f1819.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwBPypPLP94Ux3IUGmrKdo+VenpXIdh//9k=$seed$, true,
+  105, 352,
+  5.4, 19.1,
+  40.2, 13, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -481,21 +621,31 @@ from public.products where slug = $seed$morkovni-keks$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$brauni$seed$, 370, false,
-  false, 6, '{ambient}'::product_format[], $seed$brauni-413c2ff4.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCAtnnPLnd16moyy56H8qWHDA5AyB1AqWO2R41Zt2SATzUpFtn/2Q==$seed$, false, 14, true)
+  null, null, '{ambient}'::product_format[],
+  $seed$/products/brauni-413c2ff4.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCAtnnPLnd16moyy56H8qWHDA5AyB1AqWO2R41Zt2SATzUpFtn/2Q==$seed$, false,
+  100, 431,
+  6.2, 27.4,
+  41.6, 14, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -515,21 +665,31 @@ from public.products where slug = $seed$brauni$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$rolnice$seed$, 390, false,
-  false, 6, '{ambient}'::product_format[], $seed$rolnice-f3f9278f.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCzFOHyWYDBwFHUmpRKuBknPsKqwwrHOwUnDdRmtDao4wKzUW9Wy5NLRH//2Q==$seed$, false, 15, true)
+  null, null, '{ambient}'::product_format[],
+  $seed$/products/rolnice-f3f9278f.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCzFOHyWYDBwFHUmpRKuBknPsKqwwrHOwUnDdRmtDao4wKzUW9Wy5NLRH//2Q==$seed$, false,
+  75, 389,
+  5.9, 21.4,
+  43.7, 15, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -549,21 +709,31 @@ from public.products where slug = $seed$rolnice$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
 values ($seed$orascici$seed$, 100, false,
-  false, 6, '{ambient}'::product_format[], $seed$orascici-f98661e5.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB5kXHJLOOnPv78UuFPr+Yp0yjdGgGE2h9o6ZqIEsMk8nnoK43dHStT/9k=$seed$, false, 16, true)
+  null, null, '{ambient}'::product_format[],
+  $seed$/products/orascici-f98661e5.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwB5kXHJLOOnPv78UuFPr+Yp0yjdGgGE2h9o6ZqIEsMk8nnoK43dHStT/9k=$seed$, false,
+  70, 456,
+  6.8, 28.9,
+  43.1, 16, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 
@@ -583,21 +753,31 @@ from public.products where slug = $seed$orascici$seed$
 on conflict (product_id, locale) do update set
   name = excluded.name, note = excluded.note;
 
-insert into public.products (slug, price_rsd, price_is_placeholder, has_whole,
-  whole_multiplier, formats, photo_path, photo_blur, photo_is_placeholder,
+insert into public.products (slug, price_rsd, has_whole, whole_price_rsd, tag,
+  formats, photo_path, photo_blur, photo_is_placeholder,
+  weight_g, kcal, protein_g, fat_g, carbs_g,
   position, is_published)
-values ($seed$sirniki$seed$, 220, true,
-  false, 6, '{frozen}'::product_format[], $seed$sirniki-3d7241e4.jpg$seed$,
-  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCkEfaRuBCnBYE4FWEtXZARLFgjP3qom6mMwcvyPyqcXU5GfNasrHRc/9k=$seed$, true, 17, true)
+values ($seed$sirniki$seed$, 220, false,
+  null, null, '{frozen}'::product_format[],
+  $seed$/products/sirniki-3d7241e4.jpg$seed$,
+  $seed$data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABsSFBcUERsXFhceHBsgKEIrKCUlKFE6PTBCYFVlZF9VXVtqeJmBanGQc1tdhbWGkJ6jq62rZ4C8ybqmx5moq6T/2wBDARweHigjKE4rK06kbl1upKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpKT/wAARCAAMAAoDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCkEfaRuBCnBYE4FWEtXZARLFgjP3qom6mMwcvyPyqcXU5GfNasrHRc/9k=$seed$, true,
+  140, 271,
+  11.3, 12.6,
+  28.4, 17, true)
 on conflict (slug) do update set
   price_rsd = excluded.price_rsd,
-  price_is_placeholder = excluded.price_is_placeholder,
   has_whole = excluded.has_whole,
-  whole_multiplier = excluded.whole_multiplier,
+  whole_price_rsd = excluded.whole_price_rsd,
+  tag = excluded.tag,
   formats = excluded.formats,
   photo_path = excluded.photo_path,
   photo_blur = excluded.photo_blur,
   photo_is_placeholder = excluded.photo_is_placeholder,
+  weight_g = excluded.weight_g,
+  kcal = excluded.kcal,
+  protein_g = excluded.protein_g,
+  fat_g = excluded.fat_g,
+  carbs_g = excluded.carbs_g,
   position = excluded.position,
   is_published = excluded.is_published;
 

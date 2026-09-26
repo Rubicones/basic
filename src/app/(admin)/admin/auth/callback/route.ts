@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { classifyLinkError } from "@/lib/auth/link-errors";
 
 /**
  * Where the emailed link lands.
@@ -32,10 +33,22 @@ export async function GET(request: NextRequest) {
 
   const signIn = new URL("/admin/sign-in", url.origin);
   const failed = (reason: string) => {
-    console.error("[auth/callback]", reason, Object.fromEntries(url.searchParams));
-    signIn.searchParams.set("error", "link");
+    // The query string is logged without the credential in it: a code or a token
+    // hash in a log file is a sign-in waiting to be replayed.
+    const safe = Object.fromEntries(
+      [...url.searchParams].filter(([key]) => key !== "code" && key !== "token_hash"),
+    );
+    console.error("[auth/callback]", reason, safe);
+    signIn.searchParams.set("error", classifyLinkError(reason));
     return NextResponse.redirect(signIn);
   };
+
+  // Supabase refused the link before it ever got here and says so in the query
+  // string — `error_code=otp_expired` and friends. Nothing to exchange.
+  const refused = url.searchParams.get("error_code") ?? url.searchParams.get("error");
+  if (refused) {
+    return failed(`supabase: ${refused} ${url.searchParams.get("error_description") ?? ""}`);
+  }
 
   const supabase = await createClient();
 

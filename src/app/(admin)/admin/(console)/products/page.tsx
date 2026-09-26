@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button, Card, IconPlus } from "@/components/ui";
+import { Button, Card, IconPlus, IconUpload } from "@/components/ui";
 import { listProducts, photoUrl } from "@/lib/admin/queries";
 import { forLocale } from "@/lib/admin/types";
 import { DEFAULT_LOCALE } from "@/lib/i18n/config";
@@ -11,16 +11,23 @@ export default async function ProductsPage() {
     <>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-display-md">Products</h1>
-        <Link href="/admin/products/new">
-          <Button iconStart={<IconPlus size={16} />}>New product</Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link href="/admin/products/import">
+            <Button variant="outline" iconStart={<IconUpload size={16} />}>
+              Import a list
+            </Button>
+          </Link>
+          <Link href="/admin/products/new">
+            <Button iconStart={<IconPlus size={16} />}>New product</Button>
+          </Link>
+        </div>
       </div>
 
       {products.length === 0 ? (
         <Card>
           <p className="text-body-sm text-content-secondary">
-            Nothing here yet. Run <code>npm run seed</code> against the database, or add the first
-            product by hand.
+            Nothing here yet. Import the price list, add the first product by hand, or run{" "}
+            <code>npm run seed</code> against the database.
           </p>
         </Card>
       ) : (
@@ -42,15 +49,19 @@ export default async function ProductsPage() {
                     </span>
 
                     <span className="min-w-0 flex-1">
-                      <span className="font-display text-body-sm block font-bold">
+                      <span className="text-body-sm block font-bold">
                         {text?.name ?? product.slug}
                       </span>
                       <span className="text-caption text-content-secondary block truncate">
                         {product.slug} · {product.formats.join(", ") || "no formats"}
+                        {/* The tag changes what a card looks like from across the
+                            room, so the list says which products carry one
+                            without having to open each of them. */}
+                        {product.tag && <> · tag: {product.tag}</>}
                       </span>
                     </span>
 
-                    <span className="font-display text-body-sm shrink-0 font-bold tabular-nums">
+                    <span className="text-body-sm shrink-0 font-bold tabular-nums">
                       {product.price_rsd.toLocaleString("en")} RSD
                     </span>
 

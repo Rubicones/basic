@@ -1,4 +1,5 @@
 import type { Locale } from "@/lib/i18n/config";
+import type { Photo } from "./photos";
 
 /**
  * The catalogue.
@@ -29,16 +30,18 @@ export type Product = {
   formats: Format[];
   /** RSD, per piece. */
   price: number;
-  /** True where the sheet had no venue price and this is a stand-in. */
-  priceIsPlaceholder: boolean;
-  /** Also sold as a whole cake. */
-  whole: boolean;
+  /** RSD for the whole cake, or null where it is only sold by the piece. */
+  wholePrice: number | null;
+  /** One short word in the corner of the card. Not translated — see the migration. */
+  tag: string | null;
   /** The photograph belongs to a different product — a gap, kept visible in the data. */
   photoIsPlaceholder: boolean;
-  /** Grams. A piece weight, or the weight of the whole cake for the whole rows. */
-  weightG: number;
-  /** Per 100g. Mocked until the kitchen measures — see NUTRITION. */
-  nutrition: Nutrition;
+  /** Where the picture comes from: the repository, the bucket, or the demo set. */
+  photo: Photo;
+  /** Grams, or null where nothing has been weighed. A piece, or the whole cake. */
+  weightG: number | null;
+  /** Per 100g, or null where nothing has been measured. */
+  nutrition: Nutrition | null;
 };
 
 export type Nutrition = {
@@ -53,11 +56,13 @@ export type Nutrition = {
  * The piece/whole toggle survives only for the two cheesecakes.
  *
  * The deck lists them among the whole cakes but the price sheet has no whole-cake
- * row for either, so they carry the agreed piece price × 6. Medovik and napoleon do
- * have their own rows — and napoleon has two weights, which a boolean toggle cannot
- * express — so those are products in their own right, at the sheet's real prices.
+ * row for either, so the figures below are provisional — agreed as six pieces —
+ * until the kitchen gives a real one. They are written out as numbers rather than
+ * derived from a multiplier, because that is what they are: a price someone chose,
+ * which the console can overwrite without anything else moving. Medovik and
+ * napoleon do have their own rows — and napoleon has two weights, which one toggle
+ * cannot express — so those are products in their own right.
  */
-export const WHOLE_MULTIPLIER = 6;
 
 type Row = {
   slug: string;
@@ -66,8 +71,9 @@ type Row = {
   en: [string, string];
   formats: Format[];
   price: number;
-  whole?: boolean;
-  priceIsPlaceholder?: boolean;
+  /** Set only where the card offers the whole cake. */
+  wholePrice?: number;
+  tag?: string;
   photoIsPlaceholder?: boolean;
 };
 
@@ -84,13 +90,28 @@ type Row = {
  * the cake. Everything else is per 100g, which is how a declaration states it.
  */
 const FACTS: Record<string, { weightG: number; nutrition: Nutrition }> = {
-  "cizkejk-njujork": { weightG: 130, nutrition: { kcal: 341, protein: 5.8, fat: 23.1, carbs: 27.4 } },
-  "cizkejk-mandarina": { weightG: 135, nutrition: { kcal: 318, protein: 5.5, fat: 20.4, carbs: 28.9 } },
+  "cizkejk-njujork": {
+    weightG: 130,
+    nutrition: { kcal: 341, protein: 5.8, fat: 23.1, carbs: 27.4 },
+  },
+  "cizkejk-mandarina": {
+    weightG: 135,
+    nutrition: { kcal: 318, protein: 5.5, fat: 20.4, carbs: 28.9 },
+  },
   medovik: { weightG: 120, nutrition: { kcal: 362, protein: 4.9, fat: 19.7, carbs: 41.8 } },
   napoleon: { weightG: 125, nutrition: { kcal: 384, protein: 5.2, fat: 24.6, carbs: 35.1 } },
-  "medovik-cela-torta": { weightG: 2500, nutrition: { kcal: 362, protein: 4.9, fat: 19.7, carbs: 41.8 } },
-  "napoleon-cela-torta-2700": { weightG: 2700, nutrition: { kcal: 384, protein: 5.2, fat: 24.6, carbs: 35.1 } },
-  "napoleon-cela-torta-1300": { weightG: 1300, nutrition: { kcal: 384, protein: 5.2, fat: 24.6, carbs: 35.1 } },
+  "medovik-cela-torta": {
+    weightG: 2500,
+    nutrition: { kcal: 362, protein: 4.9, fat: 19.7, carbs: 41.8 },
+  },
+  "napoleon-cela-torta-2700": {
+    weightG: 2700,
+    nutrition: { kcal: 384, protein: 5.2, fat: 24.6, carbs: 35.1 },
+  },
+  "napoleon-cela-torta-1300": {
+    weightG: 1300,
+    nutrition: { kcal: 384, protein: 5.2, fat: 24.6, carbs: 35.1 },
+  },
   "limun-tart": { weightG: 110, nutrition: { kcal: 336, protein: 4.4, fat: 18.9, carbs: 37.2 } },
   "tart-bobice": { weightG: 115, nutrition: { kcal: 309, protein: 4.1, fat: 16.8, carbs: 35.6 } },
   "pticje-mleko": { weightG: 95, nutrition: { kcal: 298, protein: 4.7, fat: 15.2, carbs: 36.4 } },
@@ -114,7 +135,7 @@ const ROWS: Row[] = [
     en: ["New York cheesecake", "Dense and creamy, on a biscuit base."],
     formats: ["chilled", "whole"],
     price: 570,
-    whole: true,
+    wholePrice: 3420,
   },
   {
     slug: "cizkejk-mandarina",
@@ -123,7 +144,7 @@ const ROWS: Row[] = [
     en: ["Mandarin cheesecake", "With fresh mandarin and mint leaves."],
     formats: ["chilled", "whole"],
     price: 570,
-    whole: true,
+    wholePrice: 3420,
   },
   {
     slug: "medovik",
@@ -166,7 +187,6 @@ const ROWS: Row[] = [
     en: ["Napoleon, whole cake", "A smaller whole cake, for a smaller table."],
     formats: ["whole", "chilled", "frozen"],
     price: 3800,
-    priceIsPlaceholder: true,
     photoIsPlaceholder: true,
   },
   {
@@ -261,19 +281,29 @@ const ROWS: Row[] = [
     en: ["Syrniki, frozen", "Curd cheese, fried to order."],
     formats: ["frozen"],
     price: 220,
-    priceIsPlaceholder: true,
     photoIsPlaceholder: true,
   },
 ];
 
-export const PRODUCTS: Product[] = ROWS.map((r) => ({
+/**
+ * Everything about a product except its photograph.
+ *
+ * The fixture stays free of imports on purpose: `scripts/generate-seed.mjs` loads
+ * this file directly through Node's type stripping, which resolves neither the
+ * `@/` alias nor an extensionless path. The photograph is attached by whoever
+ * serves the fixture — one line in `source.ts` — rather than dragging the photo
+ * module, and `env`, and `next` behind it into a build script.
+ */
+export type ProductFacts = Omit<Product, "photo">;
+
+export const PRODUCTS: ProductFacts[] = ROWS.map((r) => ({
   slug: r.slug,
   name: { sr: r.sr[0], ru: r.ru[0], en: r.en[0] },
   note: { sr: r.sr[1], ru: r.ru[1], en: r.en[1] },
   formats: r.formats,
   price: r.price,
-  priceIsPlaceholder: r.priceIsPlaceholder ?? false,
-  whole: r.whole ?? false,
+  wholePrice: r.wholePrice ?? null,
+  tag: r.tag ?? null,
   photoIsPlaceholder: r.photoIsPlaceholder ?? false,
   ...(FACTS[r.slug] ?? FALLBACK_FACTS),
 }));

@@ -10,15 +10,20 @@
     "lint": "eslint . && node scripts/check-arbitrary.mjs",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "check": "npm run typecheck && npm run lint",
-    "seed": "node --experimental-strip-types scripts/generate-seed.mjs"
+    "check": "npm run typecheck && npm run lint && npm run check:notify",
+    "seed": "node --experimental-strip-types scripts/generate-seed.mjs",
+    "check:notify": "node --experimental-strip-types scripts/check-notify-message.ts && node --experimental-strip-types scripts/check-notify-delivery.ts && node --experimental-strip-types scripts/check-web-push.ts",
+    "bundle:notify": "node scripts/bundle-notify.mjs",
+    "vapid": "node scripts/vapid.mjs",
+    "check:db": "bash scripts/db-test/run.sh"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
     "next": "^15.5.4",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

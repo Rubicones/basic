@@ -6,8 +6,7 @@ import Image from "next/image";
 import { Badge, Button, Drawer, IconPlus, Stepper } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { WavePattern } from "./wave-pattern";
-import { photoFor } from "@/lib/catalog/photos";
-import { WHOLE_MULTIPLIER, type Format, type Product } from "@/lib/catalog/products";
+import { type Format, type Product } from "@/lib/catalog/products";
 import { fill, formatPrice, formatWeight } from "@/lib/i18n/format";
 import { useCart } from "@/lib/cart/context";
 import type { Messages } from "@/lib/i18n/dictionaries";
@@ -57,21 +56,21 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
   useEffect(() => setMounted(true), []);
   const [whole, setWhole] = useState(false);
 
-  const hasWhole = product.whole;
+  const hasWhole = product.wholePrice !== null;
   const variant: "piece" | "whole" = hasWhole && whole ? "whole" : "piece";
 
   // The count belongs to the page's cart, not to this card: the order panel and
   // the mobile bar have to see the same number.
   const cart = useCart();
   const qty = cart.qtyOf(product.slug, variant);
-  const photo = photoFor(product.slug);
+  const photo = product.photo;
 
   // The first way it keeps, ignoring "whole" — that is a variant, not storage.
   const storage = product.formats.find((f) => f !== "whole") ?? product.formats[0] ?? "chilled";
 
   const priceLabel = formatPrice(
     locale,
-    variant === "whole" ? product.price * WHOLE_MULTIPLIER : product.price,
+    variant === "whole" ? (product.wholePrice ?? product.price) : product.price,
   );
 
   const onPointerMove = useCallback((event: React.PointerEvent<HTMLElement>) => {
@@ -188,6 +187,17 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               </div>
             </button>
 
+            {/* The corner tag. It sits on the photograph, where the surface behind
+                it is a photograph and nothing else — which is what `inverse` is
+                for. `pointer-events-none` so the badge does not punch a dead spot
+                into the button that opens the card. The insets match the quantity
+                badge opposite it: 8px on a phone card, 16px once there is room. */}
+            {product.tag && (
+              <span className="pointer-events-none absolute top-2 left-2 z-20 sm:top-4 sm:left-4">
+                <Badge tone="inverse">{product.tag}</Badge>
+              </span>
+            )}
+
             {hasWhole && (
               <div className="absolute inset-x-3 bottom-3 z-20 sm:inset-x-auto sm:top-4 sm:right-4 sm:bottom-auto">
                 <VariantToggle
@@ -202,7 +212,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               <span
                 key={qty}
                 className={cx(
-                  "badge-pop font-display bg-brand text-content-on-brand absolute z-20",
+                  "badge-pop bg-brand text-content-on-brand absolute z-20",
                   "grid size-8 place-items-center rounded-pill text-caption font-bold tabular-nums",
                   "sm:size-9 sm:text-body-sm",
                   /* In the corner, with the inset the card can afford: 8px on a
@@ -229,10 +239,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               <h3 className="font-display text-body-sm line-clamp-2 min-w-0 font-bold text-balance">
                 {product.name[locale]}
               </h3>
-              <span
-                key={variant}
-                className="value-slide font-display text-body shrink-0 font-bold tabular-nums"
-              >
+              <span key={variant} className="value-slide text-body shrink-0 font-bold tabular-nums">
                 {priceLabel}
               </span>
             </div>
@@ -274,25 +281,35 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
                         : {})}
                       className="object-cover"
                     />
+                    {product.tag && (
+                      <span className="absolute top-3 left-3">
+                        <Badge tone="inverse">{product.tag}</Badge>
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-baseline justify-between gap-4">
                     <span className="text-body-sm text-content-secondary">
                       {variant === "whole" ? t.catalog.wholeCake : t.catalog.piece}
                     </span>
-                    <span className="font-display text-display-sm text-brand font-bold tabular-nums">
+                    <span className="text-display-sm text-brand font-bold tabular-nums">
                       {priceLabel}
                     </span>
                   </div>
 
                   <p className="text-body text-content-secondary">{product.note[locale]}</p>
 
-                  <dl className="border-line flex items-baseline justify-between gap-4 border-y py-3">
-                    <dt className="text-body-sm text-content-secondary">{t.catalog.weight}</dt>
-                    <dd className="font-display text-body font-bold tabular-nums">
-                      {formatWeight(locale, product.weightG)}
-                    </dd>
-                  </dl>
+                  {/* Nothing weighed yet is nothing said. A panel of blanks reads
+                      as a measurement of zero, and a declaration goes out with
+                      every delivery. */}
+                  {product.weightG !== null && (
+                    <dl className="border-line flex items-baseline justify-between gap-4 border-y py-3">
+                      <dt className="text-body-sm text-content-secondary">{t.catalog.weight}</dt>
+                      <dd className="text-body font-bold tabular-nums">
+                        {formatWeight(locale, product.weightG)}
+                      </dd>
+                    </dl>
+                  )}
 
                   <div>
                     <p className="text-micro text-content-secondary mb-2 uppercase">
@@ -311,37 +328,38 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
                     </div>
                   </div>
 
-                  <div>
-                    <p className="text-micro text-content-secondary mb-2 uppercase">
-                      {t.catalog.nutritionTitle}
-                      <span className="lowercase"> — {t.catalog.per100}</span>
-                    </p>
-                    <dl className="border-line grid grid-cols-2 gap-x-4 gap-y-2 rounded-inner border p-4">
-                      {(
-                        [
-                          [t.catalog.kcal, `${product.nutrition.kcal} kcal`],
+                  {product.nutrition && (
+                    <div>
+                      <p className="text-micro text-content-secondary mb-2 uppercase">
+                        {t.catalog.nutritionTitle}
+                        <span className="lowercase"> — {t.catalog.per100}</span>
+                      </p>
+                      <dl className="border-line grid grid-cols-2 gap-x-4 gap-y-2 rounded-inner border p-4">
+                        {(
                           [
-                            t.catalog.protein,
-                            formatWeight(locale, product.nutrition.protein, true),
-                          ],
-                          [t.catalog.fat, formatWeight(locale, product.nutrition.fat, true)],
-                          [t.catalog.carbs, formatWeight(locale, product.nutrition.carbs, true)],
-                        ] as const
-                      ).map(([label, value]) => (
-                        <div key={label} className="flex items-baseline justify-between gap-3">
-                          <dt className="text-body-sm text-content-secondary">{label}</dt>
-                          <dd className="font-display text-body-sm font-bold tabular-nums">
-                            {value}
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
-                    {/* Said out loud rather than left to be discovered: a declaration
-                      goes out with every delivery, and these are not measurements. */}
-                    <p className="text-caption text-content-tertiary mt-2">
-                      {t.catalog.nutritionNote}
-                    </p>
-                  </div>
+                            [t.catalog.kcal, `${product.nutrition.kcal} kcal`],
+                            [
+                              t.catalog.protein,
+                              formatWeight(locale, product.nutrition.protein, true),
+                            ],
+                            [t.catalog.fat, formatWeight(locale, product.nutrition.fat, true)],
+                            [t.catalog.carbs, formatWeight(locale, product.nutrition.carbs, true)],
+                          ] as const
+                        ).map(([label, value]) => (
+                          <div key={label} className="flex items-baseline justify-between gap-3">
+                            <dt className="text-body-sm text-content-secondary">{label}</dt>
+                            <dd className="text-body-sm font-bold tabular-nums">{value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      {/* Said out loud rather than left to be discovered: a
+                          declaration goes out with every delivery, and these are
+                          not measurements. */}
+                      <p className="text-caption text-content-tertiary mt-2">
+                        {t.catalog.nutritionNote}
+                      </p>
+                    </div>
+                  )}
 
                   {hasWhole && (
                     <VariantToggle
@@ -396,7 +414,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
                   did in the reference. */}
               <span
                 key={variant}
-                className="value-slide font-display text-display-sm block font-bold tabular-nums"
+                className="value-slide text-display-sm block font-bold tabular-nums"
               >
                 {priceLabel}
               </span>
