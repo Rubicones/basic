@@ -7,16 +7,18 @@ import { SignInForm } from "./form";
  * the page you are redirected to.
  */
 
-/** One sentence per failure — see lib/auth/link-errors.ts for which is which. */
+/**
+ * One sentence per failure of an emailed *link* — see lib/auth/link-errors.ts.
+ * Sign-in itself is a code now, but a link still arrives in an invitation, and
+ * in any template that kept one. Each notice ends at the code, which works.
+ */
 const NOTICES: Record<string, string> = {
   denied: "That account is signed in but is not an administrator.",
-  browser:
-    "That link was sent under the old sign-in and only opens in the browser that asked for it. " +
-    "Ask for a new one — new links open anywhere.",
+  browser: "That link only opens in the browser that asked for it. Sign in with a code instead.",
   expired:
-    "That link has been used, has expired, or was replaced by a newer one. Each link works " +
-    "once, and only the newest one you asked for. Ask for a new one.",
-  link: "That link could not be used. Ask for a new one — the server log has the reason.",
+    "That link has been used, has expired, or was replaced by a newer one. Sign in with a code " +
+    "instead.",
+  link: "That link could not be used — the server log has the reason. Sign in with a code instead.",
 };
 
 export default async function SignInPage({

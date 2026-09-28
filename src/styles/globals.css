@@ -1289,3 +1289,53 @@
     }
   }
 }
+
+/*
+ * The sign-in code.
+ *
+ * The caret is drawn, not native: the real input sits invisibly on top of the
+ * cells (see components/ui/code-input.tsx), so its own caret would blink in the
+ * wrong place. Keyframes end visible, so under reduced motion — where the global
+ * rule runs an animation once, instantly — the caret simply stays on.
+ */
+@keyframes code-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@utility code-caret {
+  animation: code-caret 1.1s steps(1, end) infinite;
+}
+
+/* A wrong code: the row shakes its head once. Restarted by re-keying the row. */
+@keyframes code-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  20% {
+    translate: calc(var(--spacing) * -2) 0;
+  }
+  40% {
+    translate: calc(var(--spacing) * 2) 0;
+  }
+  60% {
+    translate: calc(var(--spacing) * -1) 0;
+  }
+  80% {
+    translate: var(--spacing) 0;
+  }
+}
+
+@utility code-shake {
+  animation: code-shake var(--duration-slow) var(--ease-out-smooth) both;
+}

@@ -3,6 +3,7 @@ export { Badge, type BadgeProps } from "./badge";
 export { Button, type ButtonProps } from "./button";
 export { Card, Panel, Tile, type CardProps, type PanelProps } from "./card";
 export { Checkbox, type CheckboxProps } from "./checkbox";
+export { CodeInput, type CodeInputProps } from "./code-input";
 export { Dialog, Drawer, type DialogProps, type DrawerProps } from "./dialog";
 export { Field, type FieldProps } from "./field";
 export {
@@ -15,6 +16,7 @@ export {
   IconChevronDown,
   IconClock,
   IconClose,
+  IconMail,
   IconMinus,
   IconPin,
   IconPlus,

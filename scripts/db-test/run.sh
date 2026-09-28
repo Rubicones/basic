@@ -48,6 +48,29 @@ done
 cp "$root/supabase/seed.sql" "$work/seed.sql" && chmod a+r "$work/seed.sql"
 if psql -f "$work/seed.sql" >/dev/null 2>"$work/err"; then echo "  ok   seed.sql"; else echo "  FAIL seed.sql"; cat "$work/err"; exit 1; fi
 
+if [ "${1:-}" = "--restore" ]; then
+  # The accident, then the way back: inventory, the restore (twice — it has to be
+  # safe to run again), and then every behaviour check against the result.
+  echo
+  for step in "$here/pollution.sql" "$root/supabase/restore/00-inventory.sql" \
+              "$root/supabase/restore/01-restore.sql" "$root/supabase/restore/01-restore.sql" \
+              "$root/supabase/restore/02-after-restore.sql"; do
+    sed -e 's/^create extension if not exists pg_cron;//' \
+        -e 's/^create extension if not exists pg_net;//' "$step" > "$work/step.sql"
+    chmod a+r "$work/step.sql"
+    if psql -f "$work/step.sql" >"$work/step.out" 2>"$work/err"; then
+      echo "  ok   $(basename "$step")"
+    else
+      echo "  FAIL $(basename "$step")"; cat "$work/err"; exit 1
+    fi
+    [ "$(basename "$step")" = "00-inventory.sql" ] && sed -n '3,40p' "$work/step.out" | sed 's/^/       /'
+  done
+  psql -c "do \$\$ begin
+    if to_regclass('public.steps') is not null or to_regclass('public.agents') is not null then raise exception 'foreign tables survived'; end if;
+    if exists (select 1 from pg_trigger where tgname = 'on_auth_user_created') then raise exception 'foreign auth trigger survived'; end if;
+  end \$\$;" >/dev/null 2>"$work/err" && echo "  ok   nothing of the other project is left in public" || { echo "  FAIL leftovers"; cat "$work/err"; exit 1; }
+fi
+
 cp "$here/tests.sql" "$work/tests.sql" && chmod a+r "$work/tests.sql"
 echo
 psql -f "$work/tests.sql" > "$work/out" 2>&1 || true

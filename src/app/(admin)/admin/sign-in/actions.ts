@@ -1,56 +1,51 @@
 "use server";
 
 import { headers } from "next/headers";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { redirect } from "next/navigation";
+import { createClient as createSupabaseClient, type AuthError } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
-import { SIGN_IN_INITIAL, type SignInState } from "./state";
+import {
+  CODE_LENGTH,
+  SIGN_IN_INITIAL,
+  type SignInState,
+  type VerifyState,
+} from "./state";
 
 /**
- * Sign-in is a link in an email.
+ * Sign-in is a code in an email, typed back into the same screen.
  *
- * A six-digit code would keep the whole exchange on one screen, but Supabase only
- * lets the email template be edited once a custom SMTP sender is configured, and
- * the stock template sends a link and no `{{ .Token }}`. So: link, and the code
- * path can come back the day SMTP does.
+ * The link it replaces could fail in more ways than anyone could see: opened by
+ * the mail app in its own browser, tapped on the phone after asking on the
+ * laptop, pre-fetched and used up by a mail scanner before the person ever
+ * clicked. A code has none of those — it is only ever used where it is typed.
  *
- * The form's answer is the same whether or not the address belongs to an
+ * Needs `{{ .Token }}` in the Magic Link email template (and in Confirm signup,
+ * which is what an invited address that never signed in receives instead) — see
+ * supabase/templates/sign-in-code.html. A template that still has the link in it
+ * keeps working too: the link lands on /admin/auth/finish as before.
+ *
+ * The first step answers the same whether or not the address belongs to an
  * administrator. An unauthenticated form that says "no such user" is an account
  * enumeration endpoint, so an unknown address gets the same "check your mail" and
  * simply never receives anything.
  */
 
-export async function requestLink(
+export async function requestCode(
   _previous: SignInState,
   formData: FormData,
 ): Promise<SignInState> {
   if (String(formData.get("intent") ?? "") === "restart") return SIGN_IN_INITIAL;
 
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
+  const email = normaliseEmail(formData.get("email"));
 
   if (!email.includes("@")) {
     return { sent: false, email, error: "That does not look like an email address." };
   }
 
-  /*
-   * The implicit flow, deliberately — not the PKCE flow the SSR client uses.
-   *
-   * PKCE ties the link to the browser that asked for it: half of the handshake
-   * is a cookie set on this request, and Supabase keeps its half for about five
-   * minutes. For a sign-in link sent by email that is the wrong trade. The
-   * built-in mailer routinely takes minutes, the mail app opens links in its
-   * own browser, the owner asks on the laptop and taps on the phone — and every
-   * one of those fails, with a fresh link, in a way nobody can see the reason
-   * for. That is exactly what kept happening.
-   *
-   * With the implicit flow the link carries the session itself, in the URL
-   * fragment — which browsers never send to any server — to /admin/auth/finish,
-   * which stores it and wipes it from the address bar. It works in any browser
-   * for as long as the link is valid (an hour), once. What is given up is the
-   * binding to one browser; what stands between a stranger and the console is
-   * still the mailbox, and then the `admins` table.
-   */
+  // A throwaway client: nothing is signed in by *sending*, so there is no
+  // session to keep and no cookie to write. The implicit flow only matters if
+  // the template still carries a link — see ../auth/finish.
   const supabase = createSupabaseClient(env.supabaseUrl, env.supabaseAnonKey, {
     auth: {
       flowType: "implicit",
@@ -62,8 +57,6 @@ export async function requestLink(
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      // The link must come back to the host the request came from, or a link
-      // requested on localhost opens the production console.
       emailRedirectTo: `${await currentOrigin()}/admin/auth/finish`,
       // The console's accounts are made deliberately, not by anyone who can type
       // an address into this box.
@@ -72,13 +65,69 @@ export async function requestLink(
   });
 
   // The response to the browser is the same either way — but silence in both
-  // directions is how "200, and no mail ever arrives" becomes undiagnosable. The
-  // reason goes to the server log, where only we can read it.
+  // directions is how "no mail ever arrives" becomes undiagnosable. The reason
+  // goes to the server log, where only we can read it.
   if (error) {
-    console.error("[sign-in] Supabase refused to send:", error.status, error.message);
+    console.error("[sign-in] Supabase refused to send:", error.status, error.code, error.message);
   }
 
-  return { sent: true, email };
+  return { sent: true, email, sentAt: Date.now() };
+}
+
+/**
+ * Two gates, as with the link. Supabase answers "is this the code we sent to
+ * this address"; `admins` answers "may this person use the console". A real
+ * session that is not in `admins` is signed straight back out — leaving it alive
+ * would hand an anon-key session to anyone who can receive mail.
+ *
+ * Verified here rather than in the browser so that the session cookies are
+ * written by the same response that redirects into the console: the first page
+ * behind the guard already sees them.
+ */
+export async function verifyCode(previous: VerifyState, formData: FormData): Promise<VerifyState> {
+  const email = normaliseEmail(formData.get("email"));
+  const token = String(formData.get("code") ?? "").replace(/\D/g, "");
+  const reject = (error: string): VerifyState => ({ error, rejected: previous.rejected + 1 });
+
+  if (!email.includes("@")) return reject("Start again from your email address.");
+  if (token.length !== CODE_LENGTH) return reject(`The code has ${CODE_LENGTH} digits.`);
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+
+  if (error) {
+    // Never the token itself in the log: a code in a log file is a sign-in
+    // waiting to be replayed for the rest of its hour.
+    console.error("[sign-in] code refused:", error.status, error.code, error.message);
+    return reject(verifyFailure(error));
+  }
+
+  const { data: allowed } = await supabase.rpc("is_admin");
+  if (!allowed) {
+    await supabase.auth.signOut();
+    return reject("That account is not an administrator. Ask one to add you under Access.");
+  }
+
+  redirect("/admin");
+}
+
+/** One sentence per thing the person can do something about. */
+function verifyFailure(error: AuthError): string {
+  // Supabase answers a wrong code and a stale one with the same `otp_expired`,
+  // on purpose — telling them apart would tell a guesser when they were close.
+  if (error.code === "otp_expired") {
+    return "That code is wrong or has expired. Check the digits, or send a new code.";
+  }
+  if (error.status === 429 || (error.code ?? "").includes("rate_limit")) {
+    return "Too many tries. Wait a few minutes, then try again.";
+  }
+  return "The code could not be checked just now. Try again in a moment.";
+}
+
+function normaliseEmail(value: FormDataEntryValue | null): string {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase();
 }
 
 async function currentOrigin(): Promise<string> {

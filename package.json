@@ -15,7 +15,9 @@
     "check:notify": "node --experimental-strip-types scripts/check-notify-message.ts && node --experimental-strip-types scripts/check-notify-delivery.ts && node --experimental-strip-types scripts/check-web-push.ts",
     "bundle:notify": "node scripts/bundle-notify.mjs",
     "vapid": "node scripts/vapid.mjs",
-    "check:db": "bash scripts/db-test/run.sh"
+    "check:db": "bash scripts/db-test/run.sh",
+    "build:restore": "node scripts/build-restore.mjs",
+    "check:restore": "bash scripts/db-test/run.sh --restore"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
