@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Badge,
   Button,
   Card,
   Container,
@@ -10,7 +9,6 @@ import {
   IconCalendar,
   IconChevronDown,
   IconClock,
-  IconPin,
   IconTruck,
   Section,
   Tile,
@@ -58,12 +56,7 @@ function CityCard({ city, t }: { city: Messages["delivery"]["cities"][number]; t
   return (
     <Card padding="none">
       <div className="p-6">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <h3 className="text-display-sm">{city.name}</h3>
-          <Badge tone="brand" caps={false} iconStart={<IconPin size={16} />}>
-            {t.delivery.area}
-          </Badge>
-        </div>
+        <h3 className="text-display-sm mb-6">{city.name}</h3>
 
         {/* A description list: each figure is a value for its label. */}
         <dl className="grid grid-cols-2 gap-3">

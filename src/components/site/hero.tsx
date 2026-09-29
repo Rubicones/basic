@@ -1,6 +1,5 @@
 import { BlobMark } from "@/components/brand/blob-mark";
-import { Wordmark } from "@/components/brand/wordmark";
-import { Badge, Container, IconArrowRight, Link } from "@/components/ui";
+import { Container, IconArrowRight, Link } from "@/components/ui";
 import type { Messages } from "@/lib/i18n/dictionaries";
 import type { Locale } from "@/lib/i18n/config";
 
@@ -38,19 +37,6 @@ export function Hero({ locale, t }: { locale: Locale; t: Messages }) {
       <Container>
         <div className="min-h-hero pt-header flex items-center pb-16 md:pb-20">
           <div className="rise-group relative mx-auto flex w-full max-w-measure flex-col items-center text-center">
-            <div className="mb-6 flex flex-col items-center gap-3 md:mb-8">
-              <span className="text-brand">
-                <BlobMark size={56} />
-              </span>
-              <Wordmark size="lg" />
-            </div>
-
-            <div className="mb-6">
-              <Badge tone="brand" iconStart={<PinGlyph />}>
-                {t.hero.location}
-              </Badge>
-            </div>
-
             {/* The measure is a rem token, not a ch value. The reference sized this
                 in ch, tuned to the English string, which gives a different line
                 count in Serbian and Russian. */}
@@ -74,40 +60,15 @@ export function Hero({ locale, t }: { locale: Locale; t: Messages }) {
               >
                 {t.hero.ctaPrimary}
               </Link>
-              <Link href={`/${locale}#business`} tone="buttonOutline" size="lg">
+              {/* The second way in goes straight to the order form — the page's
+                  one job is to turn a visit into an order. */}
+              <Link href={`/${locale}#order`} tone="buttonOutline" size="lg">
                 {t.hero.ctaSecondary}
               </Link>
             </div>
-
-            <p
-              aria-hidden="true"
-              className="text-micro text-content-secondary mt-10 text-center uppercase md:mt-12"
-            >
-              {t.hero.scrollCue}
-            </p>
           </div>
         </div>
       </Container>
     </section>
-  );
-}
-
-function PinGlyph() {
-  return (
-    <svg
-      width={12}
-      height={12}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
   );
 }

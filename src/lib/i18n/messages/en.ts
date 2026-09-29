@@ -13,8 +13,7 @@ const p = (forms: PluralForms): PluralForms => forms;
 export const en = {
   meta: {
     title: "basic — desserts for your venue",
-    description:
-      "Small-batch desserts supplied to cafés and restaurants in Belgrade and Novi Sad.",
+    description: "Small-batch desserts supplied to cafés and restaurants in Belgrade and Novi Sad.",
   },
   nav: {
     catalog: "Catalog",
@@ -29,13 +28,11 @@ export const en = {
     tagline: "coffee & breakfast",
   },
   hero: {
-    location: "Admirala Geprata 10, Belgrade",
-    headlineTop: "coffee & breakfast.",
-    headlineBottom: "sweet things.",
-    lead: "A small neighbourhood café for slow mornings, good coffee and breakfast all day. Everything sweet is made here in small batches — from familiar favourites to whole cakes.",
+    headlineTop: "we make desserts",
+    headlineBottom: "for your café.",
+    lead: "We use only fresh, high-quality ingredients. We add no preservatives, which is why our desserts keep for just 2–3 days. We adapt recipes to your guests' tastes.",
     ctaPrimary: "Explore desserts",
-    ctaSecondary: "You're a business? Contact us",
-    scrollCue: "made here, every morning",
+    ctaSecondary: "Place an order",
   },
   catalog: {
     eyebrow: "The range",
@@ -88,7 +85,6 @@ export const en = {
     title: "Delivery, kept",
     titleAccent: "simple.",
     lead: "Pick your city for the essentials. Open the details only if you need them.",
-    area: "Delivery area",
     minimum: "Minimum order",
     fee: "Delivery",
     schedule: "Schedule",
@@ -100,7 +96,7 @@ export const en = {
         name: "Belgrade",
         minimum: "3.000 RSD",
         fee: "300 RSD to outer areas",
-        schedule: "Mon–Sat, by 12:00",
+        schedule: "Mon, Wed, Fri, by 12:00",
         details: [
           "Order at least two days ahead — you can plan the whole week at once.",
           "Urgent orders may be possible from the current range.",
@@ -133,7 +129,7 @@ export const en = {
     urgent: "Urgent orders by arrangement",
     deferred: "Deferred payment up to 10 days can be arranged",
     detailsTitle: "Your details",
-    cartTitle: "Your box",
+    cartTitle: "Your order",
     cartItems: "Items in your order",
     cartEmpty: "Nothing here yet — pick something from the catalog above.",
     each: "{price} each",
@@ -142,7 +138,7 @@ export const en = {
     removeOne: "Remove one: {name}",
     lineQuantity: "Quantity: {name}",
     total: "Total",
-    clear: "Clear the box",
+    clear: "Clear the order",
     submit: "Send order",
     submitTotal: "Send order · {total}",
     submitHint: "Add at least one dessert to send the order.",

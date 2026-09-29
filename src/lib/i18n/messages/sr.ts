@@ -3,8 +3,7 @@ import type { Messages } from "./en";
 export const sr: Messages = {
   meta: {
     title: "basic — deserti za vaš lokal",
-    description:
-      "Deserti iz male proizvodnje za kafiće i restorane u Beogradu i Novom Sadu.",
+    description: "Deserti iz male proizvodnje za kafiće i restorane u Beogradu i Novom Sadu.",
   },
   nav: {
     catalog: "Katalog",
@@ -19,13 +18,11 @@ export const sr: Messages = {
     tagline: "kafa i doručak",
   },
   hero: {
-    location: "Admirala Geprata 10, Beograd",
-    headlineTop: "kafa i doručak.",
-    headlineBottom: "slatke stvari.",
-    lead: "Mali kafić u komšiluku za spora jutra, dobru kafu i doručak tokom celog dana. Sve slatko pravimo ovde, u malim serijama — od poznatih favorita do celih torti.",
+    headlineTop: "pravimo deserte",
+    headlineBottom: "za vaš kafić.",
+    lead: "Koristimo samo kvalitetne i sveže sastojke. Ne dodajemo konzervanse, zato je rok trajanja naših deserata svega 2–3 dana. Recepte prilagođavamo ukusu vaših gostiju.",
     ctaPrimary: "Pogledaj deserte",
-    ctaSecondary: "Imate lokal? Javite nam se",
-    scrollCue: "pravimo ovde, svako jutro",
+    ctaSecondary: "Napravite porudžbinu",
   },
   catalog: {
     eyebrow: "Asortiman",
@@ -76,7 +73,6 @@ export const sr: Messages = {
     title: "Dostava,",
     titleAccent: "jednostavno.",
     lead: "Izaberite grad za ono najvažnije. Detalje otvorite samo ako vam trebaju.",
-    area: "Zona dostave",
     minimum: "Minimalna porudžbina",
     fee: "Dostava",
     schedule: "Termin",
@@ -88,7 +84,7 @@ export const sr: Messages = {
         name: "Beograd",
         minimum: "3.000 RSD",
         fee: "300 RSD za udaljene delove grada",
-        schedule: "Pon–sub, do 12:00",
+        schedule: "Pon, sre, pet, do 12:00",
         details: [
           "Porudžbina najmanje dva dana unapred — možete isplanirati celu nedelju odjednom.",
           "Hitne porudžbine su moguće u okviru trenutnog asortimana.",
@@ -121,7 +117,7 @@ export const sr: Messages = {
     urgent: "Hitne porudžbine po dogovoru",
     deferred: "Moguće je odloženo plaćanje do 10 dana",
     detailsTitle: "Vaši podaci",
-    cartTitle: "Vaša kutija",
+    cartTitle: "Vaša porudžbina",
     cartItems: "Stavke u porudžbini",
     cartEmpty: "Ovde još nema ničega — izaberite nešto iz kataloga iznad.",
     each: "{price} po komadu",
@@ -130,7 +126,7 @@ export const sr: Messages = {
     removeOne: "Ukloni jedan: {name}",
     lineQuantity: "Količina: {name}",
     total: "Ukupno",
-    clear: "Isprazni kutiju",
+    clear: "Isprazni porudžbinu",
     submit: "Pošalji porudžbinu",
     submitTotal: "Pošalji porudžbinu · {total}",
     submitHint: "Dodajte bar jedan desert da biste poslali porudžbinu.",

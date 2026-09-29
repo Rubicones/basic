@@ -36,7 +36,7 @@ export function Stepper({
   min = 0,
 }: StepperProps) {
   return (
-    <div className="border-line-control flex h-11 shrink-0 items-center gap-1 rounded-pill border px-1.5">
+    <div className="border-line-strong flex h-11 shrink-0 items-center gap-1 rounded-pill border px-1.5">
       <StepperButton onClick={onDecrement} disabled={value <= min} label={decrementLabel}>
         <IconMinus size={16} />
       </StepperButton>

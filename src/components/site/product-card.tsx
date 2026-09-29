@@ -76,17 +76,36 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
   const onPointerMove = useCallback((event: React.PointerEvent<HTMLElement>) => {
     const el = ref.current;
     if (!el || event.pointerType !== "mouse") return;
+    // The sheet is portalled to <body>, but React bubbles its events through the
+    // component tree — so a pointer moving over the sheet arrives here too, with
+    // coordinates far outside the card, and tilted it to the stops. Only a
+    // pointer that is actually over the card may move it.
+    if (!(event.target instanceof Node) || !el.contains(event.target)) return;
     const r = el.getBoundingClientRect();
     el.style.setProperty("--px", String((event.clientX - r.left) / r.width - 0.5));
     el.style.setProperty("--py", String((event.clientY - r.top) / r.height - 0.5));
   }, []);
 
-  const onPointerLeave = useCallback(() => {
+  const resetTilt = useCallback(() => {
     const el = ref.current;
     if (!el) return;
     el.style.setProperty("--px", "0");
     el.style.setProperty("--py", "0");
   }, []);
+
+  // Opening the sheet puts the card at rest, and so does closing it: wherever
+  // the pointer went while the sheet was up, the card is no longer under it.
+  // `pointerleave` cannot be relied on for this — for React the sheet is still
+  // inside the card, so leaving the card for the sheet is not a leave.
+  const openSheet = useCallback(() => {
+    resetTilt();
+    setSheet(true);
+  }, [resetTilt]);
+
+  const closeSheet = useCallback(() => {
+    resetTilt();
+    setSheet(false);
+  }, [resetTilt]);
 
   return (
     <article
@@ -94,7 +113,8 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
       data-card
       style={{ "--i": index } as React.CSSProperties}
       onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
+      onPointerLeave={resetTilt}
+      data-rest={sheet || undefined}
       className="group/card card-drift card-enter perspective-card relative"
     >
       <div
@@ -129,7 +149,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
             */}
             <button
               type="button"
-              onClick={() => setSheet(true)}
+              onClick={openSheet}
               aria-haspopup="dialog"
               className="block w-full text-left"
             >
@@ -267,7 +287,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               inertness of the page behind it are the platform's job, not ours. */}
           {mounted &&
             createPortal(
-              <Drawer open={sheet} onClose={() => setSheet(false)} title={product.name[locale]}>
+              <Drawer open={sheet} onClose={closeSheet} title={product.name[locale]}>
                 <div className="flex flex-col gap-5">
                   <div className="bg-surface-sunken aspect-photo relative w-full overflow-hidden rounded-inner">
                     <Image
