@@ -10,7 +10,10 @@ export default function NotFound() {
   const t = getDictionary(DEFAULT_LOCALE);
 
   return (
-    <main id="main" className="mx-auto grid min-h-screen max-w-md place-items-center px-5 text-center">
+    <main
+      id="main"
+      className="mx-auto grid min-h-screen max-w-md place-items-center px-5 text-center"
+    >
       <div>
         <h1 className="text-display-md">{t.error.notFoundTitle}</h1>
         <p className="text-content-secondary mt-3 text-body-sm">{t.error.notFoundBody}</p>

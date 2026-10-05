@@ -27,10 +27,31 @@ export type OrderField = {
 );
 
 export const ORDER_FIELDS: readonly OrderField[] = [
-  { key: "venue", required: true, wide: false, control: "input", type: "text", autoComplete: "organization" },
-  { key: "contact", required: true, wide: false, control: "input", type: "text", autoComplete: "name" },
+  {
+    key: "venue",
+    required: true,
+    wide: false,
+    control: "input",
+    type: "text",
+    autoComplete: "organization",
+  },
+  {
+    key: "contact",
+    required: true,
+    wide: false,
+    control: "input",
+    type: "text",
+    autoComplete: "name",
+  },
   { key: "phone", required: true, wide: false, control: "input", type: "tel", autoComplete: "tel" },
-  { key: "email", required: false, wide: false, control: "input", type: "email", autoComplete: "email" },
+  {
+    key: "email",
+    required: false,
+    wide: false,
+    control: "input",
+    type: "email",
+    autoComplete: "email",
+  },
   { key: "city", required: true, wide: false, control: "select", options: "cities" },
   { key: "date", required: true, wide: false, control: "input", type: "date" },
   { key: "comment", required: false, wide: true, control: "textarea", rows: 3 },

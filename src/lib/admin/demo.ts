@@ -148,11 +148,12 @@ function field(
     is_required: true,
     is_wide: false,
     is_enabled: true,
+    sensitivity: "normal" as const,
     position: index,
     order_field_translations: [
-      { locale: "sr", label: labels[0], placeholder: "", help: "", options: [] },
-      { locale: "ru", label: labels[1], placeholder: "", help: "", options: [] },
-      { locale: "en", label: labels[2], placeholder: "", help: "", options: [] },
+      { locale: "sr", label: labels[0], placeholder: "", help: "", purpose: "", options: [] },
+      { locale: "ru", label: labels[1], placeholder: "", help: "", purpose: "", options: [] },
+      { locale: "en", label: labels[2], placeholder: "", help: "", purpose: "", options: [] },
     ],
     ...extra,
   };
@@ -179,6 +180,7 @@ export const DEMO_FIELDS: OrderFieldWithTranslations[] = [
         label: "Pakovanje",
         placeholder: "",
         help: "",
+        purpose: "",
         options: ["Po komadu", "Po 6", "U kutiji"],
       },
       {
@@ -186,6 +188,7 @@ export const DEMO_FIELDS: OrderFieldWithTranslations[] = [
         label: "Упаковка",
         placeholder: "",
         help: "",
+        purpose: "",
         options: ["Поштучно", "По 6", "В коробке"],
       },
       {
@@ -193,6 +196,7 @@ export const DEMO_FIELDS: OrderFieldWithTranslations[] = [
         label: "Packing",
         placeholder: "",
         help: "",
+        purpose: "",
         options: ["Per piece", "In sixes", "Boxed"],
       },
     ],

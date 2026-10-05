@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Badge, Button, Drawer, IconPlus, Stepper } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
 import { WavePattern } from "./wave-pattern";
+import { StorageIcon, isStorageFormat } from "./storage-icon";
 import { type Format, type Product } from "@/lib/catalog/products";
 import { fill, formatPrice, formatWeight } from "@/lib/i18n/format";
 import { useCart } from "@/lib/cart/context";
@@ -65,8 +66,8 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
   const qty = cart.qtyOf(product.slug, variant);
   const photo = product.photo;
 
-  // The first way it keeps, ignoring "whole" — that is a variant, not storage.
-  const storage = product.formats.find((f) => f !== "whole") ?? product.formats[0] ?? "chilled";
+  // The first way it keeps, ignoring "whole" — that is a variant, not storage
+  const storageFormats = product.formats.filter(isStorageFormat);
 
   const priceLabel = formatPrice(
     locale,
@@ -194,58 +195,11 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
                       <p className="text-body-sm text-content-on-photo/90 hidden pt-2 sm:block">
                         {product.note[locale]}
                       </p>
-                      {/* How it keeps — the line a venue actually buys on. */}
-                      <p className="text-micro text-content-on-photo/70 pt-2 uppercase">
-                        {product.formats
-                          .filter((f) => f !== "whole")
-                          .map((f) => t.formats[f])
-                          .join(" · ")}
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </button>
-
-            {/* The corner tag. It sits on the photograph, where the surface behind
-                it is a photograph and nothing else — which is what `inverse` is
-                for. `pointer-events-none` so the badge does not punch a dead spot
-                into the button that opens the card. The insets match the quantity
-                badge opposite it: 8px on a phone card, 16px once there is room. */}
-            {product.tag && (
-              <span className="pointer-events-none absolute top-2 left-2 z-20 sm:top-4 sm:left-4">
-                <Badge tone="inverse">{product.tag}</Badge>
-              </span>
-            )}
-
-            {hasWhole && (
-              <div className="absolute inset-x-3 bottom-3 z-20 sm:inset-x-auto sm:top-4 sm:right-4 sm:bottom-auto">
-                <VariantToggle
-                  whole={whole}
-                  onChange={setWhole}
-                  labels={[t.catalog.piece, t.catalog.wholeCake]}
-                />
-              </div>
-            )}
-
-            {qty > 0 && (
-              <span
-                key={qty}
-                className={cx(
-                  "badge-pop bg-brand text-content-on-brand absolute z-20",
-                  "grid size-8 place-items-center rounded-pill text-caption font-bold tabular-nums",
-                  "sm:size-9 sm:text-body-sm",
-                  /* In the corner, with the inset the card can afford: 8px on a
-                     173px phone card, 16px once there is room. The whole-cake
-                     offset is a desktop concern — below sm the toggle sits at the
-                     foot of the photograph, not its head. */
-                  "top-2 right-2 sm:right-4",
-                  hasWhole ? "sm:top-16" : "sm:top-4",
-                )}
-              >
-                {qty}
-              </span>
-            )}
           </div>
 
           {/* The phone layout. The other branch is `display:none` at this width,
@@ -264,13 +218,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               </span>
             </div>
 
-            <div className="mt-2 flex items-center justify-between gap-2">
-              {/* One chip, and the short label: the joined list was wider than the
-                  column, which pushed the add button past the card's own edge. */}
-              <span className="min-w-0 truncate">
-                <Badge tone={storageTone(storage)}>{t.formatsShort[storage]}</Badge>
-              </span>
-
+            <div className="mt-2 flex items-center justify-end gap-2">
               <Button
                 variant="inverse"
                 shape="circle"
@@ -440,6 +388,87 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               </span>
             </span>
           </div>
+        </div>
+
+        {/*
+          The overlay: tag, storage icons, piece/whole toggle, count. A sibling of
+          the tilt, not a child of it — inside the tilt they were part of a 3D-
+          rotated layer, re-sampled on every frame of the hover, and the text went
+          soft. Here they only share the lift (a whole-pixel translate), so they
+          stay sharp while the photo and the frame move underneath. The box is the
+          photograph's own (full width, portrait), so every inset below means what
+          it meant when they sat on the photo.
+        */}
+        <div className="aspect-portrait pointer-events-none absolute inset-x-0 top-0 z-20">
+          {/* The corner tag. It sits on the photograph, where the surface behind
+              it is a photograph and nothing else — which is what `inverse` is
+              for. `pointer-events-none` so the badge does not punch a dead spot
+              into the button that opens the card. The insets match the quantity
+              badge opposite it: 8px on a phone card, 16px once there is room. */}
+          {/* Top-left, outside the photo frame, so neither moves when the frame
+              contracts on hover: the tag, and under it how the dessert keeps —
+              the same stacking as the count under the piece/whole toggle. */}
+          <div className="sm:top-frame-corner pointer-events-none absolute top-2 left-2 z-20 flex flex-col items-start gap-1 sm:left-4 sm:gap-2">
+            {product.tag && (
+              // No pill around it: the dark tag is itself the height of the
+              // icon pill and the toggle (42px), so its edge sits on the same
+              // line and follows the corner the same way, hovered or not.
+              <span className="bg-surface-inverse text-content-on-photo text-tag hidden items-center rounded-pill px-4 py-1 font-bold uppercase sm:inline-flex">
+                {product.tag}
+              </span>
+            )}
+            {storageFormats.length > 0 && (
+              <span
+                /* The same pill as the piece/whole toggle opposite — border,
+                   glass, 4px inset — so its outer curve follows the card's
+                   corner the way the toggle's does. */
+                className="border-line bg-surface-raised/90 shadow-soft pointer-events-auto flex gap-0.5 rounded-pill border p-0.5 backdrop-blur-md sm:gap-1 sm:p-1"
+              >
+                {storageFormats.map((f) => (
+                  <StorageIcon key={f} format={f} label={t.formats[f]} note compact />
+                ))}
+              </span>
+            )}
+          </div>
+
+          {/* The phone tag: top-right, opposite the storage icons, so the
+              left corner carries one thing. The desktop tag is the one above. */}
+          {product.tag && (
+            <span className="bg-surface-inverse text-content-on-photo text-caption pointer-events-none absolute top-2 right-2 z-20 inline-flex items-center rounded-pill px-2.5 py-0.5 font-bold uppercase sm:hidden">
+              {product.tag}
+            </span>
+          )}
+
+          {hasWhole && (
+            <div className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 sm:inset-x-auto sm:top-4.5 sm:right-4 sm:bottom-auto">
+              <VariantToggle
+                whole={whole}
+                onChange={setWhole}
+                labels={[t.catalog.piece, t.catalog.wholeCake]}
+              />
+            </div>
+          )}
+
+          {qty > 0 && (
+            <span
+              key={qty}
+              className={cx(
+                "badge-pop bg-brand text-content-on-brand absolute z-20",
+                "grid size-8 place-items-center rounded-pill text-caption font-bold tabular-nums",
+                "sm:size-9 sm:text-body-sm",
+                /* In the corner, with the inset the card can afford: 8px on a
+                   173px phone card, 16px once there is room. The whole-cake
+                   offset is a desktop concern — below sm the toggle sits at the
+                   foot of the photograph, not its head. */
+                "right-2 sm:right-4",
+                /* Below sm the tag owns the top-right corner; the count goes under it. */
+                product.tag ? "top-9" : "top-2",
+                hasWhole ? "sm:top-16" : "sm:top-4",
+              )}
+            >
+              {qty}
+            </span>
+          )}
         </div>
       </div>
     </article>

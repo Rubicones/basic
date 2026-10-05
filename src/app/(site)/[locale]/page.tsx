@@ -6,9 +6,11 @@ import { Hero } from "@/components/site/hero";
 import { Catalog } from "@/components/site/catalog";
 import { Delivery } from "@/components/site/delivery";
 import { Order, OrderBar } from "@/components/site/order";
+import { Footer } from "@/components/site/footer";
 import { CartProvider } from "@/lib/cart/context";
 import { getCatalog } from "@/lib/catalog/source";
 import { getOrderFields } from "@/lib/order/public-fields";
+import { homeJsonLd, serializeJsonLd } from "@/lib/seo";
 
 /**
  * The landing page, built section by section.
@@ -38,6 +40,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
+      {/* Structured data: the business, the site, and the catalogue as offers —
+          read from the same products the cards render, so it cannot drift. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(homeJsonLd(locale, t, products)) }}
+      />
       <CartProvider products={products}>
         <Header locale={locale} t={t} />
         <main id="main">
@@ -49,6 +57,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               belongs to the whole page rather than to the order section. */}
           <OrderBar locale={locale} t={t} />
         </main>
+        <Footer locale={locale} t={t} />
       </CartProvider>
     </>
   );

@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import NextLink from "next/link";
+import { useCallback, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   Button,
   Card,
   Container,
+  DateInput,
   IconAlert,
   IconArrowRight,
   IconBag,
   IconCard,
-  IconCheck,
   IconClock,
   IconClose,
   Input,
@@ -24,7 +25,8 @@ import { BlobMark } from "@/components/brand/blob-mark";
 import { cartTotal, type CartLine } from "@/lib/order/cart";
 import { useCart } from "@/lib/cart/context";
 import type { PublicField } from "@/lib/order/public-fields";
-import { submitOrder } from "@/app/(site)/[locale]/actions";
+import { cancelOrder, submitOrder } from "@/app/(site)/[locale]/actions";
+import { OrderPlaced, type PlacedOrder } from "./order-placed";
 import type { Locale } from "@/lib/i18n/config";
 import type { Messages } from "@/lib/i18n/dictionaries";
 import { fill, formatPrice, plural } from "@/lib/i18n/format";
@@ -59,6 +61,8 @@ export function Order({ locale, t, fields }: Props) {
   const { lines, total, setQty, clear } = useCart();
   const empty = lines.length === 0;
   const [status, setStatus] = useState<OrderStatus>("idle");
+  const [placed, setPlaced] = useState<PlacedOrder | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,12 +90,53 @@ export function Order({ locale, t, fields }: Props) {
       return;
     }
 
-    // The order exists now, so the things that made it must not: a cart left
-    // full is an invitation to send the same order twice.
+    // The order is on the server, held for a minute. The form stays mounted
+    // (only hidden) and the cart stays full, so "fix it" brings back exactly
+    // what was sent. The client's deadline is a few seconds short of the
+    // server's, so a fix offered here is never one the database would refuse.
     setStatus("sent");
-    clear();
-    form.reset();
+    setPlaced({
+      id: result.id,
+      token: result.token,
+      releaseAt: Date.now() + 55_000,
+      details: describeAnswers(fields, new FormData(form)),
+      lines: lines.map((line) => ({
+        key: line.key,
+        name:
+          line.variant === "whole"
+            ? fill(t.order.lineWhole, { name: line.product.name[locale] })
+            : line.product.name[locale],
+        qty: line.qty,
+        sum: line.unitPrice * line.qty,
+      })),
+      total,
+    });
   }
+
+  const fixOrder = useCallback(async () => {
+    if (!placed) return false;
+    const ok = await cancelOrder(placed.id, placed.token);
+    if (ok) {
+      setPlaced(null);
+      setStatus("idle");
+      requestAnimationFrame(() =>
+        formRef.current?.querySelector<HTMLElement>("input, select, textarea")?.focus(),
+      );
+    }
+    return ok;
+  }, [placed]);
+
+  // The minute is over and the shop has it: now the cart and the form go, so
+  // the same order cannot be sent twice by accident.
+  const released = useCallback(() => {
+    clear();
+    formRef.current?.reset();
+  }, [clear]);
+
+  const another = useCallback(() => {
+    setPlaced(null);
+    setStatus("idle");
+  }, []);
 
   return (
     <Section
@@ -117,7 +162,25 @@ export function Order({ locale, t, fields }: Props) {
           <Note icon={<IconCard size={16} />}>{t.order.deferred}</Note>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-12 grid gap-8 lg:grid-cols-order">
+        {placed && (
+          <div className="mt-12">
+            <OrderPlaced
+              order={placed}
+              locale={locale}
+              t={t}
+              onFix={fixOrder}
+              onReleased={released}
+              onAnother={another}
+            />
+          </div>
+        )}
+
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          hidden={placed !== null}
+          className="mt-12 grid gap-8 lg:grid-cols-order"
+        >
           {/* The box comes first in the DOM at every width, so the total is always
               read before the button that sends it. On `lg` the grid puts it in the
               second column and it sticks under the header — the reference's layout,
@@ -154,18 +217,13 @@ export function Order({ locale, t, fields }: Props) {
                 )}
               </div>
 
+              {/* The notice the law asks for, next to the button it is about. */}
+              <p className="text-caption text-content-secondary mt-4">
+                <Consent locale={locale} t={t} />
+              </p>
+
               {/* One region for the outcome. The reference had two bare paragraphs,
                   neither announced, the failure carried by colour alone. */}
-              <div role="status" aria-live="polite" className="empty:hidden">
-                {status === "sent" && (
-                  <p className="text-body-sm text-success mt-5 flex items-start gap-2 font-medium">
-                    <span className="mt-0.5 shrink-0">
-                      <IconCheck size={16} />
-                    </span>
-                    {t.order.sent}
-                  </p>
-                )}
-              </div>
               {status === "failed" && (
                 <p
                   role="alert"
@@ -227,6 +285,18 @@ function OrderControl({ field }: { field: PublicField }) {
         required={field.required}
         wide={field.wide}
         options={field.options}
+      />
+    );
+  }
+
+  if (field.type === "date") {
+    return (
+      <DateInput
+        name={field.key}
+        label={field.label}
+        {...(field.help ? { help: field.help } : {})}
+        required={field.required}
+        wide={field.wide}
       />
     );
   }
@@ -400,4 +470,37 @@ export function OrderBar({ locale, t }: { locale: Locale; t: Messages }) {
       </div>
     </>
   );
+}
+
+/** The consent sentence with the policy's name as a link, wherever {policy} falls. */
+function Consent({ locale, t }: { locale: Locale; t: Messages }) {
+  const [before = "", after = ""] = t.order.consent.split("{policy}");
+  return (
+    <>
+      {before}
+      <NextLink
+        href={`/${locale}/privacy-policy`}
+        className="text-brand underline decoration-1 underline-offset-4 hover:decoration-2"
+      >
+        {t.order.consentLink}
+      </NextLink>
+      {after}
+    </>
+  );
+}
+
+/** What the customer typed, as they saw it: labels from the form, choices by label. */
+function describeAnswers(
+  fields: PublicField[],
+  data: FormData,
+): { label: string; value: string }[] {
+  return fields.flatMap((field) => {
+    const raw = String(data.get(field.key) ?? "").trim();
+    if (!raw) return [];
+    const value =
+      field.control === "select"
+        ? (field.options.find((option) => option.value === raw)?.label ?? raw)
+        : raw;
+    return [{ label: field.label, value }];
+  });
 }

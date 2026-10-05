@@ -1,5 +1,6 @@
 "use client";
 
+import { StorageIcon } from "./storage-icon";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Container, Grid, IconClose, IconSearch, Section, Stack } from "@/components/ui";
 import { cx } from "@/components/ui/cx";
@@ -203,20 +204,33 @@ export function Catalog({
               </p>
             </div>
           ) : (
-            <Grid cols={3} fromTwo gap={6}>
-              {list.map((product, i) => (
-                <ProductCard
-                  key={product.slug}
-                  product={product}
-                  index={i}
-                  locale={locale}
-                  t={t}
-                  /* The catalogue is below the fold at every width, so nothing here
+            <>
+              <Grid cols={3} fromTwo gap={6}>
+                {list.map((product, i) => (
+                  <ProductCard
+                    key={product.slug}
+                    product={product}
+                    index={i}
+                    locale={locale}
+                    t={t}
+                    /* The catalogue is below the fold at every width, so nothing here
                      is the LCP element and nothing here is eager. */
-                  priority={false}
-                />
-              ))}
-            </Grid>
+                    priority={false}
+                  />
+                ))}
+              </Grid>
+
+              {/* The key to the icons on the cards. */}
+              <p className="text-caption text-content-secondary mt-10 flex flex-wrap items-center gap-x-5 gap-y-2">
+                <span>{t.catalog.storageNote}</span>
+                {(["frozen", "chilled", "ambient"] as const).map((f) => (
+                  <span key={f} className="flex items-center gap-2">
+                    <StorageIcon format={f} label={t.formats[f]} />
+                    <span aria-hidden="true">{t.formats[f]}</span>
+                  </span>
+                ))}
+              </p>
+            </>
           )}
         </div>
       </Container>

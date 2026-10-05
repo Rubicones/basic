@@ -61,7 +61,5 @@ export type TileProps = { children: ReactNode };
 
 /** Nested inside a Card or Panel — no shadow, sunken, small radius. */
 export function Tile({ children }: TileProps) {
-  return (
-    <div className="border-line bg-surface-page/65 rounded-inner border p-4">{children}</div>
-  );
+  return <div className="border-line bg-surface-page/65 rounded-inner border p-4">{children}</div>;
 }

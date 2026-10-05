@@ -32,9 +32,9 @@ export function OverlayDemo() {
       >
         <Stack gap={5}>
           <p className="text-body-sm text-content-secondary">
-            Native &lt;dialog&gt; with showModal: focus is trapped, Esc closes, the page
-            behind is inert, and it renders in the top layer. Tab through it — focus never
-            escapes, and it returns to the trigger on close.
+            Native &lt;dialog&gt; with showModal: focus is trapped, Esc closes, the page behind is
+            inert, and it renders in the top layer. Tab through it — focus never escapes, and it
+            returns to the trigger on close.
           </p>
           <Input name="demo-name" label="Name" placeholder="Type here" />
           <Textarea
@@ -49,8 +49,8 @@ export function OverlayDemo() {
 
       <Drawer open={drawer} onClose={() => setDrawer(false)} title="Drawer">
         <p className="text-body-sm text-content-secondary">
-          Same mechanics, different entrance: from the bottom on a phone, from the right at
-          sm and up. Resize the window with this open.
+          Same mechanics, different entrance: from the bottom on a phone, from the right at sm and
+          up. Resize the window with this open.
         </p>
       </Drawer>
     </>

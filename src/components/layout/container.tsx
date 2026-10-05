@@ -28,6 +28,8 @@ const widths = {
 
 export function Container({ children, width = "content", flush = false }: ContainerProps) {
   return (
-    <div className={cx("mx-auto w-full", widths[width], !flush && "px-4 sm:px-5 lg:px-10")}>{children}</div>
+    <div className={cx("mx-auto w-full", widths[width], !flush && "px-4 sm:px-5 lg:px-10")}>
+      {children}
+    </div>
   );
 }

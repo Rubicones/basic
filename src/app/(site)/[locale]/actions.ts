@@ -24,7 +24,8 @@ export type SubmitInput = {
 };
 
 export type SubmitResult =
-  { ok: true; id: string } | { ok: false; code: "empty" | "unavailable" | "rejected" | "failed" };
+  | { ok: true; id: string; token: string; releaseAt: string }
+  | { ok: false; code: "empty" | "unavailable" | "rejected" | "failed" };
 
 export async function submitOrder(input: SubmitInput): Promise<SubmitResult> {
   const locale = isLocale(input.locale) ? input.locale : DEFAULT_LOCALE;
@@ -51,7 +52,7 @@ export async function submitOrder(input: SubmitInput): Promise<SubmitResult> {
   if (!hasDatabase()) return { ok: false, code: "unavailable" };
 
   const supabase = publicClient();
-  const { data, error } = await supabase.rpc("submit_order", {
+  const { data, error } = await supabase.rpc("submit_order_held", {
     p_locale: locale,
     p_items: items,
     p_answers: answers,
@@ -66,5 +67,27 @@ export async function submitOrder(input: SubmitInput): Promise<SubmitResult> {
     return { ok: false, code: rejected ? "rejected" : "failed" };
   }
 
-  return { ok: true, id: String(data) };
+  // Held for a minute (migration 0013): the token is the customer's only way to
+  // take it back, and the database releases it to the shop on its own.
+  const held = data as { id: string; token: string; release_at: string };
+  return { ok: true, id: held.id, token: held.token, releaseAt: held.release_at };
+}
+
+/**
+ * "Made a mistake?" — takes a held order back. True only if it was still in its
+ * minute and the token matched; after that it is with the shop.
+ */
+export async function cancelOrder(id: string, token: string): Promise<boolean> {
+  if (!hasDatabase()) return false;
+  const uuid = /^[0-9a-f-]{36}$/i;
+  if (!uuid.test(id) || !uuid.test(token)) return false;
+  const { data, error } = await publicClient().rpc("cancel_held_order", {
+    p_id: id,
+    p_token: token,
+  });
+  if (error) {
+    console.error("[order] cancel failed", { code: error.code, message: error.message });
+    return false;
+  }
+  return data === true;
 }

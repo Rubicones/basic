@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n/config";
 import { env } from "@/lib/env";
 import { revalidateSite } from "@/lib/admin/revalidate";
+import { forbiddenKeyword } from "@/lib/order/governance";
 
 export type FieldState = { error?: string; savedKey?: string; note?: string };
 /** In demo mode nothing is written — the console is being shown, not used. */
@@ -48,6 +49,35 @@ export async function saveField(_previous: FieldState, formData: FormData): Prom
       error: `A field cannot be shown without its ${DEFAULT_LOCALE.toUpperCase()} label — it is the fallback.`,
     };
   }
+
+  // What the privacy policy promises the form will never ask for.
+  const purposes = new Map<Locale, string>();
+  for (const locale of LOCALES) {
+    purposes.set(locale, String(formData.get(`purpose_${locale}`) ?? "").trim());
+  }
+  if (!purposes.get(DEFAULT_LOCALE)) {
+    return {
+      error: `Say why this field is asked (${DEFAULT_LOCALE.toUpperCase()} purpose) — it is published in Annex 1 of the privacy policy.`,
+    };
+  }
+  const banned = forbiddenKeyword([
+    key,
+    String(formData.get("input_type") ?? ""),
+    String(formData.get("autocomplete") ?? ""),
+    ...LOCALES.flatMap((locale) => [
+      labels.get(locale) ?? "",
+      String(formData.get(`placeholder_${locale}`) ?? ""),
+    ]),
+  ]);
+  if (banned) {
+    return {
+      error: `This looks like a field for card, bank account or ID numbers (“${banned}”). The privacy policy promises the form never asks for those, so it cannot be saved.`,
+    };
+  }
+  const sensitivity =
+    String(formData.get("sensitivity") ?? "normal") === "special_category"
+      ? "special_category"
+      : "normal";
 
   // A hand-written choice list is written once per language and matched by
   // position, so the languages have to agree on how many options there are.
@@ -103,7 +133,10 @@ export async function saveField(_previous: FieldState, formData: FormData): Prom
     key,
     control,
     ...shape,
-    is_required: formData.get("is_required") === "on",
+    // Special-category data is never mandatory — the policy says so and the
+    // database checks it; forcing it here saves the owner a confusing error.
+    is_required: sensitivity === "normal" && formData.get("is_required") === "on",
+    sensitivity,
     is_wide: formData.get("is_wide") === "on",
     is_enabled: false,
     position: Number(formData.get("position")) || 0,
@@ -127,6 +160,7 @@ export async function saveField(_previous: FieldState, formData: FormData): Prom
     label: labels.get(locale) ?? "",
     placeholder: String(formData.get(`placeholder_${locale}`) ?? "").trim(),
     help: String(formData.get(`help_${locale}`) ?? "").trim(),
+    purpose: purposes.get(locale) ?? "",
     options:
       control === "select" && optionsSource === "list" ? (optionLists.get(locale) ?? []) : [],
   }));

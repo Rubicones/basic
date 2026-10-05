@@ -49,12 +49,24 @@ export const env = {
    * photographs and nothing else — there is no guard to disable and no data to
    * fake — so a deployed preview can use it, which is the point of it existing.
    */
+  /**
+   * Search-console ownership tokens. Optional: each is emitted as its meta tag
+   * only when set, so a site that verifies by DNS needs none of them.
+   */
+  get searchVerification(): { google?: string; yandex?: string; bing?: string } {
+    const google = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+    const yandex = process.env.NEXT_PUBLIC_YANDEX_VERIFICATION;
+    const bing = process.env.NEXT_PUBLIC_BING_VERIFICATION;
+    return {
+      ...(google ? { google } : {}),
+      ...(yandex ? { yandex } : {}),
+      ...(bing ? { bing } : {}),
+    };
+  },
   get catalogDemoPhotos(): boolean {
     return process.env.NEXT_PUBLIC_CATALOG_DEMO_PHOTOS === "1";
   },
   get consoleDemo(): boolean {
-    return (
-      process.env.NEXT_PUBLIC_CONSOLE_DEMO === "1" && process.env.NODE_ENV !== "production"
-    );
+    return process.env.NEXT_PUBLIC_CONSOLE_DEMO === "1" && process.env.NODE_ENV !== "production";
   },
 } as const;

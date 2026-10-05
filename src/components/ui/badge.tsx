@@ -7,7 +7,8 @@ import { cx } from "./cx";
  * actually carries here.
  */
 
-type Tone = "neutral" | "brand" | "success" | "danger" | "inverse" | "chilled" | "frozen" | "ambient";
+type Tone =
+  "neutral" | "brand" | "success" | "danger" | "inverse" | "chilled" | "frozen" | "ambient";
 
 export type BadgeProps = {
   children: ReactNode;

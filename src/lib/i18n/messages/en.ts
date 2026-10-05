@@ -12,8 +12,27 @@ const p = (forms: PluralForms): PluralForms => forms;
  */
 export const en = {
   meta: {
-    title: "basic — desserts for your venue",
-    description: "Small-batch desserts supplied to cafés and restaurants in Belgrade and Novi Sad.",
+    siteName: "basic",
+    title: "Desserts for cafés & restaurants in Belgrade | basic",
+    description:
+      "We make desserts for your café: cheesecakes, medovik, napoleon and tarts from fresh ingredients, no preservatives. Delivery in Belgrade and Novi Sad.",
+    /** Short form for social cards, where the brand is shown next to it anyway. */
+    ogTitle: "We make desserts for your café",
+    ogDescription:
+      "Fresh ingredients, no preservatives, recipes adapted to your guests. Delivered to cafés and restaurants in Belgrade and Novi Sad.",
+    ogImageAlt: "basic — we make desserts for your café",
+    ogBadge: "Belgrade · Novi Sad",
+    keywords: [
+      "desserts for cafés",
+      "wholesale desserts Belgrade",
+      "dessert supplier Serbia",
+      "cakes for restaurants",
+      "cheesecake",
+      "medovik",
+      "napoleon cake",
+      "dessert delivery Novi Sad",
+      "desserts without preservatives",
+    ],
   },
   nav: {
     catalog: "Catalog",
@@ -56,6 +75,7 @@ export const en = {
     emptySearch: "Nothing matches that.",
     emptySearchHint: "Try part of a name.",
     filterLabel: "Filter by how it keeps",
+    storageNote: "How it keeps:",
     weight: "Weight",
     nutritionTitle: "Nutrition",
     per100: "per 100 g",
@@ -142,6 +162,22 @@ export const en = {
     submit: "Send order",
     submitTotal: "Send order · {total}",
     submitHint: "Add at least one dessert to send the order.",
+    consent:
+      "By sending this form you confirm that you have read the {policy} and how your personal data are processed.",
+    consentLink: "Privacy Policy",
+    placedTitle: "Your order is in",
+    placedLead:
+      "Thank you! You have a minute to correct it; after that it goes to our kitchen, and we will call to confirm.",
+    placedReleased: "It is with our kitchen now — we will call you to confirm.",
+    placedItems: "Your order",
+    placedDetails: "Your details",
+    placedFix: "Made a mistake? Fix it and order again",
+    placedFixing: "Taking it back…",
+    placedWindow: "You can still fix it for {time}",
+    placedFixFailed: "It has already reached our kitchen. To change it, call us: {phone}.",
+    placedAnother: "Place another order",
+    specialConsent:
+      "Optional. Filling this in is your explicit consent to us using it only to prepare your order safely. You can tell us by phone instead.",
     sending: "Sending…",
     sent: "Order received — we'll confirm by phone shortly.",
     failed: "The order didn't send. Please try again.",
@@ -163,6 +199,86 @@ export const en = {
         label: "Anything else?",
         placeholder: "Delivery time, packing, a note for the kitchen.",
       },
+    },
+  },
+  footer: {
+    tagline: "Desserts made in Belgrade for cafés and restaurants.",
+    company: "Company",
+    address: "Address",
+    contact: "Contact",
+    documents: "Documents",
+    mb: "MB",
+    pib: "PIB",
+    city: "Belgrade",
+    country: "Serbia",
+    rights: "All rights reserved.",
+    cookieSettings: "Cookie settings",
+  },
+  legal: {
+    updated: "Last updated: {date}",
+    controller: "Data controller",
+    address: "Registered address",
+    registration: "Registration details",
+    contact: "Contact",
+    contents: "Contents",
+    back: "Back to the site",
+    /** One title per document in lib/legal — the footer's links. */
+    annex: {
+      title: "Annex 1 — Order form fields",
+      asOf: "As of {date}",
+      intro:
+        "The fields the order form asks for right now. Mandatory fields are also marked on the form itself.",
+      field: "Field",
+      status: "Status",
+      purpose: "Purpose",
+      required: "Mandatory",
+      optional: "Optional",
+      specialTitle: "Special category data",
+      specialBody:
+        "Optional, and processed only on your explicit consent, given by filling the field in.",
+    },
+    docs: {
+      "privacy-policy": "Privacy Policy",
+      "cookie-policy": "Cookie Policy",
+    },
+  },
+  consent: {
+    region: "Cookie consent",
+    text: "We use necessary cookies to run this site. With your permission we also use analytics cookies to see how it is used.",
+    textShort: "Analytics cookies only with your consent.",
+    privacy: "Privacy Policy",
+    cookies: "Cookie Policy",
+    accept: "Accept all",
+    reject: "Reject all",
+    customize: "Customize",
+    settings: "Settings",
+    dialogTitle: "Cookie settings",
+    dialogIntro:
+      "Choose which cookies we may use. You can change this at any time with “Cookie settings” in the footer.",
+    close: "Close",
+    closeReject: "Reject all and close",
+    save: "Save my choices",
+    alwaysOn: "Always on",
+    none: "Nothing on this site uses these at the moment.",
+    categories: {
+      necessary: {
+        title: "Necessary",
+        body: "Needed for the site to work: your language and this choice. They are always on and need no consent.",
+      },
+      analytics: {
+        title: "Analytics",
+        body: "Google Analytics 4 — counts visits and shows how the site is used. No personal data is sent.",
+      },
+      marketing: {
+        title: "Marketing",
+        body: "For measuring advertising and showing relevant ads elsewhere.",
+      },
+    },
+    columns: {
+      name: "Name",
+      provider: "Provider",
+      purpose: "Purpose",
+      duration: "Duration",
     },
   },
   locale: {

@@ -44,7 +44,7 @@ async function walk(dir) {
 
 async function check(path) {
   const source = await readFile(path, "utf8");
-  const isTokenFile = path.endsWith("globals.css");
+  const isTokenFile = path.endsWith("globals.css") || path.endsWith("brand-hex.ts");
   const lines = source.split("\n");
 
   lines.forEach((line, i) => {

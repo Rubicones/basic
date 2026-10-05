@@ -26,6 +26,8 @@ export type PublicField = {
   label: string;
   placeholder: string;
   help: string;
+  /** Special-category data (allergies, diet): always optional, carries a consent note. */
+  special: boolean;
 } & (
   | { control: "input"; type: "text" | "tel" | "email" | "date"; autoComplete?: string }
   | { control: "select"; options: Choice[] }
@@ -49,11 +51,12 @@ type FieldRow = {
   autocomplete: string | null;
   is_required: boolean;
   is_wide: boolean;
+  sensitivity: "normal" | "special_category";
   order_field_translations: FieldTranslationRow[];
 };
 
 const SELECT =
-  "key, control, input_type, options_source, rows, autocomplete, is_required, is_wide," +
+  "key, control, input_type, options_source, rows, autocomplete, is_required, is_wide, sensitivity," +
   " order_field_translations(locale, label, placeholder, help, options)";
 
 export async function getOrderFields(locale: Locale, t: Messages): Promise<PublicField[]> {
@@ -82,13 +85,19 @@ function toField(row: FieldRow, locale: Locale, t: Messages): PublicField {
     row.order_field_translations.find((r) => r.locale === locale) ??
     row.order_field_translations.find((r) => r.locale === DEFAULT_LOCALE);
 
+  const special = row.sensitivity === "special_category";
   const common = {
     key: row.key,
-    required: row.is_required,
+    // The database already refuses a required special field; this is the belt.
+    required: row.is_required && !special,
     wide: row.is_wide,
     label: text?.label ?? row.key,
     placeholder: text?.placeholder ?? "",
-    help: text?.help ?? "",
+    // The explicit-consent explanation the policy promises, beside the input.
+    help: special
+      ? [text?.help, t.order.specialConsent].filter(Boolean).join(" ")
+      : (text?.help ?? ""),
+    special,
   };
 
   if (row.control === "textarea") {
@@ -134,6 +143,7 @@ function fromFixture(t: Messages): PublicField[] {
       label: text.label,
       placeholder: text.placeholder ?? "",
       help: text.help ?? "",
+      special: false,
     };
 
     if (field.control === "textarea") {

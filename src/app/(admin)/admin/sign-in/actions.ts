@@ -5,12 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient as createSupabaseClient, type AuthError } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
-import {
-  CODE_LENGTH,
-  SIGN_IN_INITIAL,
-  type SignInState,
-  type VerifyState,
-} from "./state";
+import { CODE_LENGTH, SIGN_IN_INITIAL, type SignInState, type VerifyState } from "./state";
 
 /**
  * Sign-in is a code in an email, typed back into the same screen.

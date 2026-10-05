@@ -90,7 +90,9 @@ function ToastRegion({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: n
             tones[toast.tone].classes,
           )}
         >
-          {tones[toast.tone].icon && <span className="mt-0.5 shrink-0">{tones[toast.tone].icon}</span>}
+          {tones[toast.tone].icon && (
+            <span className="mt-0.5 shrink-0">{tones[toast.tone].icon}</span>
+          )}
           <p className="text-content-primary min-w-0 flex-1">{toast.message}</p>
           <button
             type="button"

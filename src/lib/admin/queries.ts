@@ -61,7 +61,7 @@ export async function listFields(): Promise<OrderFieldWithTranslations[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("order_fields")
-    .select("*, order_field_translations(locale, label, placeholder, help, options)")
+    .select("*, order_field_translations(locale, label, placeholder, help, purpose, options)")
     .order("position");
 
   if (error) throw new Error(error.message);

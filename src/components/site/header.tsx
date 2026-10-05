@@ -28,7 +28,6 @@ export function Header({ locale, t }: Props) {
   const links = [
     { href: `/${locale}#catalog`, label: t.nav.catalog },
     { href: `/${locale}#order`, label: t.nav.order },
-    { href: `/${locale}#business`, label: t.nav.business },
   ];
 
   return (

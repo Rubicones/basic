@@ -129,6 +129,9 @@
   --text-micro: 0.6875rem;
   --text-micro--line-height: 1.3;
   --text-micro--letter-spacing: 0.14em;
+  /* The product card's corner tag (HIT, NEW…) from sm up. Size only: the line
+     height is the pill's own. */
+  --text-tag: 0.9375rem;
 
   /* ---- radii ------------------------------------------------------------ */
   /* `initial` clears Tailwind's default ladder, so rounded-md / rounded-full and
@@ -1347,4 +1350,41 @@
 
 @utility code-shake {
   animation: code-shake var(--duration-slow) var(--ease-out-smooth) both;
+}
+
+/*
+ * Cookie consent.
+ *
+ * The strip/banner is in the server HTML for everyone and hidden by the
+ * pre-paint script's `data-consent="decided"` — no flash, no layout shift.
+ * While it is up, the page gets the same room at the bottom so the footer's
+ * links are never permanently underneath it.
+ */
+@utility pb-consent {
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+html[data-consent="decided"] .consent-banner {
+  display: none;
+}
+
+html:not([data-consent="decided"]) body {
+  /* Two rows of strip on a phone, one on wider screens, plus the home indicator. */
+  padding-bottom: calc(var(--spacing) * 26 + env(safe-area-inset-bottom, 0px));
+
+  @variant sm {
+    padding-bottom: calc(var(--spacing) * 22 + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/*
+ * Top inset of the card's tag/icon stack. On hover the photo frame contracts to
+ * 0.915, i.e. 4.25% of its height off the top — more than a fixed 16px on a
+ * tall card, which is what pushed the stack above the frame's edge. Percent
+ * `top` resolves against the frame's height, so the stack meets the contracted
+ * corner with a small gap at any card size. (Horizontally 4.25% of the width
+ * stays under 16px, so `left` keeps the fixed inset.)
+ */
+@utility top-frame-corner {
+  top: 20px;
 }

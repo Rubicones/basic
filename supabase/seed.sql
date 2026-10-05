@@ -814,21 +814,21 @@ on conflict (key) do update set
   is_enabled = excluded.is_enabled,
   position = excluded.position;
 
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$sr$seed$, $seed$Objekat$seed$, $seed$Kafić ili restoran$seed$, $seed$$seed$
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$sr$seed$, $seed$Objekat$seed$, $seed$Kafić ili restoran$seed$, $seed$$seed$, $seed$Identifikacija lokala koji poručuje i izdavanje računa.$seed$
 from public.order_fields where key = $seed$venue$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$ru$seed$, $seed$Заведение$seed$, $seed$Кафе или ресторан$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$ru$seed$, $seed$Заведение$seed$, $seed$Кафе или ресторан$seed$, $seed$$seed$, $seed$Определить заведение, от имени которого сделан заказ, и выставить счёт.$seed$
 from public.order_fields where key = $seed$venue$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$en$seed$, $seed$Venue$seed$, $seed$Café or restaurant$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$en$seed$, $seed$Venue$seed$, $seed$Café or restaurant$seed$, $seed$$seed$, $seed$Identify the venue placing the order and address the invoice.$seed$
 from public.order_fields where key = $seed$venue$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
 
 insert into public.order_fields (key, control, input_type, options_source, rows,
   autocomplete, is_required, is_wide, is_enabled, position)
@@ -846,21 +846,21 @@ on conflict (key) do update set
   is_enabled = excluded.is_enabled,
   position = excluded.position;
 
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$sr$seed$, $seed$Kontakt osoba$seed$, $seed$Koga da tražimo?$seed$, $seed$$seed$
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$sr$seed$, $seed$Kontakt osoba$seed$, $seed$Koga da tražimo?$seed$, $seed$$seed$, $seed$Da znamo s kim da razgovaramo o porudžbini.$seed$
 from public.order_fields where key = $seed$contact$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$ru$seed$, $seed$Контактное лицо$seed$, $seed$Кого спросить?$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$ru$seed$, $seed$Контактное лицо$seed$, $seed$Кого спросить?$seed$, $seed$$seed$, $seed$Знать, с кем связаться по заказу.$seed$
 from public.order_fields where key = $seed$contact$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$en$seed$, $seed$Contact person$seed$, $seed$Who should we ask for?$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$en$seed$, $seed$Contact person$seed$, $seed$Who should we ask for?$seed$, $seed$$seed$, $seed$Know whom to speak to about the order.$seed$
 from public.order_fields where key = $seed$contact$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
 
 insert into public.order_fields (key, control, input_type, options_source, rows,
   autocomplete, is_required, is_wide, is_enabled, position)
@@ -878,21 +878,21 @@ on conflict (key) do update set
   is_enabled = excluded.is_enabled,
   position = excluded.position;
 
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$sr$seed$, $seed$Telefon$seed$, $seed$+381 …$seed$, $seed$$seed$
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$sr$seed$, $seed$Telefon$seed$, $seed$+381 …$seed$, $seed$$seed$, $seed$Potvrda porudžbine i dogovor o dostavi.$seed$
 from public.order_fields where key = $seed$phone$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$ru$seed$, $seed$Телефон$seed$, $seed$+381 …$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$ru$seed$, $seed$Телефон$seed$, $seed$+381 …$seed$, $seed$$seed$, $seed$Подтвердить заказ и согласовать доставку.$seed$
 from public.order_fields where key = $seed$phone$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$en$seed$, $seed$Phone$seed$, $seed$+381 …$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$en$seed$, $seed$Phone$seed$, $seed$+381 …$seed$, $seed$$seed$, $seed$Confirm the order and arrange delivery.$seed$
 from public.order_fields where key = $seed$phone$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
 
 insert into public.order_fields (key, control, input_type, options_source, rows,
   autocomplete, is_required, is_wide, is_enabled, position)
@@ -910,21 +910,21 @@ on conflict (key) do update set
   is_enabled = excluded.is_enabled,
   position = excluded.position;
 
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$sr$seed$, $seed$Email$seed$, $seed$porudzbine@objekat.rs$seed$, $seed$Samo ako želite račun na mejl.$seed$
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$sr$seed$, $seed$Email$seed$, $seed$porudzbine@objekat.rs$seed$, $seed$Samo ako želite račun na mejl.$seed$, $seed$Slanje računa ili informacija o porudžbini e-poštom, ako to želite.$seed$
 from public.order_fields where key = $seed$email$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$ru$seed$, $seed$Email$seed$, $seed$orders@venue.rs$seed$, $seed$Только если нужен счёт на почту.$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$ru$seed$, $seed$Email$seed$, $seed$orders@venue.rs$seed$, $seed$Только если нужен счёт на почту.$seed$, $seed$Отправить счёт или информацию о заказе по почте, если вы этого хотите.$seed$
 from public.order_fields where key = $seed$email$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$en$seed$, $seed$Email$seed$, $seed$orders@venue.rs$seed$, $seed$Only if you want the invoice by mail.$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$en$seed$, $seed$Email$seed$, $seed$orders@venue.rs$seed$, $seed$Only if you want the invoice by mail.$seed$, $seed$Send the invoice or order information by e-mail, if you want it.$seed$
 from public.order_fields where key = $seed$email$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
 
 insert into public.order_fields (key, control, input_type, options_source, rows,
   autocomplete, is_required, is_wide, is_enabled, position)
@@ -942,21 +942,21 @@ on conflict (key) do update set
   is_enabled = excluded.is_enabled,
   position = excluded.position;
 
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$sr$seed$, $seed$Grad$seed$, $seed$Izaberite grad$seed$, $seed$$seed$
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$sr$seed$, $seed$Grad$seed$, $seed$Izaberite grad$seed$, $seed$$seed$, $seed$Planiranje dostave i primena uslova za vaš grad.$seed$
 from public.order_fields where key = $seed$city$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$ru$seed$, $seed$Город$seed$, $seed$Выберите город$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$ru$seed$, $seed$Город$seed$, $seed$Выберите город$seed$, $seed$$seed$, $seed$Спланировать доставку и применить условия для вашего города.$seed$
 from public.order_fields where key = $seed$city$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$en$seed$, $seed$City$seed$, $seed$Choose a city$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$en$seed$, $seed$City$seed$, $seed$Choose a city$seed$, $seed$$seed$, $seed$Plan the delivery and apply the terms for your city.$seed$
 from public.order_fields where key = $seed$city$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
 
 insert into public.order_fields (key, control, input_type, options_source, rows,
   autocomplete, is_required, is_wide, is_enabled, position)
@@ -974,21 +974,21 @@ on conflict (key) do update set
   is_enabled = excluded.is_enabled,
   position = excluded.position;
 
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$sr$seed$, $seed$Datum isporuke$seed$, $seed$$seed$, $seed$Najranije dva dana od danas.$seed$
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$sr$seed$, $seed$Datum isporuke$seed$, $seed$$seed$, $seed$Najranije dva dana od danas.$seed$, $seed$Planiranje pripreme i dostave.$seed$
 from public.order_fields where key = $seed$date$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$ru$seed$, $seed$Дата доставки$seed$, $seed$$seed$, $seed$Не раньше чем через два дня.$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$ru$seed$, $seed$Дата доставки$seed$, $seed$$seed$, $seed$Не раньше чем через два дня.$seed$, $seed$Запланировать приготовление и доставку.$seed$
 from public.order_fields where key = $seed$date$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$en$seed$, $seed$Delivery date$seed$, $seed$$seed$, $seed$Two days from today at the earliest.$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$en$seed$, $seed$Delivery date$seed$, $seed$$seed$, $seed$Two days from today at the earliest.$seed$, $seed$Schedule production and delivery.$seed$
 from public.order_fields where key = $seed$date$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
 
 insert into public.order_fields (key, control, input_type, options_source, rows,
   autocomplete, is_required, is_wide, is_enabled, position)
@@ -1006,20 +1006,20 @@ on conflict (key) do update set
   is_enabled = excluded.is_enabled,
   position = excluded.position;
 
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$sr$seed$, $seed$Još nešto?$seed$, $seed$Vreme isporuke, pakovanje, napomena za kuhinju.$seed$, $seed$$seed$
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$sr$seed$, $seed$Još nešto?$seed$, $seed$Vreme isporuke, pakovanje, napomena za kuhinju.$seed$, $seed$$seed$, $seed$Uvažavanje napomena o dostavi, pakovanju i za kuhinju.$seed$
 from public.order_fields where key = $seed$comment$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$ru$seed$, $seed$Что-нибудь ещё?$seed$, $seed$Время доставки, упаковка, примечание для кухни.$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$ru$seed$, $seed$Что-нибудь ещё?$seed$, $seed$Время доставки, упаковка, примечание для кухни.$seed$, $seed$$seed$, $seed$Учесть пожелания по доставке, упаковке и для кухни.$seed$
 from public.order_fields where key = $seed$comment$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
-insert into public.order_field_translations (field_id, locale, label, placeholder, help)
-select id, $seed$en$seed$, $seed$Anything else?$seed$, $seed$Delivery time, packing, a note for the kitchen.$seed$, $seed$$seed$
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
+insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)
+select id, $seed$en$seed$, $seed$Anything else?$seed$, $seed$Delivery time, packing, a note for the kitchen.$seed$, $seed$$seed$, $seed$Take delivery, packing and kitchen notes into account.$seed$
 from public.order_fields where key = $seed$comment$seed$
 on conflict (field_id, locale) do update set
-  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;
+  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;
 
 commit;

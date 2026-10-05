@@ -53,6 +53,7 @@ export type OrderFieldRow = {
   is_wide: boolean;
   is_enabled: boolean;
   position: number;
+  sensitivity: "normal" | "special_category";
 };
 
 export type FieldTextRow = {
@@ -60,6 +61,8 @@ export type FieldTextRow = {
   label: string;
   placeholder: string;
   help: string;
+  /** Why the field is asked — shown in Annex 1 of the privacy policy. */
+  purpose: string;
   /** Choice labels in this language, positionally aligned across languages. */
   options: string[];
 };

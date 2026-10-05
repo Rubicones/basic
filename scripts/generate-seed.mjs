@@ -15,6 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 const { PRODUCTS } = await import(join(root, "src/lib/catalog/products.ts"));
 const { ORDER_FIELDS } = await import(join(root, "src/lib/order/fields.ts"));
+const { DEFAULT_PURPOSES } = await import(join(root, "src/lib/order/governance.ts"));
 /* Read rather than imported: `photos.json` is the one thing here that is not a
    module, and Node's JSON import attribute is not worth writing into the app. */
 const PHOTOS = JSON.parse(await readFile(join(root, "src/lib/catalog/photos.json"), "utf8"));
@@ -116,11 +117,11 @@ ORDER_FIELDS.forEach((field, index) => {
   for (const locale of LOCALES) {
     const text = DICTS[locale].order.fields[field.key];
     lines.push(
-      `insert into public.order_field_translations (field_id, locale, label, placeholder, help)`,
-      `select id, ${q(locale)}, ${q(text.label)}, ${q(text.placeholder ?? "")}, ${q(text.help ?? "")}`,
+      `insert into public.order_field_translations (field_id, locale, label, placeholder, help, purpose)`,
+      `select id, ${q(locale)}, ${q(text.label)}, ${q(text.placeholder ?? "")}, ${q(text.help ?? "")}, ${q(DEFAULT_PURPOSES[field.key]?.[locale] ?? "")}`,
       `from public.order_fields where key = ${q(field.key)}`,
       `on conflict (field_id, locale) do update set`,
-      `  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help;`,
+      `  label = excluded.label, placeholder = excluded.placeholder, help = excluded.help, purpose = excluded.purpose;`,
     );
   }
   lines.push("");

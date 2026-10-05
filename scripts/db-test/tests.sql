@@ -102,8 +102,11 @@ begin
   select count(*) into n from public.order_answers where order_id = v_order.id;
   perform t.check('empty answers are not stored', n = 5, n::text);
 
+  perform t.check('a new order is held, so the insert trigger stays quiet', not exists (select 1 from net.requests where body->'record'->>'id' = v_order.id::text));
+  update public.orders set release_at = now() - interval '1 second' where id = v_order.id;
+  perform public.release_held_orders();
   select body into v_request from net.requests order by id desc limit 1;
-  perform t.check('the insert trigger asked the notifier', v_request->>'type' = 'INSERT' and v_request->'record'->>'id' = v_order.id::text, coalesce(v_request::text, 'no request'));
+  perform t.check('the release job asked the notifier', v_request->>'type' = 'INSERT' and v_request->'record'->>'id' = v_order.id::text, coalesce(v_request::text, 'no request'));
   select headers into v_request from net.requests order by id desc limit 1;
   perform t.check('with the shared secret', v_request->>'x-notify-secret' = 's3cret');
 end $$;
@@ -171,6 +174,8 @@ do $$
 declare v_id uuid; v_claim public.orders; v_again public.orders; v_row public.orders;
 begin
   select id into v_id from public.orders order by created_at desc limit 1;
+  update public.orders set release_at = now() - interval '1 second' where id = v_id and released_at is null;
+  perform public.release_held_orders();
 
   v_claim := public.claim_order_notification(v_id);
   perform t.check('the first claim gets the order', v_claim.id = v_id and v_claim.notify_attempts = 1, v_claim.notify_attempts::text);
@@ -398,8 +403,8 @@ end $$;
 \echo 'the order form'
 insert into public.order_fields (key, control, options_source, is_required, is_enabled, position)
 values ('delivery_slot', 'select', 'list', true, false, 50);
-insert into public.order_field_translations (field_id, locale, label, options)
-select id, 'en', 'Slot', '{Morning,Noon}' from public.order_fields where key = 'delivery_slot';
+insert into public.order_field_translations (field_id, locale, label, options, purpose)
+select id, 'en', 'Slot', '{Morning,Noon}', 'Plan the delivery round.' from public.order_fields where key = 'delivery_slot';
 update public.order_fields set is_enabled = true where key = 'delivery_slot';
 
 begin;
@@ -428,4 +433,70 @@ begin
   perform t.check('an impossible field shape is refused', false, 'inserted');
 exception when check_violation then
   perform t.check('an impossible field shape is refused', true);
+end $$;
+
+\echo
+\echo 'form governance and retention (0011)'
+do $$
+declare n int; v_keys text[];
+begin
+  begin
+    update public.order_fields set sensitivity = 'special_category', is_required = true where key = 'comment';
+    perform t.check('a special-category field cannot be required', false, 'updated');
+  exception when check_violation then
+    perform t.check('a special-category field cannot be required', true);
+  end;
+
+  begin
+    update public.order_field_translations set purpose = ''
+     where locale = 'en' and field_id = (select id from public.order_fields where key = 'venue');
+    set constraints all immediate;
+    perform t.check('an enabled field cannot lose its purpose', false, 'updated');
+  exception when check_violation then
+    perform t.check('an enabled field cannot lose its purpose', sqlerrm = 'order_field_needs_purpose', sqlerrm);
+  end;
+
+  select count(*) into n from public.order_field_audit;
+  update public.order_field_translations set help = 'audited'
+   where locale = 'en' and field_id = (select id from public.order_fields where key = 'venue');
+  perform t.check('a field change writes an audit row with before and after',
+    (select count(*) from public.order_field_audit) = n + 1
+    and (select before is not null and after is not null from public.order_field_audit order by id desc limit 1),
+    ((select count(*) from public.order_field_audit) - n)::text);
+
+  insert into public.orders (id, locale, total_rsd, created_at)
+  values ('00000000-0000-0000-0000-0000000000aa', 'en', 100, now() - interval '25 months');
+  insert into public.order_answers (order_id, field_key, label_snapshot, value)
+  values ('00000000-0000-0000-0000-0000000000aa', 'venue', 'Venue', 'Café'),
+         ('00000000-0000-0000-0000-0000000000aa', 'phone', 'Phone', '+381');
+  perform public.purge_old_order_answers();
+  select array_agg(field_key) into v_keys from public.order_answers
+   where order_id = '00000000-0000-0000-0000-0000000000aa';
+  perform t.check('retention clears old answers but keeps invoice data', v_keys = '{venue}', v_keys::text);
+end $$;
+
+\echo
+\echo 'the minute to change your mind (0013)'
+do $$
+declare r jsonb; ok boolean; n int; v_id uuid;
+begin
+  r := public.submit_order_held('en', '[{"slug":"medovik","variant":"piece","qty":1}]'::jsonb, (select value from t.answers) || '{"delivery_slot":"Morning"}'::jsonb);
+  v_id := (r->>'id')::uuid;
+  perform t.check('a new order is held and has a token',
+    (select public.order_is_held(o) and o.cancel_token = (r->>'token')::uuid from public.orders o where o.id = v_id), r::text);
+  perform t.check('a held order cannot be claimed for Telegram',
+    (select id from public.claim_order_notification(v_id)) is null);
+  perform t.check('a held order cannot be claimed for push', not public.claim_order_push(v_id));
+  perform t.check('the wrong token cancels nothing', not public.cancel_held_order(v_id, gen_random_uuid()));
+  ok := public.cancel_held_order(v_id, (r->>'token')::uuid);
+  perform t.check('the right token cancels it', ok and not exists (select 1 from public.orders where id = v_id));
+
+  r := public.submit_order_held('en', '[{"slug":"medovik","variant":"piece","qty":1}]'::jsonb, (select value from t.answers) || '{"delivery_slot":"Morning"}'::jsonb);
+  v_id := (r->>'id')::uuid;
+  update public.orders set release_at = now() - interval '1 second' where id = v_id;
+  n := public.release_held_orders();
+  perform t.check('the release job releases it and forgets the token',
+    (select released_at is not null and cancel_token is null from public.orders where id = v_id), n::text);
+  perform t.check('a released order cannot be cancelled', not public.cancel_held_order(v_id, (r->>'token')::uuid));
+  perform t.check('a released order can be claimed', (select id from public.claim_order_notification(v_id)) = v_id);
 end $$;

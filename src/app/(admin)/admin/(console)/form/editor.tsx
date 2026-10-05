@@ -175,6 +175,22 @@ export function FieldEditor({
             )}
           </div>
 
+          {/* The privacy policy's Annex 1 lists this; special-category data
+              (allergies, diet) can never be required and shows a consent note. */}
+          <Select
+            name="sensitivity"
+            label="Data sensitivity"
+            defaultValue={field?.sensitivity ?? "normal"}
+            options={[
+              { value: "normal", label: "Normal" },
+              {
+                value: "special_category",
+                label: "Special category (health, diet) — always optional",
+              },
+            ]}
+            help="Card numbers, bank accounts and ID numbers cannot be asked for at all."
+          />
+
           <div className="flex flex-col gap-3">
             <Checkbox
               name="is_required"
@@ -211,6 +227,13 @@ export function FieldEditor({
                   name={`help_${locale}`}
                   label="Hint"
                   defaultValue={textFor(locale)?.help ?? ""}
+                />
+                <Input
+                  name={`purpose_${locale}`}
+                  label="Purpose"
+                  defaultValue={textFor(locale)?.purpose ?? ""}
+                  required={locale === DEFAULT_LOCALE}
+                  help="Why we ask — published in Annex 1 of the privacy policy."
                 />
 
                 {showOptions && (

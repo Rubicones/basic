@@ -2,8 +2,26 @@ import type { Messages } from "./en";
 
 export const sr: Messages = {
   meta: {
-    title: "basic — deserti za vaš lokal",
-    description: "Deserti iz male proizvodnje za kafiće i restorane u Beogradu i Novom Sadu.",
+    siteName: "basic",
+    title: "Deserti za kafiće i restorane u Beogradu | basic",
+    description:
+      "Pravimo deserte za vaš kafić: čizkejk, medovik, napoleon i tartovi od svežih sastojaka, bez konzervansa. Dostava u Beogradu i Novom Sadu.",
+    ogTitle: "Pravimo deserte za vaš kafić",
+    ogDescription:
+      "Sveži sastojci, bez konzervansa, recepti prilagođeni vašim gostima. Dostava kafićima i restoranima u Beogradu i Novom Sadu.",
+    ogImageAlt: "basic — pravimo deserte za vaš kafić",
+    ogBadge: "Beograd · Novi Sad",
+    keywords: [
+      "deserti za kafiće",
+      "deserti na veliko Beograd",
+      "kolači za kafiće",
+      "torte za restorane",
+      "čizkejk",
+      "medovik",
+      "napoleon torta",
+      "dostava deserta Novi Sad",
+      "deserti bez konzervansa",
+    ],
   },
   nav: {
     catalog: "Katalog",
@@ -55,6 +73,7 @@ export const sr: Messages = {
     emptySearch: "Ništa se ne poklapa.",
     emptySearchHint: "Probajte deo naziva.",
     filterLabel: "Filtriraj po načinu čuvanja",
+    storageNote: "Kako se čuva:",
   },
   formats: {
     whole: "Cele torte",
@@ -130,6 +149,22 @@ export const sr: Messages = {
     submit: "Pošalji porudžbinu",
     submitTotal: "Pošalji porudžbinu · {total}",
     submitHint: "Dodajte bar jedan desert da biste poslali porudžbinu.",
+    consent:
+      "Slanjem obrasca potvrđujete da ste upoznati sa {policy} i obradom podataka o ličnosti.",
+    consentLink: "Politikom privatnosti",
+    placedTitle: "Porudžbina je poslata",
+    placedLead:
+      "Hvala! Imate minut da nešto ispravite — zatim porudžbina ide u kuhinju i javljamo vam se radi potvrde.",
+    placedReleased: "Porudžbina je već u kuhinji — javićemo vam se radi potvrde.",
+    placedItems: "Vaša porudžbina",
+    placedDetails: "Vaši podaci",
+    placedFix: "Pogrešili ste? Ispravite i pošaljite ponovo",
+    placedFixing: "Otkazujemo…",
+    placedWindow: "Još {time} za ispravku",
+    placedFixFailed: "Porudžbina je već u kuhinji. Da biste je izmenili, pozovite nas: {phone}.",
+    placedAnother: "Nova porudžbina",
+    specialConsent:
+      "Neobavezno. Popunjavanjem ovog polja izričito pristajete da ove podatke koristimo samo za bezbednu pripremu porudžbine. Umesto toga možete nam ih reći telefonom.",
     sending: "Šalje se…",
     sent: "Primili smo porudžbinu — javićemo se telefonom radi potvrde.",
     failed: "Porudžbina nije poslata. Pokušajte ponovo.",
@@ -151,6 +186,86 @@ export const sr: Messages = {
         label: "Još nešto?",
         placeholder: "Vreme isporuke, pakovanje, napomena za kuhinju.",
       },
+    },
+  },
+  footer: {
+    tagline: "Deserti iz Beograda za kafiće i restorane.",
+    company: "Kompanija",
+    address: "Adresa",
+    contact: "Kontakt",
+    documents: "Dokumenti",
+    mb: "MB",
+    pib: "PIB",
+    city: "Beograd",
+    country: "Srbija",
+    rights: "Sva prava zadržana.",
+    cookieSettings: "Podešavanja kolačića",
+  },
+  legal: {
+    updated: "Poslednja izmena: {date}",
+    controller: "Rukovalac podacima",
+    address: "Sedište",
+    registration: "Registracioni podaci",
+    contact: "Kontakt",
+    contents: "Sadržaj",
+    back: "Nazad na sajt",
+    /** One title per document in lib/legal — the footer's links. */
+    annex: {
+      title: "Prilog 1 — Polja obrasca porudžbine",
+      asOf: "Stanje na dan {date}",
+      intro:
+        "Polja koja obrazac porudžbine trenutno traži. Obavezna polja su označena i u samom obrascu.",
+      field: "Polje",
+      status: "Status",
+      purpose: "Svrha",
+      required: "Obavezno",
+      optional: "Neobavezno",
+      specialTitle: "Posebne vrste podataka",
+      specialBody:
+        "Neobavezna su i obrađuju se samo uz vaš izričit pristanak, koji dajete popunjavanjem polja.",
+    },
+    docs: {
+      "privacy-policy": "Politika privatnosti",
+      "cookie-policy": "Politika kolačića",
+    },
+  },
+  consent: {
+    region: "Pristanak na kolačiće",
+    text: "Koristimo neophodne kolačiće za rad sajta. Uz vašu dozvolu koristimo i analitičke, da vidimo kako se sajt koristi.",
+    textShort: "Analitički kolačići samo uz vaš pristanak.",
+    privacy: "Politika privatnosti",
+    cookies: "Politika kolačića",
+    accept: "Prihvati sve",
+    reject: "Odbij sve",
+    customize: "Prilagodi",
+    settings: "Podešavanja",
+    dialogTitle: "Podešavanja kolačića",
+    dialogIntro:
+      "Izaberite koje kolačiće smemo da koristimo. Izbor možete promeniti u svakom trenutku putem „Podešavanja kolačića“ u podnožju.",
+    close: "Zatvori",
+    closeReject: "Odbij sve i zatvori",
+    save: "Sačuvaj izbor",
+    alwaysOn: "Uvek uključeni",
+    none: "Trenutno se na sajtu ne koriste.",
+    categories: {
+      necessary: {
+        title: "Neophodni",
+        body: "Potrebni za rad sajta: jezik i ovaj izbor. Uvek su uključeni i ne traže pristanak.",
+      },
+      analytics: {
+        title: "Analitika",
+        body: "Google Analytics 4 — broji posete i pokazuje kako se sajt koristi. Podaci o ličnosti se ne šalju.",
+      },
+      marketing: {
+        title: "Marketing",
+        body: "Za merenje oglašavanja i prikaz relevantnih oglasa na drugim mestima.",
+      },
+    },
+    columns: {
+      name: "Naziv",
+      provider: "Pružalac",
+      purpose: "Svrha",
+      duration: "Trajanje",
     },
   },
   locale: {
