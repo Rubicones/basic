@@ -52,7 +52,7 @@ export function StorageIcon({
   label: string;
   /** Shows the label above the icon on hover, on devices that can hover. */
   note?: boolean;
-  /** Smaller below sm (the phone card); full size from sm up. */
+  /** Smaller on phone and touchscreen cards; full size on desktop cards. */
   compact?: boolean;
 }) {
   return (
@@ -63,14 +63,14 @@ export function StorageIcon({
         title={note ? undefined : label}
         className={cx(
           "grid place-items-center rounded-pill",
-          compact ? "size-6 sm:size-8" : "size-8",
+          compact ? "size-6 card-desktop:size-8" : "size-8",
           tones[format],
         )}
       >
         <svg
           width={16}
           height={16}
-          className={compact ? "size-3 sm:size-4" : undefined}
+          className={compact ? "size-3 card-desktop:size-4" : undefined}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -90,7 +90,7 @@ export function StorageIcon({
             "pointer-events-none absolute top-1/2 left-full z-30 ml-2 -translate-y-1/2",
             "bg-surface-inverse text-content-on-photo text-caption rounded-pill px-2.5 py-1 whitespace-nowrap",
             "opacity-0 transition-surface",
-            "group-hover/storage:opacity-100",
+            "pointer-fine:group-hover/storage:opacity-100",
           )}
         >
           {label}

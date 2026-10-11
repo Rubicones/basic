@@ -11,6 +11,7 @@ import { cx } from "@/components/ui/cx";
 
 export type GridProps = {
   children: ReactNode;
+  className?: string;
   cols?: 2 | 3 | 4 | 5;
   gap?: 3 | 4 | 5 | 6 | 8;
   /** `start` lets each cell keep its own height — for cards that expand. */
@@ -51,6 +52,7 @@ const twoUpGaps = {
 
 export function Grid({
   children,
+  className,
   cols = 3,
   gap = 6,
   form = false,
@@ -64,6 +66,7 @@ export function Grid({
         form ? "grid-cols-1 sm:grid-cols-2" : fromTwo ? twoUp[cols] : ladders[cols],
         fromTwo ? twoUpGaps[gap] : gaps[gap],
         align === "start" && "items-start",
+        className,
       )}
     >
       {children}

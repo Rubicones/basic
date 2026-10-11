@@ -80,14 +80,14 @@ function CityCard({ city, t }: { city: Messages["delivery"]["cities"][number]; t
             <dd className="text-body-sm mt-2 leading-tight font-bold">{city.fee}</dd>
           </Tile>
 
-          <div className="col-span-2">
-            <div className="bg-surface-brand/45 text-content-primary flex items-center gap-3 rounded-inner px-4 py-3">
+          <div className="bg-surface-brand/45 text-content-primary col-span-2 rounded-inner px-4 py-3">
+            <dt className="sr-only">{t.delivery.schedule}</dt>
+            <dd className="text-body-sm flex items-center gap-3">
               <span className="text-brand shrink-0">
                 <IconClock size={16} />
               </span>
-              <dt className="sr-only">{t.delivery.schedule}</dt>
-              <dd className="text-body-sm">{city.schedule}</dd>
-            </div>
+              {city.schedule}
+            </dd>
           </div>
         </dl>
 

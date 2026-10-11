@@ -110,8 +110,8 @@ export function Catalog({
             {/* Two leads, because the instruction differs by input device and a
                 phone has no hover to offer. */}
             <p className="text-body-sm text-content-secondary max-w-form">
-              <span className="hidden md:inline">{t.catalog.lead}</span>
-              <span className="md:hidden">{t.catalog.leadTouch}</span>
+              <span className="hidden card-desktop:inline">{t.catalog.lead}</span>
+              <span className="card-desktop:hidden">{t.catalog.leadTouch}</span>
             </p>
           </div>
         </Stack>
@@ -205,7 +205,12 @@ export function Catalog({
             </div>
           ) : (
             <>
-              <Grid cols={3} fromTwo gap={6}>
+              <Grid
+                cols={3}
+                fromTwo
+                gap={6}
+                className="sm:pointer-coarse:grid-cols-3 lg:pointer-coarse:grid-cols-4"
+              >
                 {list.map((product, i) => (
                   <ProductCard
                     key={product.slug}

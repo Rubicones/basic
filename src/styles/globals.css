@@ -4,6 +4,16 @@
    and an arbitrary variant would be a bracket value. This is the missing one. */
 @custom-variant invalid (&[aria-invalid="true"]);
 
+/* Large touchscreens retain the phone card. Width controls grid density,
+   while the primary pointer controls whether cards use the desktop layout. */
+@custom-variant card-desktop {
+  @media (width >= 40rem) {
+    @media not (pointer: coarse) {
+      @slot;
+    }
+  }
+}
+
 /* Scan only the app source. Without this Tailwind walks the whole project root,
    including assets-source/ and its 12MB of photography. */
 @source "../../src";
@@ -143,10 +153,9 @@
   --radius-panel: 1.5rem; /* 24px — forms, dialogs, sheets */
   --radius-card: 1.75rem; /* 28px — the one card radius */
   --radius-pill: 9999px;
-  /* The photo frame's two states. The reference animated 32px → 28px; the frame
-     sits flush inside a 28px card, so it starts flush and tightens as it shrinks —
-     an inner radius equal to its parent's already reads a touch too round, and
-     scaling it makes that worse. */
+  /* The photo starts flush with the card; its open state uses a smaller
+     corner radius and the same fixed inset as the overlay controls. */
+  --spacing-card-frame: 1rem; /* Shared open-photo and overlay corner inset. */
   --radius-frame-idle: 1.75rem;
   --radius-frame-open: 1.5rem;
 
@@ -922,7 +931,7 @@
     transform var(--dur-spring-lift) var(--ease-spring-lift),
     box-shadow var(--duration-slow) var(--ease-out-smooth);
 
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .group\/card:hover:not([data-rest]) & {
       transform: translate3d(0, -6px, 0);
     }
@@ -938,27 +947,30 @@
   transform-style: preserve-3d;
   transition: transform var(--dur-spring-tilt) var(--ease-spring-tilt);
 
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     transform: rotateY(calc(var(--px, 0) * -14deg)) rotateX(calc(var(--py, 0) * 12deg));
   }
 }
 
-/* The photo frame contracts to 0.915 and its corner tightens as the card opens. */
+/* A fixed inset, shared with every overlay corner. The portrait wrapper keeps
+   the card height stable while the frame opens inside it. Phone cards stay flush. */
 @utility card-frame {
   border-radius: var(--radius-frame-idle);
   transition:
-    transform var(--dur-spring-zoom) var(--ease-spring-zoom),
+    inset var(--dur-spring-zoom) var(--ease-spring-zoom),
     border-radius var(--dur-spring-zoom) var(--ease-spring-zoom);
 
-  @media (hover: hover) {
-    .group\/card:hover:not([data-rest]) & {
-      transform: scale(0.915);
+  @variant card-desktop {
+    @media (hover: hover) and (pointer: fine) {
+      .group\/card:hover:not([data-rest]) & {
+        inset: var(--spacing-card-frame);
+        border-radius: var(--radius-frame-open);
+      }
+    }
+    .group\/card[data-open] & {
+      inset: var(--spacing-card-frame);
       border-radius: var(--radius-frame-open);
     }
-  }
-  .group\/card[data-open] & {
-    transform: scale(0.915);
-    border-radius: var(--radius-frame-open);
   }
 }
 
@@ -971,7 +983,11 @@
   transform: translate3d(calc(var(--px, 0) * 28px), calc(var(--py, 0) * 28px), 0) scale(1.02);
   transition: transform var(--duration-enter) var(--ease-out-smooth);
 
-  @media (hover: hover) {
+  @media (pointer: coarse) {
+    transform: scale(1.02);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
     .group\/card:hover:not([data-rest]) & {
       transform: translate3d(calc(var(--px, 0) * 28px), calc(var(--py, 0) * 28px), 0) scale(1.14);
     }
@@ -986,7 +1002,7 @@
   opacity: 0.46;
   transition: opacity var(--duration-slow) var(--ease-out-smooth);
 
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .group\/card:hover:not([data-rest]) & {
       opacity: 1;
     }
@@ -1008,7 +1024,7 @@
 }
 
 @utility wave-drift {
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .group\/card:hover:not([data-rest]) & {
       animation: wave-drift 8s var(--ease-in-out-smooth) infinite;
     }
@@ -1033,7 +1049,7 @@
     overflow: hidden;
   }
 
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .group\/card:hover:not([data-rest]) & {
       grid-template-rows: 1fr;
       opacity: 1;
@@ -1375,16 +1391,4 @@ html:not([data-consent="decided"]) body {
   @variant sm {
     padding-bottom: calc(var(--spacing) * 22 + env(safe-area-inset-bottom, 0px));
   }
-}
-
-/*
- * Top inset of the card's tag/icon stack. On hover the photo frame contracts to
- * 0.915, i.e. 4.25% of its height off the top — more than a fixed 16px on a
- * tall card, which is what pushed the stack above the frame's edge. Percent
- * `top` resolves against the frame's height, so the stack meets the contracted
- * corner with a small gap at any card size. (Horizontally 4.25% of the width
- * stays under 16px, so `left` keeps the fixed inset.)
- */
-@utility top-frame-corner {
-  top: 20px;
 }

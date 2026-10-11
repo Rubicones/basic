@@ -121,9 +121,9 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
       <div
         className={cx(
           "card-lift rounded-card relative overflow-hidden",
-          /* Below sm the card sheds its frame: the design is a photograph with
+          /* On narrow screens and coarse pointers the card sheds its frame: the design is a photograph with
              words under it, on the page, not a panel. */
-          "sm:border-line sm:bg-surface-sunken sm:border sm:shadow-soft",
+          "card-desktop:border-line card-desktop:bg-surface-sunken card-desktop:border card-desktop:shadow-soft",
         )}
       >
         <div className="card-tilt relative">
@@ -135,7 +135,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
           */}
           <div
             aria-hidden="true"
-            className="card-waves text-brand absolute inset-0 z-0 hidden sm:block"
+            className="card-waves text-brand absolute inset-0 z-0 hidden card-desktop:block"
           >
             <div className="bg-surface-page absolute inset-0" />
             <WavePattern seed={product.slug} />
@@ -157,44 +157,46 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               {/* The frame carries the page ground: the margin baked into each photo
                   is the same cream, so at rest the two are indistinguishable and the
                   ribbons appear only once the frame contracts away from the card. */}
-              <div className="card-frame bg-surface-page aspect-portrait relative w-full overflow-hidden">
-                <Image
-                  src={photo.src}
-                  alt={product.name[locale]}
-                  fill
-                  sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
-                  priority={priority}
-                  {...(priority ? {} : { loading: "lazy" as const })}
-                  {...(photo.blurDataURL
-                    ? { placeholder: "blur" as const, blurDataURL: photo.blurDataURL }
-                    : {})}
-                  className="card-photo object-cover"
-                />
+              <div className="aspect-portrait relative w-full">
+                <div className="card-frame bg-surface-page absolute inset-0 overflow-hidden">
+                  <Image
+                    src={photo.src}
+                    alt={product.name[locale]}
+                    fill
+                    sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+                    priority={priority}
+                    {...(priority ? {} : { loading: "lazy" as const })}
+                    {...(photo.blurDataURL
+                      ? { placeholder: "blur" as const, blurDataURL: photo.blurDataURL }
+                      : {})}
+                    className="card-photo object-cover"
+                  />
 
-                {/* A contrast floor, not a gradient that hopes the photo is dark —
+                  {/* A contrast floor, not a gradient that hopes the photo is dark —
                     most of this catalogue is a pale dessert on a pale surface. */}
-                <div
-                  aria-hidden="true"
-                  /* A contrast floor for the caption that sits on the photograph,
-                     and nothing sits there below sm. */
-                  className="scrim absolute inset-x-0 bottom-0 hidden h-1/2 sm:block"
-                />
+                  <div
+                    aria-hidden="true"
+                    /* A contrast floor for the caption that sits on the photograph,
+                     and touch cards put their caption below the photo. */
+                    className="scrim absolute inset-x-0 bottom-0 hidden h-1/2 card-desktop:block"
+                  />
 
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  {/* The name only. The price used to sit here as well as under the
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    {/* The name only. The price used to sit here as well as under the
                       photo; one card, one price, and it belongs with the control
                       that changes it. */}
-                  <h3 className="font-display text-title text-content-on-photo hidden font-bold text-balance sm:block">
-                    {product.name[locale]}
-                  </h3>
+                    <h3 className="font-display text-title text-content-on-photo hidden font-bold text-balance card-desktop:block">
+                      {product.name[locale]}
+                    </h3>
 
-                  <div id={`d-${product.slug}`} className="card-reveal">
-                    <div>
-                      {/* On a phone the note is always visible under the photo,
+                    <div id={`d-${product.slug}`} className="card-reveal">
+                      <div>
+                        {/* On a phone the note is always visible under the photo,
                           so what a tap reveals there is the storage line only. */}
-                      <p className="text-body-sm text-content-on-photo/90 hidden pt-2 sm:block">
-                        {product.note[locale]}
-                      </p>
+                        <p className="text-body-sm text-content-on-photo/90 hidden pt-2 card-desktop:block">
+                          {product.note[locale]}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -202,10 +204,10 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
             </button>
           </div>
 
-          {/* The phone layout. The other branch is `display:none` at this width,
+          {/* The phone and touchscreen layout. The desktop branch is hidden,
               which also keeps it out of the accessibility tree — so nothing here
               is announced twice. */}
-          <div className="relative z-10 px-1 pt-3 pb-1 sm:hidden">
+          <div className="relative z-10 px-1 pt-3 pb-1 card-desktop:hidden">
             {/* `text-body-sm` on the row, not only on the title: `2lh` resolves
                 against this element's own line box, and without it the floor was
                 measured in the inherited body line-height and left a gap. */}
@@ -359,7 +361,7 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               document.body,
             )}
 
-          <div className="relative z-10 hidden grid-cols-control-fill items-center gap-3 p-5 sm:grid">
+          <div className="relative z-10 hidden grid-cols-control-fill items-center gap-3 p-5 card-desktop:grid">
             <Stepper
               value={qty}
               onDecrement={() => cart.remove(product.slug, variant)}
@@ -388,87 +390,73 @@ export function ProductCard({ product, index, locale, t, priority }: Props) {
               </span>
             </span>
           </div>
-        </div>
+          {/* The overlay shares the photo's tilt and fixed open-frame inset, so
+              its corners stay aligned at every card width and pointer position. */}
+          <div className="aspect-portrait pointer-events-none absolute inset-x-0 top-0 z-20">
+            {/* The tag and storage stack meet the open photo's top-left corner.
+              On coarse pointers and narrow screens the photo stays full-size, with an 8px badge inset. */}
+            <div className="card-desktop:top-card-frame pointer-events-none absolute top-2 left-2 z-20 flex flex-col items-start gap-1 card-desktop:left-card-frame card-desktop:gap-2">
+              {product.tag && (
+                // No pill around it: the dark tag is itself the height of the
+                // icon pill and the toggle (42px), so its edge sits on the same
+                // line and follows the corner the same way, hovered or not.
+                <span className="bg-surface-inverse text-content-on-photo text-tag hidden items-center rounded-pill px-4 py-1 font-bold uppercase card-desktop:inline-flex">
+                  {product.tag}
+                </span>
+              )}
+              {storageFormats.length > 0 && (
+                <span
+                  /* The same pill as the piece/whole toggle opposite — border,
+                   glass, 4px inset — so its outer curve follows the card's
+                   corner the way the toggle's does. */
+                  className="border-line bg-surface-raised/90 shadow-soft pointer-events-auto flex gap-0.5 rounded-pill border p-0.5 backdrop-blur-md card-desktop:gap-1 card-desktop:p-1"
+                >
+                  {storageFormats.map((f) => (
+                    <StorageIcon key={f} format={f} label={t.formats[f]} note compact />
+                  ))}
+                </span>
+              )}
+            </div>
 
-        {/*
-          The overlay: tag, storage icons, piece/whole toggle, count. A sibling of
-          the tilt, not a child of it — inside the tilt they were part of a 3D-
-          rotated layer, re-sampled on every frame of the hover, and the text went
-          soft. Here they only share the lift (a whole-pixel translate), so they
-          stay sharp while the photo and the frame move underneath. The box is the
-          photograph's own (full width, portrait), so every inset below means what
-          it meant when they sat on the photo.
-        */}
-        <div className="aspect-portrait pointer-events-none absolute inset-x-0 top-0 z-20">
-          {/* The corner tag. It sits on the photograph, where the surface behind
-              it is a photograph and nothing else — which is what `inverse` is
-              for. `pointer-events-none` so the badge does not punch a dead spot
-              into the button that opens the card. The insets match the quantity
-              badge opposite it: 8px on a phone card, 16px once there is room. */}
-          {/* Top-left, outside the photo frame, so neither moves when the frame
-              contracts on hover: the tag, and under it how the dessert keeps —
-              the same stacking as the count under the piece/whole toggle. */}
-          <div className="sm:top-frame-corner pointer-events-none absolute top-2 left-2 z-20 flex flex-col items-start gap-1 sm:left-4 sm:gap-2">
+            {/* The phone tag: top-right, opposite the storage icons, so the
+              left corner carries one thing. The desktop tag is the one above. */}
             {product.tag && (
-              // No pill around it: the dark tag is itself the height of the
-              // icon pill and the toggle (42px), so its edge sits on the same
-              // line and follows the corner the same way, hovered or not.
-              <span className="bg-surface-inverse text-content-on-photo text-tag hidden items-center rounded-pill px-4 py-1 font-bold uppercase sm:inline-flex">
+              <span className="bg-surface-inverse text-content-on-photo text-caption pointer-events-none absolute top-2 right-2 z-20 inline-flex items-center rounded-pill px-2.5 py-0.5 font-bold uppercase card-desktop:hidden">
                 {product.tag}
               </span>
             )}
-            {storageFormats.length > 0 && (
-              <span
-                /* The same pill as the piece/whole toggle opposite — border,
-                   glass, 4px inset — so its outer curve follows the card's
-                   corner the way the toggle's does. */
-                className="border-line bg-surface-raised/90 shadow-soft pointer-events-auto flex gap-0.5 rounded-pill border p-0.5 backdrop-blur-md sm:gap-1 sm:p-1"
-              >
-                {storageFormats.map((f) => (
-                  <StorageIcon key={f} format={f} label={t.formats[f]} note compact />
-                ))}
-              </span>
+
+            {hasWhole && (
+              <div className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 card-desktop:inset-x-auto card-desktop:top-card-frame card-desktop:right-card-frame card-desktop:bottom-auto">
+                <VariantToggle
+                  whole={whole}
+                  onChange={setWhole}
+                  labels={[t.catalog.piece, t.catalog.wholeCake]}
+                />
+              </div>
             )}
-          </div>
 
-          {/* The phone tag: top-right, opposite the storage icons, so the
-              left corner carries one thing. The desktop tag is the one above. */}
-          {product.tag && (
-            <span className="bg-surface-inverse text-content-on-photo text-caption pointer-events-none absolute top-2 right-2 z-20 inline-flex items-center rounded-pill px-2.5 py-0.5 font-bold uppercase sm:hidden">
-              {product.tag}
-            </span>
-          )}
-
-          {hasWhole && (
-            <div className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 sm:inset-x-auto sm:top-4.5 sm:right-4 sm:bottom-auto">
-              <VariantToggle
-                whole={whole}
-                onChange={setWhole}
-                labels={[t.catalog.piece, t.catalog.wholeCake]}
-              />
-            </div>
-          )}
-
-          {qty > 0 && (
-            <span
-              key={qty}
-              className={cx(
-                "badge-pop bg-brand text-content-on-brand absolute z-20",
-                "grid size-8 place-items-center rounded-pill text-caption font-bold tabular-nums",
-                "sm:size-9 sm:text-body-sm",
-                /* In the corner, with the inset the card can afford: 8px on a
+            {qty > 0 && (
+              <span
+                key={qty}
+                className={cx(
+                  "badge-pop bg-brand text-content-on-brand absolute z-20",
+                  "grid size-8 place-items-center rounded-pill text-caption font-bold tabular-nums",
+                  "card-desktop:size-9 card-desktop:text-body-sm",
+                  /* In the corner, with the inset the card can afford: 8px on a
                    173px phone card, 16px once there is room. The whole-cake
                    offset is a desktop concern — below sm the toggle sits at the
                    foot of the photograph, not its head. */
-                "right-2 sm:right-4",
-                /* Below sm the tag owns the top-right corner; the count goes under it. */
-                product.tag ? "top-9" : "top-2",
-                hasWhole ? "sm:top-16" : "sm:top-4",
-              )}
-            >
-              {qty}
-            </span>
-          )}
+                  "right-2 card-desktop:right-card-frame",
+                  /* On mobile cards the tag owns the top-right corner; the count goes under it. */
+                  product.tag ? "top-9" : "top-2",
+                  hasWhole ? "card-desktop:top-16" : "card-desktop:top-card-frame",
+                )}
+              >
+                {qty}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </article>
@@ -530,7 +518,7 @@ function VariantToggle({
               /* Two columns of a 390px phone leave the toggle about 140px. The label
                  steps down rather than being clipped — "Whole cak" is not a word. */
               "relative z-10 rounded-pill px-1.5 py-1.5 text-micro font-semibold whitespace-nowrap transition-ink",
-              "sm:px-3 sm:text-caption",
+              "card-desktop:px-3 card-desktop:text-caption",
               active ? "text-content-on-brand" : "text-content-secondary hover:text-brand",
             )}
           >
