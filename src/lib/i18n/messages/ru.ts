@@ -227,6 +227,7 @@ export const ru: Messages = {
     docs: {
       "privacy-policy": "Политика конфиденциальности",
       "cookie-policy": "Политика cookie",
+      "terms-of-use": "Условия использования",
     },
   },
   consent: {

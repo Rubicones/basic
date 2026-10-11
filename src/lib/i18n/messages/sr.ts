@@ -227,6 +227,7 @@ export const sr: Messages = {
     docs: {
       "privacy-policy": "Politika privatnosti",
       "cookie-policy": "Politika kolačića",
+      "terms-of-use": "Uslovi korišćenja",
     },
   },
   consent: {

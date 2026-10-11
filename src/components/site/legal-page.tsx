@@ -28,13 +28,14 @@ export function LegalPage({
   annex?: FormAnnex;
 }) {
   const company: [string, string][] = [
-    [t.legal.controller, COMPANY.legalName],
+    [doc.companyLabel ?? t.legal.controller, COMPANY.legalName],
     [
       t.legal.address,
       `${COMPANY.street}, ${COMPANY.postcode} ${t.footer.city}, ${t.footer.country}`,
     ],
     [t.legal.registration, `MB ${COMPANY.mb} · PIB ${COMPANY.pib}`],
     [t.legal.contact, `${COMPANY.phone} · ${COMPANY.email}`],
+    ...(doc.companyDetails ?? []).map(({ label, value }): [string, string] => [label, value]),
   ];
 
   return (

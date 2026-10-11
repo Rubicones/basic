@@ -1,7 +1,6 @@
 /**
  * A legal document, as data.
  *
- * The privacy policy came as a PDF; the terms and the cookie policy will follow.
  * Each is a list of numbered sections made of a handful of block kinds, so one
  * page component lays out all of them, and adding a document is adding a file —
  * see ./index.ts.
@@ -29,6 +28,10 @@ export type LegalDoc = {
   subtitle: string;
   /** ISO date of the last change; formatted per locale on the page. */
   updated: string;
+  /** Overrides the privacy-specific company label for other documents. */
+  companyLabel?: string;
+  /** Document-specific company information, such as banking and VAT status. */
+  companyDetails?: { label: string; value: string }[];
   intro: LegalBlock[];
   sections: LegalSection[];
 };

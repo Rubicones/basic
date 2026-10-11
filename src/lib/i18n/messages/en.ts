@@ -240,6 +240,7 @@ export const en = {
     docs: {
       "privacy-policy": "Privacy Policy",
       "cookie-policy": "Cookie Policy",
+      "terms-of-use": "Terms of use",
     },
   },
   consent: {

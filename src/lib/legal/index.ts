@@ -4,17 +4,20 @@ import { privacyEn } from "./privacy/en";
 import { privacyRu } from "./privacy/ru";
 import { privacySr } from "./privacy/sr";
 import { cookiePolicy } from "./cookies";
+import { termsEn } from "./terms/en";
+import { termsRu } from "./terms/ru";
+import { termsSr } from "./terms/sr";
 
 /**
  * Every legal page, by its URL slug.
  *
- * Adding the terms or the cookie policy is a folder with three translations and
- * one line here: the route (`app/(site)/[locale]/[legal]`), the footer links and
- * the sitemap all read this table, so nothing else has to change.
+ * The route, footer links and sitemap all read this table. Each document also
+ * has a localized footer label in the i18n dictionaries.
  */
 export const LEGAL_DOCS = {
   "privacy-policy": { en: privacyEn, ru: privacyRu, sr: privacySr },
   "cookie-policy": cookiePolicy,
+  "terms-of-use": { en: termsEn, ru: termsRu, sr: termsSr },
 } satisfies Record<string, Record<Locale, LegalDoc>>;
 
 export type LegalSlug = keyof typeof LEGAL_DOCS;
